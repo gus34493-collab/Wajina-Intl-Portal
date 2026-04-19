@@ -1,0 +1,13 @@
+var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/hr-dashboard/page.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0iwkvcu._.js")
+R.c("server/chunks/ssr/085l_next_dist_esm_build_templates_app-page_0m_rj8n.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0mky1yd._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__07cs76z._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__03t~~sr._.js")
+R.c("server/chunks/ssr/085l_next_dist_client_components_0ym7wh.._.js")
+R.c("server/chunks/ssr/085l_next_dist_client_components_builtin_forbidden_0dz1ix3.js")
+R.c("server/chunks/ssr/085l_next_dist_client_components_builtin_unauthorized_03-s-s6.js")
+R.c("server/chunks/ssr/085l_next_dist_client_components_builtin_global-error_11jv955.js")
+R.c("server/chunks/ssr/0ujh_Wajina intl portal__next-internal_server_app_hr-dashboard_page_actions_12072tb.js")
+R.m(46507)
+module.exports=R.m(46507).exports

@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/operations-hub/layout,_N_T_/operations-hub/page,_N_T_/operations-hub"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/operations-hub/__PAGE__",
+    "/operations-hub",
+    "/_index",
+    "/_head"
+  ]
+}

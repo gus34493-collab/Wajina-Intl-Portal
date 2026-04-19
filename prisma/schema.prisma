@@ -60,6 +60,7 @@ model User {
   department            Department?        @relation("HODToDepartment", fields: [departmentId], references: [id])
   parent                User?              @relation("ParentToWard", fields: [parentId], references: [id])
   wards                 User[]             @relation("ParentToWard")
+  refreshTokens         RefreshToken[]
 
   @@index([role])
   @@index([status])
@@ -309,6 +310,21 @@ model PasswordResetToken {
   @@index([userId])
   @@index([expiresAt])
   @@index([usedAt])
+}
+
+model RefreshToken {
+  id          String   @id @default(cuid(2))
+  tokenHash   String   @unique
+  userId      String
+  expiresAt   DateTime
+  revoked     Boolean  @default(false)
+  replacedBy  String?
+  createdAt   DateTime @default(now())
+  createdByIp String?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
 }
 
 model Admission {

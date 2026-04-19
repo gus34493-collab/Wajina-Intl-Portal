@@ -1,0 +1,13 @@
+var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/bursar-dashboard/page.js")
+R.c("server/chunks/ssr/[root-of-the-server]__120k2.j._.js")
+R.c("server/chunks/ssr/085l_next_dist_esm_build_templates_app-page_0aic56u.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0mky1yd._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__07cs76z._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__03t~~sr._.js")
+R.c("server/chunks/ssr/085l_next_dist_client_components_0ym7wh.._.js")
+R.c("server/chunks/ssr/085l_next_dist_client_components_builtin_forbidden_0dz1ix3.js")
+R.c("server/chunks/ssr/085l_next_dist_client_components_builtin_unauthorized_03-s-s6.js")
+R.c("server/chunks/ssr/085l_next_dist_client_components_builtin_global-error_11jv955.js")
+R.c("server/chunks/ssr/005r__next-internal_server_app_bursar-dashboard_page_actions_0p_m~m5.js")
+R.m(1296)
+module.exports=R.m(1296).exports

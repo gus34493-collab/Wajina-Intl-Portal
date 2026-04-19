@@ -1,0 +1,3 @@
+{
+  "/api/finance/dashboard-stats/route": "app/api/finance/dashboard-stats/route.js"
+}

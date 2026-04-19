@@ -1,0 +1,3 @@
+{
+  "/api/auth/reset/request/route": "app/api/auth/reset/request/route.js"
+}

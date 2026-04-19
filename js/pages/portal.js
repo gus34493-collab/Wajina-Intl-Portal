@@ -8,7 +8,10 @@
     let _csrfToken = null;
     fetch('/api/csrf-token')
         .then(r => r.json())
-        .then(d => { _csrfToken = d.csrfToken; })
+        .then(d => { 
+            _csrfToken = d.csrfToken; 
+            sessionStorage.setItem('csrfToken', d.csrfToken);
+        })
         .catch(err => console.error('[CSRF] Failed to fetch token:', err));
 
     function getDestination(user) {
@@ -74,6 +77,7 @@
 
             if (!res.ok) throw new Error(data.error || 'Login failed');
 
+            if (data.csrfToken) sessionStorage.setItem('csrfToken', data.csrfToken);
             if (btnText) btnText.textContent = 'Preparing Workspace...';
             
             // Security hardening: Stop saving token/user to localStorage

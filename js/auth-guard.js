@@ -89,6 +89,7 @@
     .then(function (csrfData) {
       if (csrfData && csrfData.csrfToken) {
         window.csrfToken = csrfData.csrfToken;
+        sessionStorage.setItem('csrfToken', csrfData.csrfToken);
       }
       
       // Reveal the page FIRST so measurement logic (like Chart.js) works

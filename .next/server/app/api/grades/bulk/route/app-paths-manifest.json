@@ -1,0 +1,3 @@
+{
+  "/api/grades/bulk/route": "app/api/grades/bulk/route.js"
+}
