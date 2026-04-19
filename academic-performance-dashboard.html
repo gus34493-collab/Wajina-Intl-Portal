@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Performance Dashboard | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/config/navigation.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <script src="/js/components/wajina-toast.js"></script>
+    <script src="/js/components/wajina-analytics.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+    </style>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Academic Intelligence"></wajina-header>
+            
+            <div class="top-row">
+                <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Academic Pulse</h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Real-time scan of student results and curriculum integrity.</p>
+            </div>
+
+            <!-- Oppo Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+                
+                <!-- Pulse Meter -->
+                <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; text-align: center;">
+                    <h3 style="font-size: 0.9rem; align-self: flex-start; margin-bottom: 2rem;">Institutional Pass Rate</h3>
+                    <wajina-pulse type="academic.passRate"></wajina-pulse>
+                </div>
+
+                <!-- Compliance Chart -->
+                <div class="card">
+                    <h3 style="font-size: 0.9rem; margin-bottom: 1.5rem;">Fee vs Result Readiness</h3>
+                    <div style="height: 230px; position: relative;">
+                         <wajina-chart type="finance.weeklyFeeCompliance" chart-type="doughnut" label="Compliance Monitor"></wajina-chart>
+                    </div>
+                </div>
+
+                <!-- KPI Stack -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <wajina-kpi type="academic.mean" label="Institution Mean" icon="fa-brain"></wajina-kpi>
+                    <wajina-kpi type="academic.atRisk" label="At-Risk Students" icon="fa-user-nurse" style="--text-secondary: #e74c3c;"></wajina-kpi>
+                </div>
+            </div>
+
+            <!-- Red Flags Section -->
+            <div class="card" style="margin-top: 1.5rem;">
+                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                     <h3 style="font-size: 1.1rem;">Institutional Red Flags</h3>
+                     <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700;">ENGINE STATUS: ACTIVE</span>
+                 </div>
+
+                 <div style="overflow-x: auto;">
+                     <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05); color: var(--text-muted); text-transform: uppercase; font-size: 0.7rem; font-weight: 700; text-align: left;">
+                                <th style="padding: 1rem;">Metric</th>
+                                <th style="padding: 1rem;">Current State</th>
+                                <th style="padding: 1rem; text-align: right;">Action Recommended</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.02);">
+                                <td style="padding: 1rem; font-weight: 700;">Subject Average < 40%</td>
+                                <td style="padding: 1rem; color: #e74c3c; font-weight: 800;">3 Subjects Identified</td>
+                                <td style="padding: 1rem; text-align: right;">
+                                    <button class="glass" style="font-size: 0.7rem; padding: 0.4rem 0.8rem; font-weight: 800; color: var(--brand-moonstone);">Review Curricula</button>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.02);">
+                                <td style="padding: 1rem; font-weight: 700;">Grade Submission Lag</td>
+                                <td style="padding: 1rem; color: var(--brand-saffron); font-weight: 800;">2 Teachers Overdue</td>
+                                <td style="padding: 1rem; text-align: right;">
+                                    <button class="glass" style="font-size: 0.7rem; padding: 0.4rem 0.8rem; font-weight: 800; color: var(--brand-moonstone);">Send Quick Nudge</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                     </table>
+                 </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/onion-engine.js"></script>
+    <script>
+        document.addEventListener('authReady', (e) => {
+            window.Wajina.Telemetry.log('INFO', 'ACADEMIC_PULSE', 'Academic intelligence synchronized');
+        });
+
+        document.addEventListener('click', e => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.getAttribute('data-action');
+            if (action === 'toggleSidebar') {
+                document.getElementById('dashboardLayout').classList.toggle('sidebar-open');
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

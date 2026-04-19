@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Engine | Verification Suite</title>
+    <link rel="stylesheet" href="css/onion-core.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="js/dom-utils.js"></script>
+    <script src="js/telemetry.js"></script>
+    <script src="js/components/wajina-sidebar.js"></script>
+    <script src="js/components/wajina-header.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+        .test-content { 
+            font-family: 'JetBrains Mono', monospace; 
+            font-size: 0.82rem; 
+            color: var(--brand-gunmetal); 
+            background: rgba(0,0,0,0.02); 
+            padding: 1rem; 
+            border-radius: 12px; 
+            border: 1px solid rgba(0,0,0,0.03); 
+            max-height: 200px; 
+            overflow-y: auto; 
+        }
+        .log-line { margin-bottom: 0.25rem; display: flex; gap: 0.5rem; }
+        .log-time { color: var(--text-muted); font-size: 0.72rem; }
+        .log-msg-success { color: var(--brand-emerald-light); font-weight: 700; }
+        .log-msg-error { color: #e74c3c; font-weight: 700; }
+        .log-msg-info { color: var(--brand-moonstone); }
+        
+        .badge { padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.65rem; text-transform: uppercase; font-weight: 800; }
+        .badge-pending { background: rgba(0,0,0,0.05); color: var(--text-muted); }
+        .badge-running { background: rgba(81, 156, 171, 0.1); color: var(--brand-moonstone); border: 1px solid rgba(81, 156, 171, 0.2); }
+        .badge-success { background: rgba(44, 194, 135, 0.1); color: var(--brand-emerald-light); border: 1px solid rgba(44, 194, 135, 0.2); }
+        .badge-error { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.2); }
+    </style>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Academic Engine Verification"></wajina-header>
+            
+            <div class="top-row">
+                <h1 style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Verification Suite</h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">End-to-end validation of campus-specific grading & debt-blocking policies.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1rem;" id="testGrid">
+                <!-- Step 1: Environment Setup -->
+                <div class="card" id="card-environment">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <div style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-server" style="color: var(--brand-moonstone);"></i>
+                            1. Environment Setup
+                        </div>
+                        <span class="badge badge-pending" id="badge-environment">Pending</span>
+                    </div>
+                    <div class="test-content" id="log-environment">
+                        <div class="log-line"><span class="log-msg-info">Waiting for trigger pulse...</span></div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Primary School Logic -->
+                <div class="card" id="card-primary">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <div style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-school" style="color: var(--brand-moonstone);"></i>
+                            2. Primary Calc (10x5 + 50)
+                        </div>
+                        <span class="badge badge-pending" id="badge-primary">Pending</span>
+                    </div>
+                    <div class="test-content" id="log-primary"></div>
+                </div>
+
+                <!-- Step 3: Junior Secondary -->
+                <div class="card" id="card-junior">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <div style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--brand-moonstone);"></i>
+                            3. Junior Secondary (15+15+10+60)
+                        </div>
+                        <span class="badge badge-pending" id="badge-junior">Pending</span>
+                    </div>
+                    <div class="test-content" id="log-junior"></div>
+                </div>
+
+                <!-- Step 4: Senior Secondary -->
+                <div class="card" id="card-senior">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <div style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-flask" style="color: var(--brand-moonstone);"></i>
+                            4. Senior Secondary (10+10+10+70)
+                        </div>
+                        <span class="badge badge-pending" id="badge-senior">Pending</span>
+                    </div>
+                    <div class="test-content" id="log-senior"></div>
+                </div>
+
+                <!-- Step 5: Debt Blocking -->
+                <div class="card" id="card-debt" style="grid-column: span 2;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <div style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-shield-halved" style="color: var(--brand-saffron);"></i>
+                            5. Debt Blocking Policy Enforcement
+                        </div>
+                        <span class="badge badge-pending" id="badge-debt">Pending</span>
+                    </div>
+                    <div class="test-content" id="log-debt"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; display: flex; gap: 1rem; padding-bottom: 3rem;">
+                <button class="glass" id="btn-run" style="background: var(--brand-gunmetal); color: white; padding: 0.85rem 2.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.75rem; border: none;">
+                    <i class="fa-solid fa-play"></i>
+                    START VERIFICATION
+                </button>
+                <button class="glass" data-action="reload" style="padding: 0.85rem 2.5rem; font-weight: 700;">RESET ENVIRONMENT</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/academic-test-runner.js"></script>
+    <script>
+        document.addEventListener('click', e => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.getAttribute('data-action');
+            if (action === 'reload') window.location.reload();
+            if (action === 'toggleSidebar') {
+                document.getElementById('dashboardLayout').classList.toggle('sidebar-open');
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Structure Hub | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .structure-stat {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .structure-stat span {
+            color: var(--brand-moonstone);
+            font-weight: 900;
+            margin-left: 0.25rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 0.75rem;
+            font-weight: 800;
+            cursor: pointer;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .tab-btn.active {
+            color: var(--brand-gunmetal);
+            border-bottom-color: var(--brand-moonstone);
+        }
+
+        .entity-table th {
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+            text-align: left;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 2px solid rgba(0,0,0,0.03);
+        }
+
+        .entity-table td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.02);
+            font-size: 0.85rem;
+        }
+
+        .form-panel {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1.5px solid rgba(0,0,0,0.03);
+        }
+
+        .form-panel label {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: #e74c3c;
+            font-size: 0.65rem;
+            font-weight: 900;
+            cursor: pointer;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .delete-btn:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+    </style>
+    <script src="/js/config/navigation.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Institutional Configuration Hub"></wajina-header>
+            
+            <div class="top-row">
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+                    <div>
+                        <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Institutional Structure</h1>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary);">Manage the foundational hierarchy of sessions, courses, and delivery arms.</p>
+                    </div>
+                    <div style="display: flex; gap: 2rem;">
+                        <div class="structure-stat">SESSIONS <span id="countSessions">--</span></div>
+                        <div class="structure-stat">CLASSES <span id="countClasses">--</span></div>
+                        <div class="structure-stat">ARMS <span id="countArms">--</span></div>
+                    </div>
+                </div>
+
+                <div style="border-bottom: 1px solid rgba(0,0,0,0.05); margin-bottom: 2rem; display: flex; gap: 1rem;">
+                    <button class="tab-btn active" data-tab="sessions">Academic Cycles</button>
+                    <button class="tab-btn" data-tab="classes">Course Architecture</button>
+                    <button class="tab-btn" data-tab="arms">Delivery Arms</button>
+                </div>
+
+                <!-- Tab Panels -->
+                <div id="tabContent">
+                    <div class="tab-pane" id="pane-sessions">
+                        <div style="display: grid; grid-template-columns: 350px 1fr; gap: 2rem;">
+                            <div class="form-panel">
+                                <h3 style="font-weight: 800; font-size: 1rem; margin-bottom: 1.5rem; color: var(--brand-gunmetal);">Initialize Session</h3>
+                                <div style="margin-bottom: 1.25rem;">
+                                    <label>Session Nomenclature</label>
+                                    <input type="text" id="nodeSessionName" class="glass" placeholder="e.g. 2024/2025 Academic" style="width: 100%; padding: 0.75rem;">
+                                </div>
+                                <div style="margin-bottom: 2rem;">
+                                    <label>Deployment Status</label>
+                                    <select id="nodeSessionStatus" class="glass" style="width: 100%; padding: 0.75rem;">
+                                        <option value="ACTIVE">Active (Current)</option>
+                                        <option value="UPCOMING">Upcoming</option>
+                                        <option value="ARCHIVED">Archived</option>
+                                    </select>
+                                </div>
+                                <button class="glass" data-action="saveSession" style="background: var(--brand-gunmetal); color: white; border: none; font-weight: 800; padding: 0.85rem 1.5rem; width: 100%;">PUBLISH SESSION</button>
+                            </div>
+
+                            <div class="card" style="padding: 0; overflow: hidden;">
+                                <table class="entity-table" style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr>
+                                            <th>Academic Cycle</th>
+                                            <th>Protocol Status</th>
+                                            <th style="text-align: right;">Authorization</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="sessionBody">
+                                        <tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 5rem; font-weight: 700;">Synchronizing Institutional Cycles...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/onion-engine.js"></script>
+    <script>
+        const Service = window.Wajina.StructureService;
+        const esc = window.Wajina.DOMUtils.escapeHTML;
+
+        let state = {
+            sessions: [],
+            classes: [],
+            arms: [],
+            activeTab: 'sessions'
+        };
+
+        async function init() {
+            try {
+                const [s, c, a] = await Promise.all([
+                    Service.getSessions(),
+                    Service.getClasses(),
+                    Service.getArms()
+                ]);
+                state.sessions = s || [];
+                state.classes = c || [];
+                state.arms = a || [];
+                
+                updateStats();
+                renderActiveTab();
+            } catch (err) {
+                window.Wajina.Telemetry.log('ERROR', 'STRUCTURE', 'Core stabilization failed');
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('countSessions').textContent = state.sessions.length;
+            document.getElementById('countClasses').textContent = state.classes.length;
+            document.getElementById('countArms').textContent = state.arms.length;
+        }
+
+        function renderActiveTab() {
+            if (state.activeTab === 'sessions') renderSessions();
+            else if (state.activeTab === 'classes') renderClassesStub();
+            else if (state.activeTab === 'arms') renderArmsStub();
+        }
+
+        function renderSessions() {
+            const body = document.getElementById('sessionBody');
+            if (state.sessions.length === 0) {
+                body.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 5rem; font-weight: 700;">No sessions registered in current registry.</td></tr>';
+                return;
+            }
+            body.innerHTML = state.sessions.map(s => `
+                <tr>
+                    <td><div style="font-weight: 800; color: var(--brand-gunmetal);">${esc(s.name)}</div></td>
+                    <td>
+                        <span style="font-weight: 800; font-size: 0.65rem; padding: 0.3rem 0.6rem; border-radius: 4px; background: ${s.status === 'ACTIVE' ? 'rgba(44, 194, 135, 0.1)' : '#f0f4f8'}; color: ${s.status === 'ACTIVE' ? '#2ecc71' : 'var(--text-muted)'};">
+                            ${esc(s.status)}
+                        </span>
+                    </td>
+                    <td style="text-align: right;">
+                        <button class="delete-btn" data-action="delete" data-type="session" data-id="${s.id}">PURGE RECORD</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderClassesStub() { 
+            document.getElementById('sessionBody').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 8rem 5rem; color: var(--text-muted);"><i class="fa-solid fa-layer-group fa-3x" style="opacity: 0.1; margin-bottom: 2rem; display: block;"></i><h4 style="font-weight:800; color: var(--brand-gunmetal); margin-bottom: 0.5rem;">Class Architecture Under Refactor</h4><p style="font-size: 0.85rem;">Course and class management interfaces are being optimized for high-velocity institutional scaling.</p></td></tr>'; 
+        }
+        
+        function renderArmsStub() { 
+            document.getElementById('sessionBody').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 8rem 5rem; color: var(--text-muted);"><i class="fa-solid fa-code-branch fa-3x" style="opacity: 0.1; margin-bottom: 2rem; display: block;"></i><h4 style="font-weight:800; color: var(--brand-gunmetal); margin-bottom: 0.5rem;">Delivery Arms Under Optimization</h4><p style="font-size: 0.85rem;">Multi-arm deployment services are undergoing architectural enhancement.</p></td></tr>'; 
+        }
+
+        window.addEventListener('authReady', init);
+
+        document.addEventListener('click', async e => {
+            const el = e.target.closest('[data-action]');
+            const tabBtn = e.target.closest('[data-tab]');
+            
+            if (tabBtn) {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                tabBtn.classList.add('active');
+                state.activeTab = tabBtn.getAttribute('data-tab');
+                renderActiveTab();
+                return;
+            }
+
+            if (!el) return;
+            const action = el.getAttribute('data-action');
+
+            if (action === 'saveSession') {
+                const name = document.getElementById('nodeSessionName').value.trim();
+                const status = document.getElementById('nodeSessionStatus').value;
+                if (!name) return alert('Session nomenclature required');
+                
+                el.disabled = true;
+                el.textContent = 'PUBLISHING...';
+                try {
+                    await Service.createSession({ name, status });
+                    await init();
+                    document.getElementById('nodeSessionName').value = '';
+                } catch (err) { alert(err.message || 'Transmission failed'); }
+                finally { el.disabled = false; el.textContent = 'PUBLISH SESSION'; }
+            } else if (action === 'delete') {
+                if (!confirm('Authorize record purge? This operation may destabilize downstream academic dependencies.')) return;
+                try {
+                    await Service.deleteEntity(el.getAttribute('data-type'), el.getAttribute('data-id'));
+                    await init();
+                } catch (err) { alert(err.message || 'Purge failed'); }
+            } else if (action === 'toggleSidebar') {
+                document.getElementById('dashboardLayout').classList.toggle('sidebar-open');
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Session Planner | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .config-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .term-config-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .term-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1.5px solid rgba(0,0,0,0.03);
+            transition: all 0.2s ease;
+        }
+        .term-card:hover {
+            border-color: var(--brand-moonstone);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+
+        .profile-btn {
+            width: 100%;
+            text-align: left;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1.5px solid rgba(0,0,0,0.05);
+            background: #f8f9fa;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .profile-btn:hover {
+            border-color: var(--brand-moonstone);
+            background: white;
+        }
+        .profile-btn.active {
+            border-color: var(--brand-gunmetal);
+            background: var(--brand-gunmetal);
+            color: white;
+            box-shadow: 0 4px 12px rgba(32, 55, 59, 0.2);
+        }
+
+        .save-bar {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            width: 90%;
+            max-width: 800px;
+            background: var(--brand-gunmetal);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 3000;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+        }
+        .save-bar.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+    <script src="/js/config/navigation.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Institutional Timeline Config"></wajina-header>
+            
+            <div class="top-row" style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Academic Session Planner</h1>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Synchronize term weights, financial collection profiles, and cycle duration.</p>
+                </div>
+                <div id="syncStatus" class="badge" style="background: rgba(81, 156, 171, 0.1); color: var(--brand-moonstone); font-size: 0.7rem; font-weight: 800; padding: 0.5rem 1rem;">
+                    <i class="fa-solid fa-cloud-check mr-2"></i> ALL CHANGES SYNCHRONIZED
+                </div>
+            </div>
+
+            <div class="config-section">
+                <div class="card" style="padding: 2rem;">
+                    <div class="input-group">
+                        <label>Institutional Session Name</label>
+                        <input type="text" id="sessionName" class="glass" placeholder="e.g. 2024/2025" style="width: 100%; padding: 0.85rem; font-weight: 800; font-size: 1.1rem;">
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">This nomenclature will appear on all external transcripts and parent reports.</p>
+                    </div>
+                </div>
+                <div class="card" style="padding: 2rem;">
+                    <div class="input-group">
+                        <label>Total Academic Duration (Weeks)</label>
+                        <div style="display: flex; align-items: center; gap: 1.5rem;">
+                            <input type="number" id="totalWeeks" class="glass" value="36" style="width: 100px; padding: 0.85rem; font-weight: 800; font-size: 1.5rem;">
+                            <div>
+                                <div style="font-size: 0.8rem; font-weight: 700; color: var(--brand-gunmetal);">System Projection</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">Standardized at 12 weeks / academic term.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 3rem;">
+                <h2 style="font-size: 1.1rem; font-weight: 800; color: var(--brand-gunmetal); margin-bottom: 0.5rem;">Financial Targeting & Profiles</h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Configure specialized collection curves for each term to optimize cashflow velocity.</p>
+                
+                <div class="term-config-grid" id="termContainer">
+                    <!-- Terms injected here -->
+                    <div style="grid-column: 1/-1; text-align: center; padding: 5rem;"><i class="fa-solid fa-sync fa-spin"></i></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Save Bar -->
+    <div id="saveBar" class="save-bar">
+        <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; font-weight: 700;">
+            <i class="fa-solid fa-circle-exclamation" style="color: var(--brand-saffron);"></i>
+            <span>MODIFICATIONS DETECTED IN LOCAL REGISTRY</span>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <button id="cancelBtn" class="glass" style="border-color: rgba(255,255,255,0.2); color: white; padding: 0.6rem 1.5rem; font-weight: 700;">DISCARD</button>
+            <button id="saveBtn" class="glass" style="background: white; color: var(--brand-gunmetal); border: none; padding: 0.6rem 2rem; font-weight: 900;">PUBLISH UPDATE</button>
+        </div>
+    </div>
+
+    <script>
+        const apiFetch = window.Wajina.apiFetch;
+        let currentSession = null;
+
+        async function init(e) {
+            const user = e.detail.user;
+            const isCoreAdmin = ['DIRECTOR', 'PRINCIPAL', 'HEAD_TEACHER'].includes(user.role);
+            
+            if (!isCoreAdmin) {
+                document.getElementById('sessionName').disabled = true;
+                document.getElementById('totalWeeks').disabled = true;
+                document.getElementById('sessionName').style.opacity = '0.5';
+                document.getElementById('totalWeeks').style.opacity = '0.5';
+            }
+
+            try {
+                const res = await apiFetch('/api/session/active');
+                currentSession = res;
+                if (!currentSession.termWeights) {
+                    currentSession.termWeights = [
+                        { term: 'FIRST', weeks: 12, profile: 'ACCELERATED' },
+                        { term: 'SECOND', weeks: 12, profile: 'ACCELERATED' },
+                        { term: 'THIRD', weeks: 12, profile: 'ACCELERATED' }
+                    ];
+                }
+                renderForm();
+            } catch (err) {
+                window.Wajina.Telemetry.log('ERROR', 'PLANNER', 'Sync failure on init');
+            }
+        }
+
+        function renderForm() {
+            document.getElementById('sessionName').value = currentSession.name;
+            document.getElementById('totalWeeks').value = currentSession.totalWeeks;
+
+            const container = document.getElementById('termContainer');
+            container.innerHTML = currentSession.termWeights.map((tw, idx) => `
+                <div class="term-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h3 style="font-size: 1rem; font-weight: 800; color: var(--brand-gunmetal); margin: 0;">${tw.term} TERM</h3>
+                        <span style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); opacity: 0.4;">STRATA 0${idx+1}</span>
+                    </div>
+                    
+                    <div class="input-group" style="margin-bottom: 2rem;">
+                        <label>Term Duration (Weeks)</label>
+                        <input type="number" class="glass" value="${tw.weeks}" onchange="updateTermWeight(${idx}, 'weeks', parseInt(this.value))" style="width: 100%; padding: 0.75rem; font-weight: 800;">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Cashflow Profile</label>
+                        <button class="profile-btn ${tw.profile === 'ACCELERATED' ? 'active' : ''}" onclick="updateTermWeight(${idx}, 'profile', 'ACCELERATED')">
+                            <i class="fa-solid fa-rocket mr-2"></i> <strong>ACCELERATED</strong><br>Target 80% collection by Week 04
+                        </button>
+                        <button class="profile-btn ${tw.profile === 'FRONT_LOADED' ? 'active' : ''}" onclick="updateTermWeight(${idx}, 'profile', 'FRONT_LOADED')">
+                            <i class="fa-solid fa-bolt-lightning mr-2"></i> <strong>FRONT-LOADED</strong><br>Target 60% collection by Week 04
+                        </button>
+                        <button class="profile-btn ${tw.profile === 'LINEAR' ? 'active' : ''}" onclick="updateTermWeight(${idx}, 'profile', 'LINEAR')">
+                            <i class="fa-solid fa-arrows-left-right mr-2"></i> <strong>LINEAR</strong><br>Standard term-long collection curve
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateTermWeight(idx, key, val) {
+            currentSession.termWeights[idx][key] = val;
+            showSaveBar();
+            renderForm();
+        }
+
+        document.getElementById('sessionName').addEventListener('input', (e) => {
+            currentSession.name = e.target.value;
+            showSaveBar();
+        });
+
+        document.getElementById('totalWeeks').addEventListener('input', (e) => {
+            currentSession.totalWeeks = parseInt(e.target.value);
+            showSaveBar();
+        });
+
+        function showSaveBar() {
+            document.getElementById('saveBar').classList.add('visible');
+            document.getElementById('syncStatus').innerHTML = '<i class="fa-solid fa-circle-dot mr-2" style="color: #f39c12"></i> UNSAVED LOCAL MODS';
+            document.getElementById('syncStatus').style.color = '#f39c12';
+        }
+
+        document.getElementById('saveBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('saveBtn');
+            btn.innerHTML = 'SYNCING PROTOCOL...';
+            btn.disabled = true;
+
+            try {
+                const res = await apiFetch(`/api/session/${currentSession.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        name: currentSession.name,
+                        totalWeeks: currentSession.totalWeeks,
+                        termWeights: currentSession.termWeights,
+                        version: currentSession.version
+                    })
+                });
+
+                if (res.error === 'CONFLICT') {
+                    alert('CROSS-ADMIN CONFLICT: Another administrator has updated these parameters. Merging new state...');
+                    window.location.reload();
+                    return;
+                }
+
+                currentSession = res;
+                document.getElementById('saveBar').classList.remove('visible');
+                document.getElementById('syncStatus').innerHTML = '<i class="fa-solid fa-cloud-check mr-2"></i> ALL CHANGES SYNCHRONIZED';
+                document.getElementById('syncStatus').style.color = 'var(--brand-moonstone)';
+                btn.innerHTML = 'PUBLISH UPDATE';
+                btn.disabled = false;
+            } catch (err) {
+                alert('Registry Sync failure: ' + err.message);
+                btn.innerHTML = 'RETRY SYNC';
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', () => window.location.reload());
+
+        window.addEventListener('authReady', init);
+
+        document.addEventListener('click', e => {
+            if (e.target.closest('[data-action="toggleSidebar"]')) document.getElementById('dashboardLayout').classList.toggle('sidebar-open');
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Transcript Detail | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .student-header-card {
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border: 1.5px solid rgba(0,0,0,0.03);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+
+        .info-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .info-cell label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+        .info-cell span {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--brand-gunmetal);
+        }
+
+        .results-table th {
+            padding: 1.25rem 1.5rem;
+            background: #f8f9fa;
+            text-align: left;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 2px solid rgba(0,0,0,0.03);
+        }
+
+        .results-table td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.02);
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--brand-gunmetal);
+        }
+
+        .stat-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1.5px solid rgba(0,0,0,0.03);
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--brand-moonstone);
+            margin-bottom: 0.5rem;
+        }
+        .metric-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+    </style>
+
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Student Academic Record"></wajina-header>
+            
+            <div class="top-row">
+                <button class="glass" data-action="goBack" style="border:none; padding: 0.5rem 1rem; margin-bottom: 1rem; font-weight: 800; font-size: 0.7rem;">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> RETURN TO ARCHIVE
+                </button>
+
+                <h1 style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Exam Results & Transcript</h1>
+                <p id="termTitle" style="font-size: 0.85rem; color: var(--text-secondary);">Validated subject mastery and performance metrics for the selected term.</p>
+            </div>
+
+            <div class="student-header-card">
+                <div class="info-cell">
+                    <label>Learner Identity</label>
+                    <span id="infoStudentName">Synchronizing...</span>
+                </div>
+                <div class="info-cell">
+                    <label>Identity Code</label>
+                    <span id="infoStudentId">--</span>
+                </div>
+                <div class="info-cell">
+                    <label>Academic Locus</label>
+                    <span id="infoStudentClass">--</span>
+                </div>
+                <div class="info-cell">
+                    <label>Temporal Cycle</label>
+                    <span id="infoStudentTerm">--</span>
+                </div>
+            </div>
+
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <div style="padding: 1.5rem 2rem; border-bottom: 1px solid rgba(0,0,0,0.03);">
+                    <h3 style="font-weight: 800; font-size: 1.1rem; color: var(--brand-gunmetal); margin: 0;">Subject Performance Matrix</h3>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="results-table" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th>Subject Domain</th>
+                                <th>1st CA</th>
+                                <th>2nd CA</th>
+                                <th>3rd CA</th>
+                                <th>Exam Score</th>
+                                <th style="text-align: right;">Final Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gradeTbody">
+                            <tr><td colspan="6" style="padding: 5rem; text-align: center; color: var(--text-muted); font-weight: 700;">Decrypting Academic Records...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="stat-metrics">
+                <div class="metric-card">
+                    <div class="metric-value" id="statAverage">--%</div>
+                    <div class="metric-label">Cycle Average</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="statPosition">--</div>
+                    <div class="metric-label">Locus Position</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="statGrade">--</div>
+                    <div class="metric-label">Mastery Tier</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/pages/student-results-detail.js" defer></script>
+</body>
+</body>
+</html>
+

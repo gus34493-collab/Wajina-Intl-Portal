@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behaviour & Discipline Hub | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .stat-card-mini {
+            padding: 1.25rem;
+            background: white;
+            border-radius: 16px;
+            border: 1.5px solid rgba(0,0,0,0.03);
+            text-align: center;
+        }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(32, 55, 59, 0.85); backdrop-filter: blur(8px);
+            display: none; z-index: 2000; align-items: center; justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: white; border-radius: 20px; width: 100%; max-width: 650px;
+            max-height: 90vh; overflow-y: auto; padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem; border-radius: 6px; font-weight: 800; font-size: 0.65rem; text-transform: uppercase;
+        }
+        .status-open { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+        .status-resolved { background: rgba(44, 194, 135, 0.1); color: #2ecc71; }
+        .status-escalated { background: rgba(255, 198, 79, 0.1); color: #f39c12; }
+
+        .severity-badge {
+             padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.6rem;
+        }
+        .sev-high { background: #e74c3c; color: white; }
+        .sev-medium { background: var(--brand-saffron); color: var(--brand-gunmetal); }
+        .sev-low { background: #f0f4f8; color: var(--text-muted); }
+
+        .form-row { margin-bottom: 1.5rem; }
+        .form-row label { display: block; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Behaviour & Discipline Governance"></wajina-header>
+            
+            <div class="top-row" style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Discipline Registry</h1>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Tracking institutional culture, incidents, and corrective resolutions.</p>
+                </div>
+                <button class="glass" id="newRecordBtn" data-action="openFormModal" style="background: var(--brand-gunmetal); color: white; border: none; font-weight: 800; padding: 0.8rem 1.5rem; display: none;">LOG NEW INCIDENT</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-top: 2rem;">
+                <div class="stat-card-mini">
+                    <div style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Total Incidents</div>
+                    <div id="statTotal" style="font-size: 2rem; font-weight: 800; color: var(--brand-gunmetal);">--</div>
+                </div>
+                <div class="stat-card-mini">
+                    <div style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Open Cases</div>
+                    <div id="statOpen" style="font-size: 2rem; font-weight: 800; color: #e74c3c;">--</div>
+                </div>
+                <div class="stat-card-mini">
+                    <div style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Resolved</div>
+                    <div id="statResolved" style="font-size: 2rem; font-weight: 800; color: #2ecc71;">--</div>
+                </div>
+                <div class="stat-card-mini">
+                    <div style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Engagement Rate</div>
+                    <div id="statResolutionRate" style="font-size: 2rem; font-weight: 800; color: var(--brand-moonstone);">--%</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card" style="margin-top: 2rem; padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+                <div id="studentFilterWrap">
+                    <label style="display: block; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.4rem;">Student Search</label>
+                    <input type="text" id="filterStudent" class="glass" placeholder="ID or Name..." style="padding: 0.6rem; font-size: 0.8rem; width: 180px;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.4rem;">Category</label>
+                    <select id="filterCategory" class="glass" style="padding: 0.6rem; font-size: 0.8rem;">
+                        <option value="">All Tiers</option>
+                        <option value="ACADEMIC_DISHONESTY">Academic</option>
+                        <option value="BULLYING">Bullying</option>
+                        <option value="TRUANCY">Truancy</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.4rem;">Severity</label>
+                    <select id="filterSeverity" class="glass" style="padding: 0.6rem; font-size: 0.8rem;">
+                        <option value="">All Levels</option>
+                        <option value="HIGH">High</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="LOW">Low</option>
+                    </select>
+                </div>
+                <div style="flex: 1; display: flex; gap: 0.5rem; justify-content: flex-end;">
+                    <button class="glass" id="clearFilterBtn" style="padding: 0.6rem 1.25rem; font-weight: 700;">RESET</button>
+                    <button class="glass" id="applyFilterBtn" style="background: var(--brand-gunmetal); color: white; padding: 0.6rem 2rem; border: none; font-weight: 800;">APPLY SCAN</button>
+                </div>
+            </div>
+
+            <!-- Record List -->
+            <div class="card" style="margin-top: 1.5rem; padding: 0; overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                    <thead style="background: #f8f9fa;">
+                        <tr style="text-align: left; border-bottom: 2px solid rgba(0,0,0,0.03);">
+                            <th style="padding: 1.25rem;">Date</th>
+                            <th style="padding: 1.25rem;">Student</th>
+                            <th style="padding: 1.25rem;">Violation Category</th>
+                            <th style="padding: 1.25rem;">Severity</th>
+                            <th style="padding: 1.25rem;">Status</th>
+                            <th style="padding: 1.25rem; text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsTbody">
+                         <tr><td colspan="6" style="padding: 5rem; text-align: center; color: var(--text-muted);">Synchronizing Registry...</td></tr>
+                    </tbody>
+                </table>
+                
+                <div style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; border-top: 1px solid rgba(0,0,0,0.02);">
+                    <div id="paginationInfo" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Page 1 of 1</div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="glass" id="prevBtn" style="padding: 0.4rem 1rem;"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="glass" id="nextBtn" style="padding: 0.4rem 1rem;"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Form Modal -->
+    <div class="modal-overlay" id="formModal">
+        <div class="modal-content">
+            <h2 id="formModalTitle" style="font-weight: 800; margin-bottom: 2rem;">Log Incident</h2>
+            <form id="recordForm">
+                <input type="hidden" id="recordId">
+                <div class="form-row">
+                    <label>Student ID</label>
+                    <input type="text" id="studentId" class="glass" required placeholder="STU-00000" style="width: 100%; padding: 0.75rem;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-row">
+                        <label>Category</label>
+                        <select id="category" class="glass" required style="width: 100%; padding: 0.75rem;">
+                            <option value="ACADEMIC_DISHONESTY">Academic Dishonesty</option>
+                            <option value="BULLYING">Bullying / Harassment</option>
+                            <option value="TRUANCY">Truancy / Lateness</option>
+                            <option value="PROPERTY_DAMAGE">Property Damage</option>
+                            <option value="INSUBORDINATION">Insubordination</option>
+                            <option value="FIGHTING">Physical Altercation</option>
+                            <option value="OTHER">Other Violation</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Severity Level</label>
+                        <select id="severity" class="glass" required style="width: 100%; padding: 0.75rem;">
+                            <option value="LOW">Low - Warning/Minor</option>
+                            <option value="MEDIUM">Medium - Detention/Call</option>
+                            <option value="HIGH">High - Suspension/Expulsion</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>Incident Description & Evidence</label>
+                    <textarea id="description" class="glass" required placeholder="Provide clear, factual details of the incident..." style="width: 100%; min-height: 120px; padding: 1rem; font-family: inherit;"></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button type="button" class="glass" data-action="closeFormModal" style="padding: 0.75rem 1.5rem; font-weight: 700;">CANCEL</button>
+                    <button type="submit" id="formModalSave" class="glass" style="background: var(--brand-gunmetal); color: white; border: none; padding: 0.75rem 2.5rem; font-weight: 800;">SAVE RECORD</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div id="detailContent"></div>
+            <div id="detailModalFooter" style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.05);">
+                <button class="glass" data-action="closeDetailModal" style="font-weight: 700; padding: 0.75rem 1.5rem;">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Update Modal -->
+    <div class="modal-overlay" id="statusModal">
+        <div class="modal-content" style="max-width: 450px;">
+            <h3 style="font-weight: 800; margin-bottom: 1.5rem;">Governance Resolution</h3>
+            <input type="hidden" id="statusRecordId">
+            <div class="form-row">
+                <label>Update Status</label>
+                <select id="sStatus" class="glass" style="width:100%; padding:0.75rem;">
+                    <option value="OPEN">Open - Investigation</option>
+                    <option value="ESCAlATED">Escalated to Director</option>
+                    <option value="RESOLVED">Resolved - Complete</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>Resolution Remarks</label>
+                <textarea id="sPrincipalNote" class="glass" placeholder="Final disciplinary decision or closing remarks..." style="width:100%; min-height:100px; padding:1rem; font-family:inherit;"></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                <button class="glass" data-action="closeStatusModal" style="padding: 0.75rem 1.5rem; font-weight: 700;">CANCEL</button>
+                <button id="statusModalSave" class="glass" style="background: var(--brand-moonstone); color: white; border: none; padding: 0.75rem 2.5rem; font-weight: 800;">SAVE UPDATE</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiFetch = window.Wajina.apiFetch;
+        const esc = window.Wajina.DOMUtils.escapeHTML;
+
+        let ME = null;
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentDetail = null;
+
+        async function init(e) {
+            ME = e.detail.user;
+            
+            // ACL: Show "Log Incident" button for staff
+            const canReport = ['DIRECTOR','PRINCIPAL','TEACHER','ACADEMIC_STAFF','ADMIN_STAFF'].includes(ME.role);
+            if (canReport) document.getElementById('newRecordBtn').style.display = 'block';
+
+            if (['STUDENT','PARENT'].includes(ME.role)) {
+                const wrap = document.getElementById('studentFilterWrap');
+                if (wrap) wrap.style.display = 'none';
+            }
+
+            await loadStats();
+            await loadRecords(1);
+        }
+
+        async function loadStats() {
+            try {
+                const data = await apiFetch('/api/behaviour/stats');
+                document.getElementById('statTotal').textContent = data.total || 0;
+                document.getElementById('statOpen').textContent = data.open || 0;
+                document.getElementById('statResolved').textContent = data.resolved || 0;
+                const rate = data.total ? Math.round((data.resolved / data.total) * 100) : 0;
+                document.getElementById('statResolutionRate').textContent = rate + '%';
+            } catch (err) { console.error('Stats Sync Error:', err); }
+        }
+
+        async function loadRecords(page) {
+            currentPage = page;
+            const params = new URLSearchParams({
+                page,
+                student: document.getElementById('filterStudent')?.value || '',
+                severity: document.getElementById('filterSeverity').value,
+                status: '', // Not in filter UI currently but ready
+                category: document.getElementById('filterCategory').value
+            });
+
+            try {
+                const data = await apiFetch(`/api/behaviour?${params.toString()}`);
+                const tbody = document.getElementById('recordsTbody');
+                tbody.innerHTML = '';
+
+                if (data.records.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="padding:5rem; text-align:center; color:var(--text-muted);">No records identified in current scan.</td></tr>';
+                    return;
+                }
+
+                data.records.forEach(r => {
+                    const row = document.createElement('tr');
+                    row.style.borderBottom = '1px solid rgba(0,0,0,0.02)';
+                    row.innerHTML = `
+                        <td style="padding: 1.25rem; font-weight: 700; color: var(--text-muted);">${new Date(r.createdAt).toLocaleDateString()}</td>
+                        <td style="padding: 1.25rem;">
+                            <div style="font-weight: 800; color: var(--brand-gunmetal);">${esc(r.student?.name || 'Roster Error')}</div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700;">${esc(r.studentId)}</div>
+                        </td>
+                        <td style="padding: 1.25rem;"><span style="font-size: 0.75rem; font-weight: 700;">${esc(r.category.split('_').join(' '))}</span></td>
+                        <td style="padding: 1.25rem;"><span class="severity-badge sev-${r.severity.toLowerCase()}">${esc(r.severity)}</span></td>
+                        <td style="padding: 1.25rem;"><span class="status-badge status-${r.status.toLowerCase()}">${esc(r.status)}</span></td>
+                        <td style="padding: 1.25rem; text-align: right;">
+                             <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                                <button class="glass" data-action="viewRecord" data-id="${r.id}" style="padding: 0.4rem 0.8rem; font-size: 0.7rem; font-weight: 800; color: var(--brand-moonstone);">INSPECT</button>
+                                ${['DIRECTOR', 'PRINCIPAL'].includes(ME.role) ? `<button class="glass" data-action="deleteRecord" data-id="${r.id}" style="padding: 0.4rem 0.8rem; font-size: 0.7rem; font-weight: 800; color: #e74c3c;">SCRUB</button>` : ''}
+                             </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                totalPages = data.pagination.pages;
+                document.getElementById('paginationInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+                document.getElementById('prevBtn').disabled = currentPage <= 1;
+                document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+
+            } catch (err) { tbody.innerHTML = '<tr><td colspan="6" style="padding:5rem; text-align:center; color:#e74c3c; font-weight:800;">Registry Link Offline.</td></tr>'; }
+        }
+
+        function openFormModal(record = null) {
+            const form = document.getElementById('recordForm');
+            form.reset();
+            document.getElementById('recordId').value = record ? record.id : '';
+            document.getElementById('formModalTitle').textContent = record ? 'Amend Record' : 'Log Incident';
+            
+            if (record) {
+                document.getElementById('studentId').value = record.studentId;
+                document.getElementById('category').value = record.category;
+                document.getElementById('severity').value = record.severity;
+                document.getElementById('description').value = record.description;
+            }
+            
+            document.getElementById('formModal').style.display = 'flex';
+        }
+
+        async function openDetailModal(id) {
+            try {
+                const r = await apiFetch(`/api/behaviour/${id}`);
+                currentDetail = r;
+                const container = document.getElementById('detailContent');
+                
+                const isManager = ['DIRECTOR','PRINCIPAL'].includes(ME.role);
+                const isReporter = r.reportedById === ME.id;
+
+                container.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                        <div>
+                             <h2 style="font-weight: 800; margin-bottom: 0.5rem;">Incident Case Record</h2>
+                             <p style="font-size: 0.8rem; font-weight: 700; color: var(--brand-moonstone); text-transform: uppercase;">ID: ${r.id}</p>
+                        </div>
+                        <span class="status-badge status-${r.status.toLowerCase()}">${esc(r.status)}</span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                        <div class="stat-card-mini" style="text-align: left;">
+                            <div style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem;">Student Details</div>
+                            <div style="font-weight: 800; font-size: 1rem;">${esc(r.student?.name || 'Unknown')}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">${esc(r.studentId)}</div>
+                        </div>
+                        <div class="stat-card-mini" style="text-align: left;">
+                            <div style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem;">Reporter</div>
+                            <div style="font-weight: 800; font-size: 1rem;">${esc(r.reportedBy?.name || 'System')}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">${esc(r.reportedBy?.role || 'Academic')}</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <div style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem;">Description</div>
+                        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; font-size: 0.95rem; line-height: 1.6;">${esc(r.description)}</div>
+                    </div>
+
+                    ${r.principalNote ? `
+                    <div style="margin-bottom: 2rem; border-left: 4px solid var(--brand-moonstone); padding-left: 1.5rem;">
+                        <div style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--brand-moonstone); margin-bottom: 0.5rem;">Governance Resolution Notes</div>
+                        <div style="font-size: 0.9rem; font-weight: 600;">${esc(r.principalNote)}</div>
+                    </div>` : ''}
+                `;
+
+                // Footer Buttons
+                const footer = document.getElementById('detailModalFooter');
+                footer.innerHTML = '<button class="glass" data-action="closeDetailModal" style="font-weight: 700; padding: 0.75rem 1.5rem;">CLOSE</button>';
+
+                if ((isReporter && r.status === 'OPEN') || isManager) {
+                    footer.innerHTML += `<button class="glass" data-action="editRecord" style="background: var(--brand-gunmetal); color: white; border: none; font-weight: 800; padding: 0.75rem 1.5rem;">EDIT RECORD</button>`;
+                }
+                if (isManager) {
+                    footer.innerHTML += `<button class="glass" data-action="openStatusModal" style="background: var(--brand-moonstone); color: white; border: none; font-weight: 800; padding: 0.75rem 1.5rem;">GOVERNANCE UPDATE</button>`;
+                }
+
+                document.getElementById('detailModal').style.display = 'flex';
+            } catch (err) { alert('Record access failure.'); }
+        }
+
+        function openStatusModal(record) {
+            document.getElementById('statusRecordId').value = record.id;
+            document.getElementById('sStatus').value = record.status;
+            document.getElementById('sPrincipalNote').value = record.principalNote || '';
+            document.getElementById('statusModal').style.display = 'flex';
+        }
+
+        window.addEventListener('authReady', init);
+
+        document.getElementById('recordForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('recordId').value;
+            const payload = {
+                studentId: document.getElementById('studentId').value.trim(),
+                category: document.getElementById('category').value,
+                severity: document.getElementById('severity').value,
+                description: document.getElementById('description').value.trim()
+            };
+
+            const btn = document.getElementById('formModalSave');
+            btn.disabled = true; btn.textContent = 'PUBLISHING...';
+
+            try {
+                const url = id ? `/api/behaviour/${id}` : '/api/behaviour';
+                await apiFetch(url, { method: id ? 'PATCH' : 'POST', body: JSON.stringify(payload) });
+                document.getElementById('formModal').style.display = 'none';
+                await loadRecords(1);
+                await loadStats();
+            } catch (err) { alert(err.message); }
+            finally { btn.textContent = 'SAVE RECORD'; btn.disabled = false; }
+        };
+
+        document.getElementById('statusModalSave').onclick = async () => {
+            const id = document.getElementById('statusRecordId').value;
+            const payload = {
+                status: document.getElementById('sStatus').value,
+                principalNote: document.getElementById('sPrincipalNote').value.trim()
+            };
+
+            const btn = document.getElementById('statusModalSave');
+            btn.disabled = true; btn.textContent = 'UPDATING...';
+
+            try {
+                await apiFetch(`/api/behaviour/${id}`, { method: 'PATCH', body: JSON.stringify(payload) });
+                document.getElementById('statusModal').style.display = 'none';
+                document.getElementById('detailModal').style.display = 'none';
+                await loadRecords(currentPage);
+                await loadStats();
+            } catch (err) { alert(err.message); }
+            finally { btn.textContent = 'SAVE UPDATE'; btn.disabled = false; }
+        };
+
+        document.addEventListener('click', e => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) {
+                if (e.target.classList.contains('modal-overlay')) {
+                    e.target.style.display = 'none';
+                }
+                return;
+            }
+
+            const action = btn.getAttribute('data-action');
+            if (action === 'openFormModal') openFormModal();
+            if (action === 'closeFormModal') document.getElementById('formModal').style.display = 'none';
+            if (action === 'viewRecord') openDetailModal(btn.getAttribute('data-id'));
+            if (action === 'closeDetailModal') document.getElementById('detailModal').style.display = 'none';
+            if (action === 'closeStatusModal') document.getElementById('statusModal').style.display = 'none';
+            if (action === 'editRecord') { document.getElementById('detailModal').style.display = 'none'; openFormModal(currentDetail); }
+            if (action === 'openStatusModal') { document.getElementById('detailModal').style.display = 'none'; openStatusModal(currentDetail); }
+            if (action === 'deleteRecord') {
+                if (confirm('Permanently delete this governance record?')) {
+                    apiFetch(`/api/behaviour/${btn.getAttribute('data-id')}`, { method: 'DELETE' })
+                        .then(() => { loadRecords(currentPage); loadStats(); });
+                }
+            }
+            if (action === 'toggleSidebar') document.getElementById('dashboardLayout').classList.toggle('sidebar-open');
+        });
+
+        document.getElementById('applyFilterBtn').onclick = () => loadRecords(1);
+        document.getElementById('clearFilterBtn').onclick = () => {
+            document.getElementById('filterStudent').value = '';
+            document.getElementById('filterCategory').value = '';
+            document.getElementById('filterSeverity').value = '';
+            loadRecords(1);
+        };
+        document.getElementById('prevBtn').onclick = () => { if (currentPage > 1) loadRecords(currentPage - 1); };
+        document.getElementById('nextBtn').onclick = () => { if (currentPage < totalPages) loadRecords(currentPage + 1); };
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+            }
+        });
+    </script>
+</body>
+</html>

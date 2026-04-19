@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results Approval Hub | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+        
+        .review-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+        .review-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+            border-color: var(--brand-moonstone);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(32, 55, 59, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        .grade-badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.75rem;
+        }
+        .grade-A { background: rgba(44, 194, 135, 0.1); color: #27ae60; }
+        .grade-F { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+
+        .approval-metric {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+    </style>
+    <script src="/js/config/navigation.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Results Approval Hub"></wajina-header>
+            
+            <div class="top-row" style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Academic Quality Control</h1>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Verify and sign off on submitted term results across all campuses.</p>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                        <label style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted);">Campus Filter</label>
+                        <select id="campusFilter" class="glass" data-action="loadPendingReviews" style="padding: 0.6rem 1rem; font-weight: 700;">
+                            <option value="">All Campuses</option>
+                            <option value="PRIMARY">Wajina Primary</option>
+                            <option value="SECONDARY">Wajina College</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reviewList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                <!-- Result Groups Rendered Here -->
+                <div style="grid-column: 1/-1; padding: 5rem; text-align: center; color: var(--text-muted);">
+                    <i class="fa-solid fa-sync fa-spin fa-2x"></i>
+                    <p style="margin-top: 1.5rem; font-weight: 600;">Scanning Academic Registry for Pending Submissions...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Results Inspection Modal -->
+    <div class="modal-overlay" id="resultModal">
+        <div class="modal-content">
+            <div style="padding: 2rem; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; background: #f8f9fa;">
+                <div>
+                    <h2 id="modalStudentName" style="font-size: 1.4rem; font-weight: 800; color: var(--brand-gunmetal); margin: 0;">--</h2>
+                    <p id="modalStudentInfo" style="font-size: 0.8rem; color: var(--text-secondary); margin: 0.25rem 0 0;">--</p>
+                </div>
+                <button class="glass" data-action="closeResultModal" style="border: none; padding: 0.5rem;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div style="padding: 2rem;">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="approval-metric">
+                        <div style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Average</div>
+                        <div id="averageScore" style="font-size: 1.8rem; font-weight: 800; color: var(--brand-moonstone);">--</div>
+                    </div>
+                    <div class="approval-metric">
+                        <div style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Total Score</div>
+                        <div id="totalScore" style="font-size: 1.8rem; font-weight: 800; color: var(--brand-gunmetal);">--</div>
+                    </div>
+                    <div class="approval-metric">
+                        <div style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Rank</div>
+                        <div id="classPosition" style="font-size: 1.8rem; font-weight: 800; color: var(--brand-saffron);">--</div>
+                    </div>
+                </div>
+
+                <div class="gradebook-container" style="border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; overflow: hidden; margin-bottom: 2rem;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                        <thead style="background: #f8f9fa;">
+                            <tr style="text-align: left; border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                <th style="padding: 1rem;">Subject</th>
+                                <th style="padding: 1rem;">CA 1</th>
+                                <th style="padding: 1rem;">CA 2</th>
+                                <th style="padding: 1rem;">CA 3</th>
+                                <th style="padding: 1rem;">Exam</th>
+                                <th style="padding: 1rem;">Total</th>
+                                <th style="padding: 1rem;">Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px;">
+                    <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.75rem;">Quality Control Remarks</label>
+                    <textarea id="principalRemarks" class="glass" placeholder="Enter final constructive feedback for the student report..." style="width: 100%; min-height: 100px; padding: 1rem; border-color: rgba(0,0,0,0.1); font-family: inherit; font-size: 0.9rem;"></textarea>
+                </div>
+
+                <div style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div id="approvalFeedback" style="font-size: 0.85rem; font-weight: 700;"></div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="glass" data-action="openReturnModal" style="color: #e74c3c; border-color: rgba(231, 76, 60, 0.2); font-weight: 800; padding: 0.8rem 1.5rem;">RETURN TO TEACHER</button>
+                        <button id="approveAllBtn" data-action="approveStudentGrades" class="glass" style="background: var(--brand-gunmetal); color: white; border: none; font-weight: 800; padding: 0.8rem 2rem;">SIGN OFF & APPROVE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Return Reason Modal -->
+    <div class="modal-overlay" id="returnModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div style="padding: 2rem;">
+                <h3 style="font-weight: 800; margin-bottom: 1rem;">Reason for Correction</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Provide specific reasons why this result group is being returned for correction.</p>
+                <textarea id="returnReason" class="glass" style="width: 100%; min-height: 120px; padding: 1rem; border-color: rgba(0,0,0,0.1); margin-bottom: 1.5rem;"></textarea>
+                <div id="returnFeedback" style="font-size: 0.8rem; margin-bottom: 1rem;"></div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button class="glass" data-action="closeReturnModal" style="font-weight: 700; padding: 0.6rem 1.5rem;">Cancel</button>
+                    <button id="returnSubmitBtn" data-action="submitReturn" class="glass" style="background: #e74c3c; color: white; border: none; font-weight: 800; padding: 0.6rem 2rem;">Submit Return</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/pages/results-approval.js" defer></script>
+</body>
+</body>
+</html>
+

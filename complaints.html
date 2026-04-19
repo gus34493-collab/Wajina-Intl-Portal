@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaints Oversight Hub | Wajina Intl</title>
+    <link rel="stylesheet" href="css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="js/auth-guard.js"></script>
+    <script src="js/dom-utils.js"></script>
+    <script src="js/telemetry.js"></script>
+    <script src="js/components/wajina-sidebar.js"></script>
+    <script src="js/components/wajina-header.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .complaint-card {
+            padding: 2rem;
+            transition: all 0.2s ease;
+        }
+
+        .complaint-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--brand-moonstone);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+        }
+
+        .complaint-text {
+            font-size: 0.95rem;
+            color: var(--brand-gunmetal);
+            line-height: 1.6;
+            margin: 1.5rem 0;
+            background: #f8f9fa;
+            padding: 1.25rem;
+            border-radius: 12px;
+            border-left: 5px solid var(--brand-moonstone);
+            font-weight: 500;
+        }
+
+        .status-pill {
+            padding: 0.35rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .status-open { background: rgba(255, 198, 79, 0.1); color: #f39c12; }
+        .status-resolved { background: rgba(44, 194, 135, 0.1); color: #2ecc71; }
+        .status-escalated { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+
+        .meta-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Constituent Governance Hub"></wajina-header>
+            
+            <div class="top-row">
+                <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Complaints Oversight</h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Managing institutional grievances and high-sensitivity parent concerns.</p>
+            </div>
+
+            <div id="complaintsList" style="display: flex; flex-direction: column; gap: 1.25rem; margin-top: 2rem;">
+                <div style="text-align: center; padding: 5rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-sync fa-spin fa-2x"></i>
+                    <p style="margin-top: 1.5rem; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Connecting to Citizen Support Registry...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const apiFetch = window.Wajina.apiFetch;
+        const Telemetry = window.Wajina.Telemetry;
+        const esc = window.Wajina.DOMUtils.escapeHTML;
+
+        async function init(e) {
+            await loadComplaints();
+        }
+
+        async function loadComplaints() {
+            try {
+                const list = await apiFetch('/api/requests?type=COMPLAINT');
+                const container = document.getElementById('complaintsList');
+                
+                if (!list || list.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 8rem 2rem; background: white; border-radius: 20px; border: 1.5px dashed rgba(0,0,0,0.05);">
+                            <i class="fa-solid fa-hand-holding-heart fa-3x" style="color: rgba(0,0,0,0.05); margin-bottom: 2rem;"></i>
+                            <h3 style="font-weight: 800; color: var(--brand-gunmetal); margin-bottom: 0.5rem;">Zero Active Grievances</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">The constituent oversight queue is currently clear.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = list.map(c => `
+                    <div class="card complaint-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <span class="meta-label">${esc(c.category || 'General Concern')}</span>
+                                <h3 style="font-weight: 800; font-size: 1.1rem; color: var(--brand-gunmetal); margin: 0;">${esc(c.parentName || c.staffName || 'Anonymous Petitioner')}</h3>
+                            </div>
+                            <span class="status-pill status-${c.status.toLowerCase()}">${esc(c.status)}</span>
+                        </div>
+                        
+                        <div class="complaint-text">
+                            ${esc(c.detail)}
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                             <div style="font-size: 0.65rem; font-weight: 700; color: var(--text-muted);">SUBMITTED: ${new Date(c.createdAt).toLocaleDateString()}</div>
+                             <div style="display: flex; gap: 0.75rem;">
+                                <button class="glass" onclick="escalateComplaint('${c.id}')" style="color: #e74c3c; border: 1.5px solid rgba(231, 76, 60, 0.2); font-weight: 800; padding: 0.5rem 1.25rem; font-size: 0.7rem;">ESCALATE TO DIRECTOR</button>
+                                <button class="glass" onclick="resolveComplaint('${c.id}')" style="background: var(--brand-gunmetal); color: white; border: none; font-weight: 800; padding: 0.5rem 1.5rem; font-size: 0.7rem;">MARK AS RESOLVED</button>
+                             </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                Telemetry.log('INFO', 'COMPLAINTS_HUB', 'Registry synchronized');
+            } catch (err) {
+                Telemetry.log('ERROR', 'COMPLAINTS_HUB', 'Registry sync failure');
+                document.getElementById('complaintsList').innerHTML = '<div style="color: #e74c3c; font-weight: 800; text-align: center; padding: 5rem;">Citizen Registry Offline. Support services interrupted.</div>';
+            }
+        }
+
+        async function resolveComplaint(id) {
+            if (!confirm('Mark this constituent concern as resolved?')) return;
+            try {
+                await apiFetch(`/api/requests/${id}`, { method: 'PATCH', body: JSON.stringify({ status: 'RESOLVED' }) });
+                await loadComplaints();
+            } catch (err) { alert('Resolution failed: ' + err.message); }
+        }
+
+        async function escalateComplaint(id) {
+            if (!confirm('Escalate this concern to Executive Oversight?')) return;
+            try {
+                await apiFetch(`/api/requests/${id}`, { method: 'PATCH', body: JSON.stringify({ status: 'ESCALATED' }) });
+                await loadComplaints();
+            } catch (err) { alert('Escalation failed: ' + err.message); }
+        }
+
+        window.addEventListener('authReady', init);
+
+        document.addEventListener('click', e => {
+            const btn = e.target.closest('[data-action="toggleSidebar"]');
+            if (btn) document.getElementById('dashboardLayout').classList.toggle('sidebar-open');
+        });
+    </script>
+</body>
+</html>

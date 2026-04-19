@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Appraisals | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .staff-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .staff-card:hover {
+            transform: translateX(5px);
+            border-color: var(--brand-moonstone);
+        }
+        .staff-card.active {
+            border-left: 5px solid var(--brand-moonstone);
+            background: rgba(81, 156, 171, 0.05);
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .score-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .score-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #fff;
+            border: 1.5px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+        }
+
+        .score-btn:hover {
+            border-color: var(--brand-moonstone);
+            color: var(--brand-moonstone);
+        }
+
+        .score-btn.active {
+            background: var(--brand-gunmetal);
+            color: white;
+            border-color: var(--brand-gunmetal);
+            box-shadow: 0 4px 10px rgba(32, 55, 59, 0.2);
+        }
+
+        .history-card {
+            border-left: 3px solid var(--brand-moonstone);
+            background: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+    </style>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Professional Development Audit"></wajina-header>
+            
+            <div class="top-row">
+                <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Staff Appraisals</h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Evaluate academic performance and instructional quality across the campus.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 350px 1fr; gap: 2rem; margin-top: 2rem; align-items: start;">
+                
+                <!-- Staff Feed -->
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.5rem;">Academic Roster</div>
+                    <div id="staffList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                         <div style="padding: 3rem; text-align: center;"><i class="fa-solid fa-sync fa-spin"></i></div>
+                    </div>
+                </div>
+
+                <!-- Evaluation Workspace -->
+                <div id="workArea" style="display: none;">
+                    <div class="card" style="padding: 2.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2.5rem;">
+                            <div>
+                                <h2 id="selectedStaffName" style="font-size: 1.5rem; font-weight: 800; color: var(--brand-gunmetal); margin: 0;">--</h2>
+                                <p id="selectedStaffRole" style="font-size: 0.8rem; color: var(--brand-moonstone); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 0.25rem 0 0;">--</p>
+                            </div>
+                            <button class="glass" data-action="closeEvaluation" style="border: none; padding: 0.5rem;"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                            <!-- Score Inputs -->
+                            <div class="score-row">
+                                <span style="font-weight: 700; font-size: 0.9rem;">Punctuality</span>
+                                <div class="score-group score-input" data-metric="punctuality">
+                                    <div class="score-btn" data-action="setScore" data-metric="punctuality" data-val="1">1</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="punctuality" data-val="2">2</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="punctuality" data-val="3">3</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="punctuality" data-val="4">4</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="punctuality" data-val="5">5</div>
+                                </div>
+                            </div>
+                            <div class="score-row">
+                                <span style="font-weight: 700; font-size: 0.9rem;">Materials Planning</span>
+                                <div class="score-group score-input" data-metric="lessonPlanning">
+                                    <div class="score-btn" data-action="setScore" data-metric="lessonPlanning" data-val="1">1</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="lessonPlanning" data-val="2">2</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="lessonPlanning" data-val="3">3</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="lessonPlanning" data-val="4">4</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="lessonPlanning" data-val="5">5</div>
+                                </div>
+                            </div>
+                            <div class="score-row">
+                                <span style="font-weight: 700; font-size: 0.9rem;">Student Engagement</span>
+                                <div class="score-group score-input" data-metric="studentEngagement">
+                                    <div class="score-btn" data-action="setScore" data-metric="studentEngagement" data-val="1">1</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="studentEngagement" data-val="2">2</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="studentEngagement" data-val="3">3</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="studentEngagement" data-val="4">4</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="studentEngagement" data-val="5">5</div>
+                                </div>
+                            </div>
+                            <div class="score-row">
+                                <span style="font-weight: 700; font-size: 0.9rem;">Professionalism</span>
+                                <div class="score-group score-input" data-metric="professionalism">
+                                    <div class="score-btn" data-action="setScore" data-metric="professionalism" data-val="1">1</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="professionalism" data-val="2">2</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="professionalism" data-val="3">3</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="professionalism" data-val="4">4</div>
+                                    <div class="score-btn" data-action="setScore" data-metric="professionalism" data-val="5">5</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 2.5rem;">
+                            <label style="display: block; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.75rem;">Confidential Auditor Remarks</label>
+                            <textarea id="evalComments" class="glass" placeholder="Document specific strengths or areas requiring immediate growth..." style="width: 100%; min-height: 120px; padding: 1.25rem; border-color: rgba(0,0,0,0.1); font-family: inherit; font-size: 0.95rem;"></textarea>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 1rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.05);">
+                            <button id="submitBtn" data-action="submitAppraisal" class="glass" style="background: var(--brand-gunmetal); color: white; border: none; font-weight: 800; padding: 0.85rem 2.5rem;">SUBMIT EVALUATION</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem;">
+                         <div style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem;">Longitudinal Performance History</div>
+                         <div id="evalHistory" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="card" style="padding: 8rem 4rem; text-align: center;">
+                    <i class="fa-solid fa-user-tie fa-3x" style="color: rgba(0,0,0,0.05); margin-bottom: 1.5rem;"></i>
+                    <h3 style="font-weight: 800; color: var(--brand-gunmetal); margin-bottom: 0.5rem;">No Staff Selected</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Select an academic staff member from the roster to begin the quality review process.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const apiFetch = window.Wajina.apiFetch;
+        const esc = window.Wajina.DOMUtils.escapeHTML;
+
+        let staffData = [];
+        let selectedStaffId = null;
+        let scores = { punctuality: 0, lessonPlanning: 0, studentEngagement: 0, professionalism: 0 };
+
+        async function init() {
+            loadStaff();
+        }
+
+        async function loadStaff() {
+            try {
+                const data = await apiFetch('/api/hr/staff');
+                staffData = data.staff || [];
+                renderStaffList();
+            } catch (err) {
+                document.getElementById('staffList').innerHTML = '<div style="color: #e74c3c; font-weight: 800; text-align: center; padding: 2rem;">Roster Sync Failed.</div>';
+            }
+        }
+
+        function renderStaffList() {
+            const list = document.getElementById('staffList');
+            list.innerHTML = staffData.map(s => `
+                <div class="card staff-card ${selectedStaffId === s.id ? 'active' : ''}" 
+                     data-action="selectStaff" data-id="${esc(s.id)}"
+                     style="padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1.25rem;">
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background: #f0f4f8; display: grid; place-items: center; font-weight: 800; font-size: 0.9rem; color: var(--brand-moonstone); border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                        ${esc(s.name.charAt(0))}
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 800; font-size: 0.95rem; color: var(--brand-gunmetal);">${esc(s.name)}</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">${esc(s.role.split('_').join(' '))}</div>
+                    </div>
+                    <div style="font-size: 0.6rem; text-align: right;">
+                        ${s.appraisalsReceived?.length > 0 
+                            ? `<div style="color: var(--brand-moonstone); font-weight: 800;">AUDITED</div>`
+                            : '<div style="color: var(--brand-saffron); font-weight: 800;">PENDING</div>'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function selectStaff(id) {
+            selectedStaffId = id;
+            const s = staffData.find(staff => staff.id === id);
+            if (!s) return;
+            
+            document.getElementById('selectedStaffName').innerText = s.name;
+            document.getElementById('selectedStaffRole').innerText = s.role;
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('workArea').style.display = 'block';
+
+            // Reset UI
+            scores = { punctuality: 0, lessonPlanning: 0, studentEngagement: 0, professionalism: 0 };
+            document.querySelectorAll('.score-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('evalComments').value = '';
+            renderStaffList();
+            loadHistory(id);
+        }
+
+        async function loadHistory(id) {
+            try {
+                const data = await apiFetch(`/api/hr/appraisals/${id}`);
+                const history = document.getElementById('evalHistory');
+                
+                if (!data.appraisals || data.appraisals.length === 0) {
+                    history.innerHTML = '<div style="padding: 2rem; text-align: center; border: 1.5px dashed rgba(0,0,0,0.05); border-radius: 12px; font-size: 0.8rem; color: var(--text-muted);">No historical evaluation records found.</div>';
+                    return;
+                }
+
+                history.innerHTML = data.appraisals.map(a => `
+                    <div class="history-card">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 800; font-size: 0.75rem; color: var(--brand-gunmetal);">${new Date(a.createdAt).toLocaleDateString()}</span>
+                            <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700;">AUDITOR: ${esc(a.evaluator?.name || 'Academic Board')}</span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                             <div style="font-size: 0.65rem; background: rgba(81, 156, 171, 0.1); color: var(--brand-moonstone); padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 800;">AVG SCORE: ${((a.punctuality + a.lessonPlanning + a.studentEngagement + a.professionalism) / 4).toFixed(1)}</div>
+                        </div>
+                        <p style="font-style: italic; margin: 0; font-size: 0.8rem; color: var(--text-secondary);">"${esc(a.comments || 'No specific remarks recorded.')}"</p>
+                    </div>
+                `).join('');
+            } catch (err) {
+                document.getElementById('evalHistory').innerHTML = '<div style="color: #e74c3c; font-size: 0.75rem;">Historical data unavailable.</div>';
+            }
+        }
+
+        function setScore(metric, value) {
+            scores[metric] = value;
+            const container = document.querySelector(`.score-input[data-metric="${metric}"]`);
+            container.querySelectorAll('.score-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', (idx + 1) === value);
+            });
+        }
+
+        function closeEvaluation() {
+            document.getElementById('workArea').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            selectedStaffId = null;
+            renderStaffList();
+        }
+
+        async function submitAppraisal() {
+            if (!selectedStaffId) return;
+            if (Object.values(scores).some(v => v === 0)) {
+                alert('All performance metrics must be scored before submission.');
+                return;
+            }
+
+            const comments = document.getElementById('evalComments').value;
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = 'AUTHENTICATING...';
+
+            try {
+                await apiFetch('/api/hr/appraisals', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        teacherId: selectedStaffId,
+                        ...scores,
+                        comments
+                    })
+                });
+                
+                alert('Performance evaluation published successfully.');
+                closeEvaluation();
+                loadStaff();
+            } catch (err) {
+                alert(err.message || 'Transmission error. Review inputs.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'SUBMIT EVALUATION';
+            }
+        }
+
+        window.addEventListener('authReady', init);
+
+        document.addEventListener('click', e => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.getAttribute('data-action');
+
+            if (action === 'selectStaff') {
+                selectStaff(btn.getAttribute('data-id'));
+            } else if (action === 'closeEvaluation') {
+                closeEvaluation();
+            } else if (action === 'setScore') {
+                setScore(btn.getAttribute('data-metric'), parseInt(btn.getAttribute('data-val'), 10));
+            } else if (action === 'submitAppraisal') {
+                submitAppraisal();
+            } else if (action === 'toggleSidebar') {
+                document.getElementById('dashboardLayout').classList.toggle('sidebar-open');
+            }
+        });
+    </script>
+</body>
+</html>

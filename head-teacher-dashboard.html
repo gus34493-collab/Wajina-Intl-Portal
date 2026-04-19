@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primary Leadership | Wajina Intl</title>
+    <script src="/vendors/chartjs/chart.min.js"></script>
+    <link rel="stylesheet" href="/css/onion-core.css?v=audit-fix">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+
+
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js?v=audit-fix"></script>
+    <script src="/js/telemetry.js?v=audit-fix"></script>
+    <script src="/js/config/navigation.js"></script>
+    <script src="/js/components/wajina-sidebar.js?v=audit-fix"></script>
+    <script src="/js/components/wajina-header.js?v=audit-fix"></script>
+    <script src="/js/components/wajina-analytics.js?v=audit-fix"></script>
+    <style>
+        /* Head Teacher Specific Polish */
+        .intelligence-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .intelligence-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+        }
+    </style>
+
+    <script src="/js/components/wajina-toast.js"></script>
+</head>
+
+<div class="dashboard-layout" id="dashboardLayout">
+    <wajina-sidebar></wajina-sidebar>
+
+    <main class="main-content">
+        <wajina-header title="Primary Campus Leadership"></wajina-header>
+
+        <div class="top-row">
+            <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Academic Command</h1>
+            <p id="subText" style="font-size: 0.85rem; color: var(--text-secondary);">Managing pupil success and staff dedication across the Primary campus.</p>
+        </div>
+
+        <!-- OPPO ANALYTICS STRIP: Leadership KPIs -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+            <wajina-kpi type="operational.studentCount" label="Active Pupils" icon="fa-graduation-cap"></wajina-kpi>
+            <wajina-kpi type="operational.teacherCount" label="Active Staff" icon="fa-user-tie"></wajina-kpi>
+            <wajina-chart type="finance.weeklyFeeCompliance" chart-type="doughnut" label="Fee Compliance" hide-values="true"></wajina-chart>
+        </div>
+
+        <!-- INTELLIGENCE FEED -->
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem;">
+            <!-- Teacher Submissions -->
+            <div class="card" style="display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h3 style="font-size: 0.9rem;">Teacher Submissions</h3>
+                    <a href="/teacher-submissions-review.html" style="font-size: 0.7rem; font-weight: 700; color: var(--brand-moonstone); text-decoration: none;">Review All <i class="fa-solid fa-arrow-right ml-1"></i></a>
+                </div>
+                <div id="teacherFeed" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div style="text-align: center; color: var(--text-muted); padding: 2.5rem; font-size: 0.85rem;">Listening for teacher movements...</div>
+                </div>
+            </div>
+
+            <!-- Verified Admissions -->
+            <div class="card" style="display: flex; flex-direction: column;">
+                <h3 style="font-size: 0.9rem; margin-bottom: 2rem;">Finance-Verified Admissions</h3>
+                <div id="offerFeed" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div style="text-align: center; color: var(--text-muted); padding: 2.5rem; font-size: 0.85rem;">No new candidates today.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Initialization Logic -->
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/pages/head-teacher-dashboard.js" defer></script>
+</body>
+</body>
+</html>

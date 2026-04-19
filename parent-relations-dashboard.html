@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Relations Center | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/config/navigation.js"></script>
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <script src="/js/components/wajina-toast.js"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .relation-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card-engagement {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1.5px solid rgba(0,0,0,0.03);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .engagement-gauge {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .engagement-gauge svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        .engagement-gauge circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+        }
+        .engagement-gauge .track { stroke: #f0f4f8; }
+        .engagement-gauge .fill { 
+            stroke: var(--brand-moonstone);
+            stroke-dasharray: 283;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .ticket-number {
+            position: absolute;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--brand-gunmetal);
+        }
+
+        .engagement-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        .complaint-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .complaint-item {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border-left: 5px solid var(--brand-moonstone);
+            transition: all 0.2s;
+        }
+        .complaint-item:hover {
+            transform: translateX(4px);
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        }
+        .complaint-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--brand-gunmetal);
+        }
+        .complaint-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+    </style>
+
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Citizen Engagement Hub"></wajina-header>
+            
+            <div class="top-row">
+                <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Parent Relations</h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Engagement analytics, parent sentiment registry, and high-priority constituent concerns.</p>
+            </div>
+
+            <div class="relation-stat-grid">
+                <div class="stat-card-engagement">
+                    <div class="engagement-gauge">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="track" cx="50" cy="50" r="45"></circle>
+                            <circle class="fill" cx="50" cy="50" r="45" style="stroke-dashoffset: 120;"></circle>
+                        </svg>
+                        <div class="ticket-number">12</div>
+                    </div>
+                    <div class="engagement-label">ACTIVE TICKETS</div>
+                </div>
+                <div class="stat-card-engagement">
+                    <div class="engagement-gauge">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="track" cx="50" cy="50" r="45"></circle>
+                            <circle class="fill" cx="50" cy="50" r="45" style="stroke-dashoffset: 40; stroke: var(--brand-saffron);"></circle>
+                        </svg>
+                        <div class="ticket-number">88%</div>
+                    </div>
+                    <div class="engagement-label">SENTIMENT INDEX</div>
+                </div>
+                <div class="stat-card-engagement">
+                    <div class="engagement-gauge">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="track" cx="50" cy="50" r="45"></circle>
+                            <circle class="fill" cx="50" cy="50" r="45" style="stroke-dashoffset: 200; stroke: #e74c3c;"></circle>
+                        </svg>
+                        <div class="ticket-number">4</div>
+                    </div>
+                    <div class="engagement-label">ESCALATED CASES</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem; padding: 2.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid rgba(0,0,0,0.03); padding-bottom: 1.5rem;">
+                    <h3 style="font-weight: 800; font-size: 1.2rem; color: var(--brand-gunmetal); margin: 0;">Institutional Grievance Queue</h3>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: var(--brand-moonstone);">VALDATED CITIZEN REQUESTS</span>
+                </div>
+                
+                <div class="complaint-stack">
+                    <div class="complaint-item">
+                        <div class="complaint-header">
+                            <i class="fa-solid fa-bus" style="color: var(--brand-moonstone);"></i>
+                            <span>Late Bus Notification Protocol Query</span>
+                        </div>
+                        <div class="complaint-meta">Parent: Mrs. Adeyemi A. · Grade Level: JSS 1</div>
+                    </div>
+                    <div class="complaint-item" style="border-left-color: var(--brand-saffron);">
+                        <div class="complaint-header">
+                            <i class="fa-solid fa-key" style="color: var(--brand-saffron);"></i>
+                            <span>Consolidated Portal Integration Access</span>
+                        </div>
+                        <div class="complaint-meta">Parent: Mr. Eze A. · Grade Level: SS 2</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/pages/parent-relations.js" defer></script>
+</body>
+</html>
+</html>
+
+
+

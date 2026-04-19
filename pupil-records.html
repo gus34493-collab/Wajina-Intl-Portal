@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pupil Records Archive | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .archive-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            background: rgba(255,255,255,0.5);
+            padding: 1rem 2rem;
+            border-radius: 999px;
+            width: fit-content;
+            border: 1.5px solid rgba(0,0,0,0.03);
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .breadcrumb-item {
+            color: var(--brand-moonstone);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .breadcrumb-item:hover { color: var(--brand-gunmetal); }
+        .breadcrumb-separator { color: var(--text-muted); opacity: 0.3; }
+
+        .archive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .archive-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1.5px solid rgba(0,0,0,0.03);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .archive-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--brand-moonstone);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+        }
+        .archive-card i {
+            font-size: 2.5rem;
+            color: var(--brand-moonstone);
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+        }
+
+        .transcript-container {
+            background: white;
+            padding: 5rem;
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .transcript-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 3px solid var(--brand-gunmetal);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .report-table th {
+            padding: 1rem;
+            background: var(--brand-gunmetal);
+            color: white;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+        .report-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-size: 0.85rem;
+        }
+
+        .term-selector {
+            display: flex;
+            gap: 0.5rem;
+            background: #f8f9fa;
+            padding: 0.4rem;
+            border-radius: 12px;
+            width: fit-content;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        .term-btn {
+            background: transparent;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .term-btn.active {
+            background: white;
+            color: var(--brand-gunmetal);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        @media print {
+            body { background: white !important; }
+            .main-content { padding: 0 !important; margin: 0 !important; }
+            wajina-sidebar, wajina-header, .archive-breadcrumb, .top-row, .term-selector, #printBtnCont { display: none !important; }
+            .transcript-container { box-shadow: none !important; border: none !important; padding: 0 !important; width: 100% !important; max-width: none !important; }
+        }
+    </style>
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/config/navigation.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/academic-engine.js" defer></script>
+    <script src="/js/archive-service.js" defer></script>
+    <script src="/js/pages/pupil-records.js" defer></script>
+</body>
+</body>
+</html>
+

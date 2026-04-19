@@ -1,0 +1,22 @@
+/**
+ * reduced-motion.css — respect user's motion preferences.
+ * Include this in the <head> of every HTML page.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .carousel-slide {
+    transition: none !important;
+  }
+
+  .login-card.shake {
+    animation: none !important;
+  }
+}

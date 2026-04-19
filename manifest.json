@@ -1,0 +1,38 @@
+{
+  "name": "Wajina International Schools Portal",
+  "short_name": "Wajina Portal",
+  "description": "Excellence in Education - The official administrative and academic portal for Wajina International Schools.",
+  "start_url": "/portal.html",
+  "id": "/wajina-portal-v1",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#20373B",
+  "orientation": "portrait-primary",
+  "categories": ["education", "productivity", "management"],
+  "icons": [
+    {
+      "src": "/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Report Operational Risk",
+      "url": "/academic-admin-dashboard.html?action=log-risk",
+      "description": "Quickly log a campus operational or safety risk."
+    },
+    {
+      "name": "View Results",
+      "url": "/student-results-detail.html",
+      "description": "Check academic performance and results."
+    }
+  ]
+}

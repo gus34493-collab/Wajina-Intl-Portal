@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Access | Wajina International Schools</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1a2327">
+    
+    <!-- Fonts -->
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+
+    <!-- Icons & Bootstrap -->
+    <link href='/vendors/bootstrap/bootstrap.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+
+    
+    <!-- Core Styling (Absolute Paths) -->
+    <link rel="stylesheet" href="/css/onion-core.css?v=premium-v1">
+    <link rel="stylesheet" href="/reduced-motion.css?v=premium-v1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+
+
+    <style>
+        :root {
+            --brand-primary: #0f8f62;
+            --brand-dark: #1a2327;
+            --brand-accent: #fbc02d;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top left, #1a2327 0%, #0a0f12 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.4;
+            animation: float 20s infinite alternate ease-in-out;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--brand-primary);
+            top: -100px;
+            right: -100px;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: #3498db;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.1); }
+        }
+
+        nav {
+            padding: 1.5rem 2rem;
+            background: rgba(26, 35, 39, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-brand img {
+            height: 42px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .nav-brand span {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #fff, #ccc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .login-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: var(--glass-shadow);
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .login-header h2 {
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.75rem;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.8rem 1.2rem;
+            color: #fff !important;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 4px rgba(15, 143, 98, 0.15);
+            outline: none;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .eye-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .eye-toggle:hover {
+            color: #fff;
+        }
+
+        .forgot-link {
+            display: block;
+            text-align: right;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--brand-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .login-btn {
+            background: var(--brand-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem;
+            width: 100%;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background: #12a874;
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(15, 143, 98, 0.3);
+        }
+
+        .login-btn:active {
+            transform: scale(0.98);
+        }
+
+        .error-msg {
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            color: #ff7675;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error-msg.visible {
+            display: flex;
+        }
+
+        footer {
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+            border-top: 1px solid var(--glass-border);
+            background: rgba(10, 15, 18, 0.8);
+        }
+
+        footer a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        footer a:hover {
+            color: var(--brand-primary);
+        }
+
+        /* Modal Styling */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .modal-content {
+            background: var(--brand-dark);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 400px;
+            width: 100%;
+            position: relative;
+        }
+
+        .modal-content h3 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.25rem;
+            cursor: pointer;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 576px) {
+            .login-card {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <nav role="banner">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <a href="/" class="nav-brand text-decoration-none">
+                <img src="/images/Logo.png" alt="Logo">
+                <span>Wajina Intl Schools</span>
+            </a>
+            <div class="nav-extra d-none d-md-block">
+                <small class="text-white-50">Academic Management Portal v4.2</small>
+            </div>
+        </div>
+    </nav>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to access your dashboard</p>
+            </div>
+
+            <div id="login-error" class="error-msg">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="login-error-text"></span>
+            </div>
+
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label for="login-email" class="form-label">Email or Staff ID</label>
+                    <input type="text" id="login-email" class="form-control" placeholder="staff.name@wajina.edu.ng" autocomplete="username" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="login-password" class="form-label">Password</label>
+                    <div class="password-container">
+                        <input type="password" id="login-password" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
+                        <button type="button" class="eye-toggle" data-action="togglePassword" aria-label="Toggle password visibility">
+                            <i class="fa-solid fa-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                    <a href="#" class="forgot-link" data-action="openForgotModal">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <span id="loginBtnText">Sign In</span>
+                    <div id="loginBtnSpinner" class="spinner" hidden></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="forgotModal" class="custom-modal">
+        <div class="modal-content">
+            <button class="close-modal" data-action="closeForgotModal">&times;</button>
+            <h3>Reset Password</h3>
+            <p class="text-white-50 small mb-4">Enter your email and we'll send you a secure link to reset your password.</p>
+            <div class="mb-3">
+                <input type="email" id="forgotEmail" class="form-control" placeholder="your-email@example.com">
+            </div>
+            <div id="forgotFeedback" class="small mb-3"></div>
+            <button class="login-btn mt-2" id="forgotBtn" data-action="submitForgotPassword">Send Reset Link</button>
+        </div>
+    </div>
+
+    <div id="resetModal" class="custom-modal">
+        <div class="modal-content">
+            <h3>Set New Password</h3>
+            <p class="text-white-50 small mb-4">Choose a strong password with at least 8 characters.</p>
+            <div class="mb-3">
+                <input type="password" id="resetPassword" class="form-control" placeholder="New Password">
+            </div>
+            <div class="mb-3">
+                <input type="password" id="resetConfirm" class="form-control" placeholder="Confirm Password">
+            </div>
+            <div id="resetFeedback" class="small mb-3"></div>
+            <button class="login-btn mt-2" id="resetBtn" data-action="submitResetPassword">Update Password</button>
+        </div>
+    </div>
+
+    <footer role="contentinfo">
+        <p>&copy; <span id="year"></span> Wajina International Schools. All rights reserved.</p>
+        <div class="mt-2">
+            <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a> • <a href="/support">Support</a>
+        </div>
+    </footer>
+
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/pages/portal.js" defer></script>
+</body>
+
+</html>

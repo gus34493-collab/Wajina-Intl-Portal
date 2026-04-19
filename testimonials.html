@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valedictory Portal | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: var(--brand-bg); }
+        .student-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1.5px solid rgba(0,0,0,0.02); }
+        .student-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); border-color: var(--brand-moonstone); }
+        
+        /* Modal and Print Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(32, 55, 59, 0.95); backdrop-filter: blur(10px);
+            display: none; z-index: 2000; align-items: center; justify-content: center;
+            overflow-y: auto; padding: 2rem;
+        }
+        
+        .certificate-container {
+            background: #fff; width: 100%; max-width: 800px; padding: 4rem;
+            position: relative; border: 20px solid #f0f4f8; box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            text-align: center; color: #2c3e50;
+        }
+
+        .cert-inner { border: 2px solid #d4af37; padding: 3rem; position: relative; }
+        .school-name { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; color: #1a2a3a; margin-bottom: 1rem; }
+        .cert-title { font-size: 0.9rem; letter-spacing: 5px; text-transform: uppercase; color: #7f8c8d; margin-bottom: 3rem; }
+        .award-text { font-size: 1.2rem; line-height: 1.6; margin-bottom: 3rem; }
+        .student-name { font-family: 'Great Vibes', cursive; font-size: 4rem; color: #d4af37; margin: 1.5rem 0; }
+        .signature-group { display: flex; justify-content: space-around; margin-top: 4rem; }
+        .sign-line { border-top: 1px solid #bdc3c7; width: 150px; padding-top: 0.5rem; font-size: 0.75rem; font-weight: 700; color: #7f8c8d; }
+
+        @media print {
+            body * { visibility: hidden; }
+            .modal-overlay { position: absolute; left: 0; top: 0; background: none; display: flex !important; visibility: visible; }
+            .certificate-container { visibility: visible; border: none; box-shadow: none; margin: 0; padding: 0; width: 100%; }
+            .cert-inner { visibility: visible; border: 2px solid #000; }
+            .no-print { display: none !important; }
+        }
+    </style>
+    <script src="/js/config/navigation.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        <main class="main-content">
+            <wajina-header title="Testimonials & Valedictory"></wajina-header>
+            
+            <div class="top-row">
+                <h1 style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.4rem;">Final Year Portal</h1>
+                <p style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600;">Generating institutional testimonials for our graduating scholars.</p>
+            </div>
+
+            <div class="card" style="margin-top: 2rem; display: flex; gap: 1.5rem; align-items: center;">
+                <div style="flex: 1; position: relative;">
+                    <i class="fa-solid fa-graduation-cap" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--brand-moonstone);"></i>
+                    <input type="text" id="studentSearch" placeholder="Search by student nomenclature..." class="glass" style="width: 100%; padding: 1rem 1rem 1rem 3rem; font-weight: 700;">
+                </div>
+                <select id="classFilter" class="glass" style="padding: 1rem; font-weight: 700;">
+                    <option value="FINAL">All Final Years</option>
+                    <option value="SS3">SS 3 (Secondary)</option>
+                    <option value="PR6">PR 6 (Primary)</option>
+                </select>
+            </div>
+
+            <div id="studentsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                <!-- Loaded Dynamically -->
+                <div style="grid-column: 1/-1; text-align: center; padding: 5rem; color: var(--text-muted);">Synchronizing Alumni Registry...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Testimonial Certificate Modal -->
+    <div class="modal-overlay" id="certModal">
+        <div style="position: absolute; top: 2rem; right: 2rem; display: flex; gap: 1rem;" class="no-print">
+            <button class="glass" onclick="window.print()" style="padding: 1rem 2rem; font-weight: 800; background: var(--brand-emerald-light); color: white; border: none;">PRINT CERTIFICATE</button>
+            <button class="glass" onclick="document.getElementById('certModal').style.display='none'" style="padding: 1rem; font-weight: 800; border: none; background: rgba(255,255,255,0.2); color: white;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="certificate-container">
+            <div class="cert-inner">
+                <img src="/img/logo.png" style="width: 80px; margin-bottom: 1.5rem;" alt="School Logo" onerror="this.src='https://via.placeholder.com/80?text=Wajina'">
+                <div class="school-name">Wajina International Schools</div>
+                <div class="cert-title">Testimonial Certificate</div>
+                
+                <div class="award-text">
+                    This is to certifying that our esteemed scholar
+                </div>
+                
+                <div class="student-name" id="certName">Student Name</div>
+                
+                <div class="award-text">
+                    Having completed the prescribed course of study and satisfied the institutional requirements for character and learning, is hereby granted this testimonial for the academic session of <span id="certYear">2025/2026</span>.
+                </div>
+
+                <div class="signature-group">
+                    <div>
+                        <div class="sign-line">SCHOOL PRINCIPAL</div>
+                    </div>
+                    <div>
+                        <div class="sign-line" id="certDate">APRIL 17, 2026</div>
+                    </div>
+                    <div>
+                        <div class="sign-line">ADMINISTRATIVE SEAL</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiFetch = window.Wajina.apiFetch;
+        const esc = window.Wajina.DOMUtils.escapeHTML;
+        let finalYearStudents = [];
+
+        async function init() {
+            try {
+                // Fetch students whose class name suggests final year
+                const res = await apiFetch('/api/hr/staff?role=STUDENT'); 
+                const all = res.staff || [];
+                finalYearStudents = all.filter(s => {
+                    const cName = (s.enrolledClass?.name || '').toUpperCase();
+                    // Identify final years
+                    return cName.includes('SS3') || cName.includes('SS 3') || cName.includes('PR6') || cName.includes('PR 6') || s.email.includes('final');
+                });
+                renderStudents(finalYearStudents);
+            } catch (err) {
+                console.error('Testimonial portal error:', err);
+            }
+        }
+
+        function renderStudents(students) {
+            const grid = document.getElementById('studentsGrid');
+            if (students.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 5rem; color: var(--text-muted);">No final year students identified in currently assigned classes.</div>';
+                return;
+            }
+
+            grid.innerHTML = students.map(s => `
+                <div class="card student-card" style="padding: 1.5rem; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    <div style="width: 70px; height: 70px; border-radius: 50%; background: #f0f4f8; display: grid; place-items: center; margin-bottom: 1.25rem;">
+                         <i class="fa-solid fa-user-graduate" style="font-size: 1.5rem; color: var(--brand-moonstone);"></i>
+                    </div>
+                    <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 0.25rem;">${esc(s.name)}</h3>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 1.5rem;">${esc(s.enrolledClass?.name || 'Class Unassigned')} • ${esc(s.campus)}</p>
+                    <button class="glass" onclick="generateCert('${esc(s.name)}')" style="width: 100%; border-color: var(--brand-moonstone); color: var(--brand-moonstone); font-weight: 800; padding: 0.75rem; font-size: 0.75rem;">GENERATE TESTIMONIAL</button>
+                </div>
+            `).join('');
+        }
+
+        function generateCert(name) {
+            document.getElementById('certName').innerText = name;
+            document.getElementById('certDate').innerText = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+            document.getElementById('certModal').style.display = 'flex';
+        }
+
+        document.getElementById('studentSearch').addEventListener('input', e => {
+            const q = e.target.value.toLowerCase();
+            const filtered = finalYearStudents.filter(s => s.name.toLowerCase().includes(q));
+            renderStudents(filtered);
+        });
+
+        window.addEventListener('authReady', init);
+    </script>
+</body>
+</html>
+

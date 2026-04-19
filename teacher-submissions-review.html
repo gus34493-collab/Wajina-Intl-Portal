@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Submissions Review | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .submission-card {
+            transition: all 0.2s ease;
+        }
+
+        .submission-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--brand-moonstone);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.04);
+        }
+
+        .tab-btn {
+            background: rgba(0,0,0,0.03);
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .tab-btn.active {
+            background: var(--brand-gunmetal);
+            color: white;
+            box-shadow: 0 4px 12px rgba(32, 55, 59, 0.2);
+        }
+
+        /* Modal Overlays */
+        #modalOverlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(32, 55, 59, 0.85); backdrop-filter: blur(8px);
+            display: none; z-index: 1500;
+        }
+
+        #reviewModal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90%; max-width: 500px;
+            background: white; border-radius: 20px;
+            display: none; z-index: 1501; padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+    </style>
+    <script src="/js/config/navigation.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Curriculum & Submission Review"></wajina-header>
+            
+            <div class="top-row">
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+                    <div>
+                        <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Submissions Queue</h1>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary);">Audit lesson plans, results, and resources submitted by academic staff.</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 2rem;" id="filterTabs">
+                    <button class="tab-btn active" data-action="filterCategory" data-cat="ALL">All Sources</button>
+                    <button class="tab-btn" data-action="filterCategory" data-cat="LESSON_PLAN">Lesson Plans</button>
+                    <button class="tab-btn" data-action="filterCategory" data-cat="RESULT">Results Submissions</button>
+                    <button class="tab-btn" data-action="filterCategory" data-cat="OTHER">Materials</button>
+                </div>
+            </div>
+
+            <div id="submissionsList" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+                <!-- Submissions Rendered Here -->
+                <div style="text-align:center; padding: 5rem;"><i class="fa-solid fa-sync fa-spin fa-2x"></i></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="modalOverlay"></div>
+    <div id="reviewModal">
+        <h2 style="font-weight: 800; color: var(--brand-gunmetal); margin-bottom: 1.5rem; font-size: 1.4rem;">Quality Control Review</h2>
+        <div id="modalContent" style="margin-bottom: 2rem; font-size: 0.9rem; color: var(--text-secondary);"></div>
+        
+        <label style="display: block; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text-muted);">Managerial Feedback</label>
+        <textarea id="reviewComment" class="glass" placeholder="State reason for return or positive feedback for approval..." style="width: 100%; min-height: 120px; padding: 1rem; border-color: rgba(0,0,0,0.1); margin-bottom: 2rem; font-family: inherit;"></textarea>
+        
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <button class="glass" data-action="closeModal" style="padding: 0.75rem 1.5rem; font-weight: 700;">CANCEL</button>
+            <button class="glass" data-action="updateSubmission" data-type="deny" style="background: #e74c3c; color: white; border: none; font-weight: 800; padding: 0.75rem 1.5rem;">REJECT & RETURN</button>
+            <button class="glass" data-action="updateSubmission" data-type="approve" style="background: var(--brand-gunmetal); color: white; border: none; font-weight: 800; padding: 0.75rem 2rem;">SIGN OFF & APPROVE</button>
+        </div>
+    </div>
+
+    <script>
+        const apiFetch = window.Wajina.apiFetch;
+        const esc = window.Wajina.DOMUtils.escapeHTML;
+        let currentSubmissions = [];
+        let activeCategory = 'ALL';
+
+        async function init() {
+            loadSubmissions();
+        }
+
+        async function loadSubmissions() {
+            try {
+                const res = await apiFetch('/api/requests?status=PENDING');
+                // Filter for submissions (those with fileUrl or specific categories)
+                currentSubmissions = (res.requests || []).filter(r => r.fileUrl || r.category);
+                renderSubmissions();
+            } catch (err) {
+                document.getElementById('submissionsList').innerHTML = '<div style="color: #e74c3c; font-weight: 800; text-align: center; padding: 5rem;">Unable to synchronize with submission server.</div>';
+            }
+        }
+
+        function renderSubmissions() {
+            const list = document.getElementById('submissionsList');
+            const filtered = activeCategory === 'ALL' 
+                ? currentSubmissions 
+                : currentSubmissions.filter(s => s.category === activeCategory);
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="card" style="padding: 5rem; text-align: center; color: var(--text-muted); font-weight: 700;">Zero Pending Submissions in this segment.</div>';
+                return;
+            }
+
+            list.innerHTML = filtered.map(s => `
+                <div class="card submission-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 2rem;">
+                    <div style="display: flex; gap: 2rem; align-items: center;">
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(81, 156, 171, 0.1); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: var(--brand-moonstone);">
+                            <i class="fa-solid ${s.category === 'LESSON_PLAN' ? 'fa-file-signature' : 'fa-graduation-cap'}"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 800; font-size: 1rem; color: var(--brand-gunmetal); margin-bottom: 0.25rem;">${esc(s.title)}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; display: flex; gap: 1.5rem;">
+                                <span><i class="fa-solid fa-user-tie mr-1"></i> ${esc(s.sender?.name || 'Academic Staff')}</span>
+                                <span><i class="fa-solid fa-clock-rotate-left mr-1"></i> ${new Date(s.createdAt).toLocaleDateString()}</span>
+                                <span style="color: var(--brand-moonstone); font-weight: 800;">PENDING QUALITY REVIEW</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem;">
+                        ${s.fileUrl ? `<a href="${esc(s.fileUrl)}" target="_blank" class="glass" style="padding: 0.6rem 1.25rem; font-size: 0.75rem; text-decoration: none; color: var(--brand-moonstone); font-weight: 800; border: 1.5px solid rgba(81, 156, 171, 0.3);">VIEW ASSET</a>` : ''}
+                        <button data-action="openReviewModal" data-id="${esc(s.id)}" class="glass" style="padding: 0.6rem 1.5rem; font-size: 0.75rem; background: var(--brand-gunmetal); color: white; border: none; font-weight: 800;">AUDIT RECORD</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                const bcat = btn.getAttribute('data-cat');
+                btn.classList.toggle('active', bcat === cat);
+            });
+            renderSubmissions();
+        }
+
+        let selectedId = null;
+        function openReviewModal(id) {
+            selectedId = id;
+            const s = currentSubmissions.find(sub => sub.id === id);
+            document.getElementById('modalContent').innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div><span style="font-weight: 800; color: var(--brand-gunmetal);">STAFF:</span> ${esc(s.sender?.name || 'Staff')}</div>
+                    <div><span style="font-weight: 800; color: var(--brand-gunmetal);">SUBJECT:</span> ${esc(s.title)}</div>
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 4px solid var(--brand-moonstone);">
+                        <span style="font-weight: 800; font-size: 0.7rem; display: block; margin-bottom: 0.25rem; color: var(--text-muted);">DESCRIPTION / NOTES:</span>
+                        ${esc(s.description || 'No staff notes provided.')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('reviewModal').style.display = 'block';
+            document.getElementById('modalOverlay').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+            document.getElementById('modalOverlay').style.display = 'none';
+            document.getElementById('reviewComment').value = '';
+        }
+
+        async function updateSubmission(action) {
+            const reason = document.getElementById('reviewComment').value;
+            if (action === 'deny' && !reason) {
+                alert('A return reason is mandatory for negative feedback.');
+                return;
+            }
+
+            try {
+                await apiFetch(`/api/requests/${selectedId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ action, reason })
+                });
+
+                closeModal();
+                loadSubmissions();
+            } catch (err) {
+                alert(err.message || 'System error during authorization.');
+            }
+        }
+
+        window.addEventListener('authReady', init);
+
+        document.addEventListener('click', e => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) {
+                if (e.target.id === 'modalOverlay') closeModal();
+                return;
+            }
+            const action = btn.getAttribute('data-action');
+
+            if (action === 'toggleSidebar') {
+                document.getElementById('dashboardLayout').classList.toggle('sidebar-open');
+            } else if (action === 'filterCategory') {
+                filterCategory(btn.getAttribute('data-cat'));
+            } else if (action === 'closeModal') {
+                closeModal();
+            } else if (action === 'openReviewModal') {
+                openReviewModal(btn.getAttribute('data-id'));
+            } else if (action === 'updateSubmission') {
+                updateSubmission(btn.getAttribute('data-type'));
+            }
+        });
+    </script>
+</body>
+</html>
+

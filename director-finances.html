@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner's Finances | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        window.REQUIRED_ROLES = ['DIRECTOR'];
+    </script>
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+        .tracker-table th {
+            padding: 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            text-align: left;
+            border-bottom: 2px solid rgba(0,0,0,0.03);
+        }
+    </style>
+    <script src="/js/config/navigation.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Owner's Finances"></wajina-header>
+            
+            <div class="top-row">
+                <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Global Fee Governance</h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Direct control over institutional fee structures and student debt tracking.</p>
+            </div>
+
+            <!-- Oppo Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem;">
+                
+                <!-- Left: Fee Configuration Area -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div class="card">
+                        <h3 style="font-size: 1rem; margin-bottom: 1.5rem;">Strategic Fee Configuration</h3>
+                        <form id="feeConfigForm" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                             <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                                <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted);">CATEGORY</label>
+                                <select id="feeCategory" class="glass" style="padding: 0.8rem; font-family: inherit;">
+                                    <option value="TUITION_STUDENT">Student Tuition</option>
+                                    <option value="TRANSPORT">Transport Service</option>
+                                    <option value="DEVELOPMENT">Development Levy</option>
+                                    <option value="EXAMINATION">Internal Exam Fees</option>
+                                </select>
+                             </div>
+                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                                    <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted);">CAMPUS</label>
+                                    <select id="feeCampus" class="glass" style="padding: 0.8rem; font-family: inherit;">
+                                        <option value="">Global (All)</option>
+                                        <option value="PRIMARY">Primary</option>
+                                        <option value="SECONDARY">Secondary</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                                    <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted);">CLASS (OPTIONAL)</label>
+                                    <select id="feeClass" class="glass" style="padding: 0.8rem; font-family: inherit;">
+                                        <option value="">Specific Class...</option>
+                                    </select>
+                                </div>
+                             </div>
+                             <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                                <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted);">AMOUNT (₦)</label>
+                                <input type="number" id="feeAmount" class="glass" style="padding: 0.8rem;" placeholder="e.g. 150000">
+                             </div>
+                             <button type="button" id="saveFeeBtn" class="glass" style="padding: 1rem; background: var(--brand-gunmetal); color: white; font-weight: 800; margin-top: 0.5rem;" data-action="saveFeeConfig">PUBLISH FEE STRUCTURE</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                         <h3 style="font-size: 1rem; margin-bottom: 1rem;">Active Fee Registry</h3>
+                         <div id="feeConfigRegistry" style="max-height: 400px; overflow-y: auto;">
+                              <p style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem;">Retrieving structures...</p>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- Right: Student Payment Tracker -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <!-- Quick Stats Header -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                        <div class="card" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+                             <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(44, 194, 135, 0.1); color: var(--brand-emerald-light); display: grid; place-items: center;">
+                                 <i class="fa-solid fa-check-double"></i>
+                             </div>
+                             <div>
+                                 <div id="paidCount" style="font-weight: 800; font-size: 1.2rem;">--</div>
+                                 <div style="font-size: 0.65rem; color: var(--text-muted);">FULLY PAID</div>
+                             </div>
+                        </div>
+                        <div class="card" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+                             <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(255, 198, 79, 0.1); color: var(--brand-saffron); display: grid; place-items: center;">
+                                 <i class="fa-solid fa-plus-minus"></i>
+                             </div>
+                             <div>
+                                 <div id="partialCount" style="font-weight: 800; font-size: 1.2rem;">--</div>
+                                 <div style="font-size: 0.65rem; color: var(--text-muted);">PARTIAL</div>
+                             </div>
+                        </div>
+                        <div class="card" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+                             <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(224, 82, 82, 0.1); color: #e74c3c; display: grid; place-items: center;">
+                                 <i class="fa-solid fa-triangle-exclamation"></i>
+                             </div>
+                             <div>
+                                 <div id="unpaidCount" style="font-weight: 800; font-size: 1.2rem;">--</div>
+                                 <div style="font-size: 0.65rem; color: var(--text-muted);">UNPAID</div>
+                             </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="flex: 1;">
+                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                             <h3 style="font-size: 1.1rem;">Institutional Balances</h3>
+                             <div style="display: flex; gap: 0.75rem;">
+                                 <select id="trackerCampusFilter" class="glass" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; font-family: inherit;">
+                                     <option value="">All Campuses</option>
+                                     <option value="PRIMARY">Primary</option>
+                                     <option value="SECONDARY">Secondary</option>
+                                 </select>
+                                 <input type="text" id="trackerSearch" class="glass" style="font-size: 0.75rem; padding: 0.4rem 0.8rem;" placeholder="Search student...">
+                             </div>
+                         </div>
+
+                         <div style="overflow-x: auto;">
+                             <table class="tracker-table" style="width: 100%; border-collapse: collapse;">
+                                 <thead>
+                                     <tr>
+                                         <th>Student</th>
+                                         <th>Class</th>
+                                         <th>Campus</th>
+                                         <th style="text-align: right;">Expected</th>
+                                         <th style="text-align: right;">Paid</th>
+                                         <th style="text-align: right;">Balance</th>
+                                         <th style="text-align: center;">Status</th>
+                                     </tr>
+                                 </thead>
+                                 <tbody id="balancesBody">
+                                     <tr><td colspan="7" style="text-align:center; padding:3rem; color:var(--text-muted);">Syncing with bursar terminals...</td></tr>
+                                 </tbody>
+                             </table>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const apiFetch = window.Wajina.apiFetch;
+        const Telemetry = window.Wajina.Telemetry;
+        const esc = window.Wajina.DOMUtils.escapeHTML;
+
+        let currentSessionId = null;
+
+        async function initOwnerFinances(e) {
+            const user = e.detail.user;
+            
+            try {
+                // Determine active session
+                const sessionRes = await apiFetch('/api/sessions/active');
+                if (sessionRes && sessionRes.id) {
+                    currentSessionId = sessionRes.id;
+                    Telemetry.log('INFO', 'OWNER_FINANCES', `Governance targeting session: ${sessionRes.name}`);
+                }
+
+                // Populate Class Dropdown
+                const classes = await apiFetch('/api/school/classes');
+                const classSelect = document.getElementById('feeClass');
+                if (classes) {
+                    classes.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.textContent = c.name;
+                        classSelect.appendChild(opt);
+                    });
+                }
+
+                await Promise.all([
+                    loadFeeConfigs(),
+                    loadStudentBalances()
+                ]);
+
+            } catch (err) {
+                console.error('Owner Finance Init Error:', err);
+            }
+        }
+
+        async function loadFeeConfigs() {
+            const container = document.getElementById('feeConfigRegistry');
+            try {
+                const fees = await apiFetch(`/api/finance/fees?sessionId=${currentSessionId}`);
+                if (!fees || fees.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem;">No fee structures published for this session.</p>';
+                } else {
+                    container.innerHTML = fees.map(f => `
+                         <div style="padding: 1rem; border-radius: 12px; background: rgba(0,0,0,0.02); margin-bottom: 0.75rem; border: 1px solid rgba(0,0,0,0.03);">
+                             <div style="display: flex; justify-content: space-between; align-items: start;">
+                                 <div>
+                                     <div style="font-weight: 700; font-size: 0.85rem; color: var(--brand-moonstone);">${esc(f.category.replace(/_/g, ' '))}</div>
+                                     <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                                         ${f.campus || 'Global'} ${f.className ? '· ' + esc(f.className) : ''}
+                                     </div>
+                                 </div>
+                                 <div style="font-weight: 800; font-size: 0.9rem;">₦${(f.amount || 0).toLocaleString()}</div>
+                             </div>
+                         </div>
+                    `).join('');
+                }
+            } catch (e) { container.innerHTML = '<div style="background:#e74c3c; color:white; padding:1.5rem; border-radius:12px; font-size:0.75rem;">Registry offline</div>'; }
+        }
+
+        async function loadStudentBalances() {
+            const body = document.getElementById('balancesBody');
+            const campus = document.getElementById('trackerCampusFilter').value;
+            const search = document.getElementById('trackerSearch').value;
+
+            try {
+                let url = `/api/finance/student-balances?sessionId=${currentSessionId || ''}`;
+                if (campus) url += `&campus=${campus}`;
+                if (search) url += `&search=${encodeURIComponent(search)}`;
+
+                const data = await apiFetch(url);
+                const students = data?.students || [];
+
+                document.getElementById('paidCount').textContent = students.filter(s => s.status === 'PAID').length;
+                document.getElementById('partialCount').textContent = students.filter(s => s.status === 'PARTIAL').length;
+                document.getElementById('unpaidCount').textContent = students.filter(s => s.status === 'UNPAID').length;
+
+                if (!students.length) {
+                    body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:3rem; color:var(--text-muted);">No records found matching criteria.</td></tr>';
+                    return;
+                }
+
+                body.innerHTML = students.map(s => {
+                    const statusColor = s.status === 'PAID' ? 'var(--brand-emerald-light)' : (s.status === 'PARTIAL' ? 'var(--brand-saffron)' : '#e74c3c');
+                    return `
+                         <tr style="border-bottom: 1px solid rgba(0,0,0,0.02);">
+                            <td style="padding: 1rem; font-weight: 700; font-size: 0.85rem;">${esc(s.name)}</td>
+                            <td style="padding: 1rem; font-size: 0.8rem; color: var(--text-secondary);">${esc(s.className)}</td>
+                            <td style="padding: 1rem; font-size: 0.8rem;">${esc(s.campus)}</td>
+                            <td style="padding: 1rem; text-align: right; font-size: 0.8rem;">₦${s.expectedTotal.toLocaleString()}</td>
+                            <td style="padding: 1rem; text-align: right; font-size: 0.8rem; color: var(--brand-emerald-light); font-weight: 700;">₦${s.totalPaid.toLocaleString()}</td>
+                            <td style="padding: 1rem; text-align: right; font-size: 0.8rem; font-weight: 800; color: ${s.balance > 0 ? '#e74c3c' : 'var(--brand-emerald-light)'}">₦${s.balance.toLocaleString()}</td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <span class="badge" style="background: ${statusColor}1a; color: ${statusColor}; font-size: 0.6rem;">${s.status}</span>
+                            </td>
+                         </tr>
+                    `;
+                }).join('');
+
+            } catch (e) { console.error('Balance Sync Failed'); }
+        }
+
+        async function saveFeeConfig() {
+            const btn = document.getElementById('saveFeeBtn');
+            const amount = parseFloat(document.getElementById('feeAmount').value);
+            if (!amount || amount < 0) return;
+
+            btn.disabled = true;
+            btn.textContent = 'PUBLISHING...';
+
+            try {
+                const res = await apiFetch('/api/finance/fees', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        category: document.getElementById('feeCategory').value,
+                        amount: amount,
+                        campus: document.getElementById('feeCampus').value || null,
+                        classId: document.getElementById('feeClass').value || null,
+                        sessionId: currentSessionId
+                    })
+                });
+
+                if (res) {
+                    document.getElementById('feeAmount').value = '';
+                    await loadFeeConfigs();
+                    await loadStudentBalances();
+                }
+            } catch (err) { console.error('Save Failed'); }
+            finally {
+                btn.disabled = false;
+                btn.textContent = 'PUBLISH FEE STRUCTURE';
+            }
+        }
+
+        let searchTimeout = null;
+        document.getElementById('trackerSearch').addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(loadStudentBalances, 400);
+        });
+        document.getElementById('trackerCampusFilter').addEventListener('change', loadStudentBalances);
+        document.getElementById('saveFeeBtn').addEventListener('click', saveFeeConfig);
+
+        window.addEventListener('authReady', initOwnerFinances);
+    </script>
+</body>
+</html>
+

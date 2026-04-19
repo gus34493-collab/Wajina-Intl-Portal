@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service — Wajina International Schools</title>
+  <link rel="stylesheet" href="reduced-motion.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --graphite-900: #1a2327; --graphite-700: #2d3d43; --graphite-600: #3b4f56;
+      --graphite-300: #6b7f87; --graphite-100: #e8eef1; --graphite-50: #f4f7f8;
+      --emerald-700: #0f8f62; --emerald-500: #2cc287; --emerald-100: #e8f9f1;
+      --surface-card: #ffffff; --text-primary: var(--graphite-900);
+      --text-secondary: var(--graphite-600); --border: var(--graphite-100);
+      --shadow-md: 0 10px 24px rgba(22,34,38,.08); --radius-md: 12px;
+    }
+    body { font-family: 'IBM Plex Sans', sans-serif; color: var(--text-primary); line-height: 1.7; background: var(--graphite-50); }
+    *:focus-visible { outline: 3px solid #2cc287; outline-offset: 2px; }
+    .skip-link:focus { left: 1rem; top: 1rem; width: auto; height: auto; overflow: visible; }
+    nav { background: var(--graphite-900); padding: 1rem 2rem; }
+    nav a { color: #e8eef1; text-decoration: none; font-weight: 600; }
+    nav a:hover { color: var(--emerald-500); }
+    .page-header { background: linear-gradient(135deg, var(--graphite-900), var(--graphite-700)); color: #fff; padding: 3rem 2rem; text-align: center; }
+    .page-header h1 { font-family: 'Sora', sans-serif; font-size: 2rem; margin-bottom: 0.5rem; }
+    .page-header p { opacity: 0.9; }
+    .container { max-width: 800px; margin: 2rem auto; padding: 0 1.5rem; }
+    .policy-card { background: var(--surface-card); border-radius: var(--radius-md); box-shadow: var(--shadow-md); padding: 2.5rem; margin-bottom: 1.5rem; }
+    .policy-card h2 { font-family: 'Sora', sans-serif; font-size: 1.3rem; color: var(--emerald-700); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--emerald-100); }
+    .policy-card p { color: var(--text-secondary); margin-bottom: 0; }
+    .last-updated { text-align: center; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 2rem; }
+    .loading { text-align: center; padding: 4rem; color: var(--text-secondary); }
+    .error-msg { text-align: center; padding: 2rem; color: #b42318; background: #fff0f0; border-radius: var(--radius-md); }
+    footer { background: var(--graphite-900); color: #e8eef1; text-align: center; padding: 2rem; margin-top: 3rem; }
+    footer a { color: var(--emerald-500); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    @media (max-width: 600px) { .page-header h1 { font-size: 1.5rem; } .policy-card { padding: 1.5rem; } }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:9999;background:#0f8f62;color:#fff;padding:0.75rem 1.5rem;border-radius:4px;font-weight:600;">Skip to main content</a>
+  <nav role="banner"><a href="index.html">&larr; Back to Home</a></nav>
+  <header class="page-header"><h1>Terms of Service</h1><p>Wajina International Schools Portal</p></header>
+  <div class="container" id="main-content" role="main">
+    <p class="last-updated" id="lastUpdated"></p>
+    <div id="policyContent"><div class="loading">Loading terms of service...</div></div>
+  </div>
+  <footer role="contentinfo">
+    <p>&copy; <script>document.write(new Date().getFullYear())</script> Wajina International Schools. All rights reserved. | <a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Service</a></p>
+  </footer>
+  <script>
+    fetch('/api/privacy/terms')
+      .then(function(r) { return r.ok ? r.json() : Promise.reject(new Error('Failed to load')); })
+      .then(function(data) {
+        document.title = data.title;
+        document.getElementById('lastUpdated').textContent = 'Last updated: ' + data.lastUpdated;
+        var html = '';
+        data.sections.forEach(function(s) {
+          html += '<div class="policy-card"><h2>' + s.heading + '</h2><p>' + s.content + '</p></div>';
+        });
+        document.getElementById('policyContent').innerHTML = html;
+      })
+      .catch(function() {
+        document.getElementById('policyContent').innerHTML = '<div class="error-msg">Failed to load the terms of service. Please try again later.</div>';
+      });
+  </script>
+</body>
+</html>

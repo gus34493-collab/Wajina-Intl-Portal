@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operational Priorities Hub | Wajina Intl</title>
+    <link rel="stylesheet" href="css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="js/auth-guard.js"></script>
+    <script src="js/dom-utils.js"></script>
+    <script src="js/telemetry.js"></script>
+    <script src="js/components/wajina-sidebar.js"></script>
+    <script src="js/components/wajina-header.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .priority-table th {
+            padding: 1.25rem 1.5rem;
+            background: #f8f9fa;
+            text-align: left;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 2px solid rgba(0,0,0,0.03);
+        }
+
+        .priority-table td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.02);
+            font-size: 0.85rem;
+        }
+
+        .status-pill {
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .status-stable { background: rgba(44, 194, 135, 0.1); color: #2ecc71; }
+        .status-warning { background: rgba(255, 198, 79, 0.1); color: #f39c12; }
+        .status-critical { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+
+        .risk-badge {
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .risk-high { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+        .risk-medium { background: rgba(255, 198, 79, 0.1); color: #f39c12; }
+        .risk-low { background: #f0f4f8; color: var(--text-muted); }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #f0f4f8;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--brand-moonstone);
+            transition: width 0.3s ease;
+        }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(32, 55, 59, 0.85); backdrop-filter: blur(8px);
+            display: none; z-index: 2000; align-items: center; justify-content: center;
+        }
+
+        .modal-content {
+            background: white; border-radius: 20px; width: 100%; max-width: 550px;
+            padding: 2.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        .toast-op {
+            position: fixed; bottom: 2rem; right: 2rem;
+            background: var(--brand-gunmetal); color: white;
+            padding: 1rem 2rem; border-radius: 12px; font-weight: 700; font-size: 0.85rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            opacity: 0; transform: translateY(10px); transition: all 0.3s ease;
+            pointer-events: none; z-index: 3000;
+        }
+    </style>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Operations Intelligence Hub"></wajina-header>
+            
+            <div class="top-row" style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Institutional Priorities</h1>
+                    <p id="panelSubtitle" style="font-size: 0.85rem; color: var(--text-secondary);">Tracking structural milestones and operational velocity.</p>
+                </div>
+                <button class="glass" id="addTaskBtn" style="background: var(--brand-gunmetal); color: white; border: none; font-weight: 800; padding: 0.8rem 1.5rem;">CREATE PRIORITY</button>
+            </div>
+
+            <div class="card" style="margin-top: 2rem; padding: 0; overflow: hidden;">
+                <div style="overflow-x: auto;">
+                    <table class="priority-table" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th>Operational Milestone</th>
+                                <th>Stakeholder / Owner</th>
+                                <th>Target Date</th>
+                                <th>Status</th>
+                                <th>Risk</th>
+                                <th>Progression</th>
+                                <th style="text-align: right;">Authorization</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taskTableBody">
+                            <tr><td colspan="7" style="padding: 5rem; text-align: center; color: var(--text-muted);">Synchronizing Strategic Queue...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Priority Modal -->
+    <div class="modal-overlay" id="addTaskModal">
+        <div class="modal-content">
+            <h2 style="font-weight: 800; margin-bottom: 2rem; color: var(--brand-gunmetal);">New Operational Priority</h2>
+            <form id="addTaskForm">
+                <div style="margin-bottom: 1.25rem;">
+                    <label style="display: block; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text-muted);">Milestone Title</label>
+                    <input type="text" id="taskTitle" class="glass" required placeholder="Project Alpha sync..." style="width: 100%; padding: 0.75rem;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text-muted);">Owner Identity</label>
+                        <input type="text" id="taskOwner" class="glass" required placeholder="Operations Desk" style="width: 100%; padding: 0.75rem;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text-muted);">Deadline</label>
+                        <input type="date" id="taskDue" class="glass" style="width: 100%; padding: 0.75rem;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text-muted);">Trajectory</label>
+                        <select id="taskStatus" class="glass" style="width: 100%; padding: 0.75rem;">
+                            <option value="ON_TRACK">Stable (On Track)</option>
+                            <option value="AT_RISK">At Risk</option>
+                            <option value="BLOCKED">Blocked</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text-muted);">Risk Threshold</label>
+                        <select id="taskRisk" class="glass" style="width: 100%; padding: 0.75rem;">
+                            <option value="LOW">Low Registry</option>
+                            <option value="MEDIUM">Medium Exposure</option>
+                            <option value="HIGH">High Criticality</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-bottom: 2rem;">
+                    <label style="display: block; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text-muted);">Execution Progress (0-100%)</label>
+                    <input type="number" id="taskProgress" class="glass" min="0" max="100" value="0" style="width: 100%; padding: 0.75rem;">
+                </div>
+                
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" id="cancelTaskBtn" class="glass" style="padding: 0.75rem 1.5rem; font-weight: 700;">CANCEL</button>
+                    <button type="submit" class="glass" style="background: var(--brand-gunmetal); color: white; border: none; padding: 0.75rem 2rem; font-weight: 800;">DEPLOY PRIORITY</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="opToast" class="toast-op"></div>
+
+    <script>
+        const apiFetch = window.Wajina.apiFetch;
+        const esc = window.Wajina.DOMUtils.escapeHTML;
+
+        const DEFAULT_TASKS = [
+            {title:'End-of-Term Financial Recon',owner:'Bursar Office',dueDate:null,status:'ON_TRACK',riskLevel:'LOW',progress:75},
+            {title:'Admissions Verification Backlog',owner:'Admissions Desk',dueDate:null,status:'ON_TRACK',riskLevel:'LOW',progress:57},
+            {title:'ICT Device Tagging for External Audit',owner:'ICT Admin',dueDate:null,status:'AT_RISK',riskLevel:'MEDIUM',progress:46},
+            {title:'Term 3 Staffing Forecast Approval',owner:'Director Office',dueDate:null,status:'AT_RISK',riskLevel:'MEDIUM',progress:42},
+        ];
+
+        let _tasks = [];
+
+        function showOpToast(msg) {
+            const t = document.getElementById('opToast');
+            t.textContent = msg;
+            t.style.opacity = '1'; t.style.transform = 'translateY(-10px)';
+            clearTimeout(t._tid);
+            t._tid = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateY(10px)'; }, 2400);
+        }
+
+        function getStatusClass(status) {
+            const map = { 'ON_TRACK': 'stable', 'AT_RISK': 'warning', 'BLOCKED': 'critical', 'OVERDUE': 'critical', 'COMPLETED': 'stable' };
+            return map[status] || 'warning';
+        }
+
+        function fmtDate(iso) {
+            if (!iso) return '-';
+            return new Date(iso).toLocaleDateString('en-NG', { day:'numeric', month:'short', year:'numeric' });
+        }
+
+        function renderTasks() {
+            const tbody = document.getElementById('taskTableBody');
+            if (!_tasks.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:5rem; font-weight:700;">Zero milestones identified in current strategic vector.</td></tr>';
+                document.getElementById('panelSubtitle').textContent = 'Strategic Registry Clear';
+                return;
+            }
+            const open = _tasks.filter(t => t.status !== 'COMPLETED');
+            document.getElementById('panelSubtitle').textContent = `${open.length} active / ${_tasks.length} total priorities`;
+            
+            tbody.innerHTML = _tasks.map(task => {
+                const sCls = getStatusClass(task.status);
+                const rCls = task.riskLevel.toLowerCase();
+                const progressColor = task.progress >= 100 ? '#2ecc71' : (task.status === 'BLOCKED' ? '#e74c3c' : 'var(--brand-moonstone)');
+                
+                return `
+                    <tr>
+                        <td><div style="font-weight: 800; color: var(--brand-gunmetal);">${esc(task.title)}</div></td>
+                        <td><div style="font-weight: 600; color: var(--text-secondary);">${esc(task.owner)}</div></td>
+                        <td><div style="font-weight: 700; color: var(--text-muted);">${fmtDate(task.dueDate)}</div></td>
+                        <td><span class="status-pill status-${sCls}">${esc(task.status.split('_').join(' '))}</span></td>
+                        <td><span class="risk-badge risk-${rCls}">${esc(task.riskLevel)}</span></td>
+                        <td style="min-width: 140px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.65rem; font-weight: 800; margin-bottom: 0.25rem;">
+                                <span>PROGRESS</span>
+                                <span>${task.progress}%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: ${task.progress}%; background: ${progressColor};"></div>
+                            </div>
+                        </td>
+                        <td style="text-align: right;">
+                             <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                                <button class="glass" style="padding: 0.4rem 0.75rem; color: #2ecc71; font-weight: 900; font-size: 0.7rem;" data-task-id="${task.id}" data-action="complete"><i class="fa-solid fa-check"></i></button>
+                                <button class="glass" style="padding: 0.4rem 0.75rem; color: #e74c3c; font-weight: 900; font-size: 0.7rem;" data-task-id="${task.id}" data-action="delete"><i class="fa-solid fa-trash-can"></i></button>
+                             </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function seedDefaults() {
+            for (const t of DEFAULT_TASKS) {
+                try {
+                    await apiFetch('/api/tasks', { method: 'POST', body: JSON.stringify(t) });
+                } catch(e) {}
+            }
+            await loadTasks();
+        }
+
+        async function loadTasks() {
+            try {
+                const d = await apiFetch('/api/tasks');
+                _tasks = d.tasks || [];
+                if (_tasks.length === 0) { await seedDefaults(); return; }
+                renderTasks();
+            } catch(e) {
+                document.getElementById('taskTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center; color:#e74c3c; padding:5rem; font-weight:800;">Milestone Registry Disconnected.</td></tr>';
+            }
+        }
+
+        const modal = document.getElementById('addTaskModal');
+        document.getElementById('addTaskBtn').onclick = () => { modal.style.display = 'flex'; document.getElementById('taskTitle').focus(); };
+        document.getElementById('cancelTaskBtn').onclick = () => modal.style.display = 'none';
+
+        document.getElementById('addTaskForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const payload = {
+                title:     document.getElementById('taskTitle').value.trim(),
+                owner:     document.getElementById('taskOwner').value.trim(),
+                dueDate:   document.getElementById('taskDue').value || null,
+                status:    document.getElementById('taskStatus').value,
+                riskLevel: document.getElementById('taskRisk').value,
+                progress:  parseInt(document.getElementById('taskProgress').value) || 0,
+            };
+            try {
+                const d = await apiFetch('/api/tasks', { method: 'POST', body: JSON.stringify(payload) });
+                _tasks.unshift(d.task);
+                renderTasks();
+                document.getElementById('addTaskForm').reset();
+                modal.style.display = 'none';
+                showOpToast('Operational Priority Registered.');
+            } catch(e) { showOpToast(e.message); }
+        };
+
+        document.getElementById('taskTableBody').onclick = async (e) => {
+            const btn = e.target.closest('[data-task-id]');
+            if (!btn) return;
+            const id = btn.getAttribute('data-task-id');
+            const action = btn.getAttribute('data-action');
+            
+            if (action === 'complete') {
+                if (!confirm('Authorize milestone completion?')) return;
+                try {
+                    await apiFetch(`/api/tasks/${id}`, { method: 'PATCH', body: JSON.stringify({ status: 'COMPLETED', progress: 100 }) });
+                    const task = _tasks.find(t => t.id === id);
+                    if (task) { task.status = 'COMPLETED'; task.progress = 100; }
+                    renderTasks();
+                    showOpToast('Milestone Authenticated.');
+                } catch(e) { showOpToast('State update failed.'); }
+            }
+            if (action === 'delete') {
+                if (!confirm('Purge this priority from active governance?')) return;
+                try {
+                    await apiFetch(`/api/tasks/${id}`, { method: 'DELETE' });
+                    _tasks = _tasks.filter(t => t.id !== id);
+                    renderTasks();
+                    showOpToast('Milestone Purged.');
+                } catch(e) { showOpToast('De-registration failed.'); }
+            }
+        };
+
+        window.addEventListener('authReady', loadTasks);
+
+        document.addEventListener('click', e => {
+            if (e.target === modal) modal.style.display = 'none';
+            if (e.target.closest('[data-action="toggleSidebar"]')) document.getElementById('dashboardLayout').classList.toggle('sidebar-open');
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') modal.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

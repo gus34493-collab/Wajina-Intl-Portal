@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner's Academics | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        window.REQUIRED_ROLES = ['DIRECTOR'];
+    </script>
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+        .academic-table th {
+            padding: 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            text-align: left;
+            border-bottom: 2px solid rgba(0,0,0,0.03);
+        }
+    </style>
+    <script src="/js/config/navigation.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Academic Intelligence"></wajina-header>
+            
+            <div class="top-row">
+                <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Global Academic Oversight</h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Monitor submission velocities, grade distributions, and curriculum compliance across campuses.</p>
+            </div>
+
+            <!-- Oppo Stats Strip -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Total Submissions</h3>
+                        <i class="fa-solid fa-cloud-arrow-up" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="submissionRate" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">78%</div>
+                        <div style="font-size: 0.7rem; color: var(--brand-emerald-light); font-weight: 700;">+12% since last snapshot</div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Overdue Gradebooks</h3>
+                        <i class="fa-solid fa-clock-rotate-left" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="overdueCount" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">14</div>
+                        <div style="font-size: 0.7rem; color: #e74c3c; font-weight: 700;">Critical: 4 Overdue > 3 days</div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; background: var(--brand-gunmetal); color: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: rgba(255,255,255,0.7);">Curriculum Matching</h3>
+                        <i class="fa-solid fa-book-bookmark" style="color: var(--brand-saffron); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="complianceScore" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">92.4%</div>
+                        <div style="font-size: 0.7rem; color: var(--brand-saffron); font-weight: 700;">Aligns with MOE standards</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oppo Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem;">
+                
+                <!-- Left: Submission Progress -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div class="card">
+                         <h3 style="font-size: 1rem; margin-bottom: 2rem;">Campus Progress</h3>
+                         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                             <div class="glass" style="padding: 1.25rem;">
+                                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem;">
+                                     <span>Primary (C-A)</span>
+                                     <span style="color: var(--brand-emerald-light);">81%</span>
+                                 </div>
+                                 <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px;">
+                                     <div style="width: 81%; height: 100%; background: var(--brand-moonstone); border-radius: 3px;"></div>
+                                 </div>
+                             </div>
+                             <div class="glass" style="padding: 1.25rem;">
+                                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem;">
+                                     <span>Secondary (C-B)</span>
+                                     <span style="color: var(--brand-saffron);">50%</span>
+                                 </div>
+                                 <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px;">
+                                     <div style="width: 50%; height: 100%; background: var(--brand-saffron); border-radius: 3px;"></div>
+                                 </div>
+                             </div>
+                         </div>
+                    </div>
+
+                    <div class="card">
+                         <h3 style="font-size: 1rem; margin-bottom: 1.5rem;">Submission Velocity</h3>
+                         <div style="height: 250px; position: relative;">
+                             <canvas id="velocityChart"></canvas>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- Right: Detailed Oversight Table -->
+                <div class="card">
+                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                         <h3 style="font-size: 1.1rem;">Critical Submission Alerts</h3>
+                         <button class="glass" id="triggerReminderBtn" style="font-size: 0.70rem; padding: 0.4rem 0.8rem; font-weight: 800; color: #e74c3c; border-color: rgba(231, 76, 60, 0.2);">BROADCAST REMINDERS</button>
+                     </div>
+
+                     <div style="overflow-x: auto;">
+                         <table class="academic-table" style="width: 100%; border-collapse: collapse;">
+                             <thead>
+                                 <tr>
+                                     <th>Class / Subject</th>
+                                     <th>Campus</th>
+                                     <th>Assigned Teacher</th>
+                                     <th>Status / Delay</th>
+                                     <th style="text-align: right;">Action</th>
+                                 </tr>
+                             </thead>
+                             <tbody id="criticalSubmissionsBody">
+                                 <tr><td colspan="5" style="text-align:center; padding:3rem; color:var(--text-muted);">Syncing with academic servers...</td></tr>
+                             </tbody>
+                         </table>
+                     </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const apiFetch = window.Wajina.apiFetch;
+        const Telemetry = window.Wajina.Telemetry;
+        const esc = window.Wajina.DOMUtils.escapeHTML;
+
+        async function initOwnerAcademics(e) {
+            try {
+                // Initialize Chart
+                initVelocityChart();
+
+                // Fetch data
+                const academicStats = await apiFetch('/api/analytics/academics');
+                const criticalItems = await apiFetch('/api/analytics/alerts');
+
+                if (academicStats) {
+                    document.getElementById('submissionRate').textContent = `${academicStats.submissionRate}%`;
+                    document.getElementById('overdueCount').textContent = academicStats.overdueCount;
+                }
+
+                const body = document.getElementById('criticalSubmissionsBody');
+                if (!criticalItems || criticalItems.length === 0) {
+                    body.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:3rem; color:var(--text-muted);">Institutional compliance at 100%.</td></tr>';
+                } else {
+                    body.innerHTML = criticalItems.map(item => `
+                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.02);">
+                             <td style="padding: 1rem; font-weight: 700; font-size: 0.85rem;">${esc(item.subjectName)}</td>
+                             <td style="padding: 1rem; font-size: 0.8rem;">${esc(item.campus)}</td>
+                             <td style="padding: 1rem; font-size: 0.8rem; color: var(--text-secondary);">${esc(item.teacherName)}</td>
+                             <td style="padding: 1rem;">
+                                 <span class="badge" style="background: rgba(224, 82, 82, 0.1); color: #e74c3c; font-size: 0.65rem;">${esc(item.status)}</span>
+                             </td>
+                             <td style="padding: 1rem; text-align: right;">
+                                 <button class="glass" style="font-size: 0.65rem; padding: 0.4rem 0.8rem; font-weight: 800;">NUDGE</button>
+                             </td>
+                        </tr>
+                    `).join('');
+                }
+
+                Telemetry.log('INFO', 'OWNER_ACADEMICS', 'Academic command center operational');
+            } catch (err) {
+                console.error('Owner Academics Error:', err);
+            }
+        }
+
+        function initVelocityChart() {
+            const ctx = document.getElementById('velocityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6'],
+                    datasets: [
+                        {
+                            label: 'Campus A',
+                            data: [5, 10, 20, 15, 10, 30],
+                            backgroundColor: '#519CAB',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Campus B',
+                            data: [2, 5, 15, 20, 5, 5],
+                            backgroundColor: '#FFC64F',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { stacked: true, grid: { display: false } },
+                        y: { stacked: true, grid: { color: 'rgba(0,0,0,0.02)' } }
+                    }
+                }
+            });
+        }
+
+        window.addEventListener('authReady', initOwnerAcademics);
+    </script>
+</body>
+</html>
+

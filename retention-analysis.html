@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Institutional Retention Analysis | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: var(--brand-bg); }
+        .retention-table th { padding: 1.25rem 1.5rem; background: #fafbfc; text-align: left; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid rgba(0,0,0,0.03); }
+        .retention-table td { padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(0,0,0,0.02); font-size: 0.85rem; font-weight: 600; }
+        .progress-bar-container { background: #f0f4f8; border-radius: 99px; height: 8px; width: 100px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--brand-moonstone); border-radius: 99px; }
+        .high-retention { color: var(--brand-emerald-light); font-weight: 800; }
+        .warning-retention { color: var(--brand-saffron); font-weight: 800; }
+        .critical-retention { color: #e74c3c; font-weight: 800; }
+    </style>
+    <script src="/js/config/navigation.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        <main class="main-content">
+            <wajina-header title="Retention Intelligence"></wajina-header>
+            
+            <div class="top-row">
+                <h1 style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.4rem;">Retention Analysis</h1>
+                <p style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600;">Cross-class stability metrics calculated via attendance and financial vectors.</p>
+            </div>
+
+            <div class="card" style="margin-top: 2rem; padding: 0; overflow: hidden;">
+                <table class="retention-table" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th>Class Nomenclature</th>
+                            <th>Campus</th>
+                            <th>Attendance Vol</th>
+                            <th>Fee Compliance</th>
+                            <th>Retention Score</th>
+                            <th style="text-align: right;">System Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="retentionBody">
+                        <tr><td colspan="6" style="padding: 5rem; text-align: center; color: var(--text-muted);">Synchronizing Retention Vectors...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card" style="margin-top: 2rem; background: var(--brand-gunmetal); color: white;">
+                <h3 style="font-size: 0.9rem; margin-bottom: 0.5rem; opacity: 0.8;">Algorithm Methodology</h3>
+                <p style="font-size: 0.8rem; line-height: 1.6; opacity: 0.6;">Retention Score is calculated as an institutional aggregate of <strong>Attendance Stability</strong> (consistent classroom presence) and <strong>Fee Compliance</strong> (financial commitment). Classes dropping below 50% score are flagged for executive intervention.</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const apiFetch = window.Wajina.apiFetch;
+        const esc = window.Wajina.DOMUtils.escapeHTML;
+
+        async function init() {
+            try {
+                const res = await apiFetch('/api/analytics/retention');
+                renderRetention(res.retention || []);
+            } catch (err) {
+                console.error('Retention analysis error:', err);
+            }
+        }
+
+        function renderRetention(data) {
+            const body = document.getElementById('retentionBody');
+            if (data.length === 0) {
+                body.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 5rem; color: var(--text-muted);">No class data available for current term analysis.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = data.map(r => {
+                const scoreColor = r.retentionScore >= 80 ? 'high-retention' : (r.retentionScore < 60 ? 'critical-retention' : 'warning-retention');
+                return `
+                    <tr>
+                        <td style="color: var(--brand-gunmetal);">${esc(r.className)}</td>
+                        <td style="font-size: 0.7rem; color: var(--text-muted);">${esc(r.campus)}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="progress-bar-container"><div class="progress-bar" style="width: ${r.attendanceCompliance}%;"></div></div>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">${r.attendanceCompliance}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="progress-bar-container"><div class="progress-bar" style="width: ${r.feeCompliance}%; background: var(--brand-emerald-light);"></div></div>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">${r.feeCompliance}%</span>
+                            </div>
+                        </td>
+                        <td><span class="${scoreColor}" style="font-size: 1.1rem; letter-spacing: -1px;">${r.retentionScore}%</span></td>
+                        <td style="text-align: right;">
+                            <span class="badge" style="background: ${r.retentionScore >= 60 ? 'rgba(46, 204, 113, 0.1)' : 'rgba(231, 76, 60, 0.1)'}; color: ${r.retentionScore >= 60 ? '#2ecc71' : '#e74c3c'}; font-size: 0.65rem; font-weight: 900;">
+                                ${r.retentionScore >= 80 ? 'HEALTHY' : (r.retentionScore >= 60 ? 'STABLE' : 'AT RISK')}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.addEventListener('authReady', init);
+    </script>
+</body>
+</html>
+

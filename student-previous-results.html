@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Results Archive | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .student-overview-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border: 1.5px solid rgba(0,0,0,0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-spec {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .student-spec label {
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+        .student-spec span {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--brand-gunmetal);
+        }
+
+        .results-grid-vault {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .term-vault-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1.5px solid rgba(0,0,0,0.03);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+        }
+        .term-vault-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--brand-moonstone);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+        }
+
+        .term-vault-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1.5px solid rgba(0,0,0,0.03);
+        }
+        .term-vault-header i {
+            width: 40px;
+            height: 40px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            color: var(--brand-moonstone);
+            font-size: 1.2rem;
+        }
+        .term-vault-header h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--brand-gunmetal);
+            margin: 0;
+        }
+
+        .vault-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .vault-stat label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .vault-stat span {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--brand-gunmetal);
+        }
+
+        .view-vault-btn {
+            background: #f8f9fa;
+            border: none;
+            padding: 0.85rem;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.75rem;
+            color: var(--brand-moonstone);
+            cursor: pointer;
+            margin-top: 1.5rem;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .view-vault-btn:hover {
+            background: var(--brand-gunmetal);
+            color: white;
+        }
+    </style>
+
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Longitudinal Academic Results"></wajina-header>
+            
+            <div class="top-row">
+                <h1 style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Academic Archive <span>Access</span></h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Authenticated registry of previous term performances and validated transcripts.</p>
+            </div>
+
+            <div class="student-overview-bar">
+                <div class="student-spec">
+                    <label>Learner Identity</label>
+                    <span id="infoStudentName">Synchronizing...</span>
+                </div>
+                <div class="student-spec">
+                    <label>Identity Code</label>
+                    <span id="infoStudentId">--</span>
+                </div>
+                <div class="student-spec">
+                    <label>Academic Locus</label>
+                    <span id="infoStudentClass">--</span>
+                </div>
+                <div style="opacity: 0.3; font-weight: 900; font-size: 1.2rem; letter-spacing: 0.2em;">VAULT</div>
+            </div>
+
+            <div id="resultsGrid" class="results-grid-vault">
+                <div style="grid-column: 1/-1; text-align: center; padding: 10rem 0;">
+                    <i class="fa-solid fa-sync fa-spin fa-3x" style="color: var(--brand-moonstone); opacity: 0.2;"></i>
+                    <p style="margin-top: 2rem; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; opacity: 0.4;">Accessing Digital Vault Registry...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/pages/student-results-archive.js" defer></script>
+</body>
+</body>
+</html>
+

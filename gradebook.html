@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradebook Intelligence | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+        
+        .gradebook-container {
+            overflow-x: auto;
+            position: relative;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        table.gradebook-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.85rem;
+        }
+
+        .gradebook-table th {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-bottom: 2px solid rgba(0,0,0,0.03);
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .gradebook-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.02);
+            vertical-align: middle;
+        }
+
+        .sticky-col {
+            position: sticky;
+            left: 0;
+            background: #fff;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.03);
+            z-index: 5;
+            min-width: 200px;
+        }
+
+        .grade-cell {
+            width: 60px;
+            padding: 0.5rem;
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 6px;
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .grade-cell:focus {
+            outline: 2px solid var(--brand-moonstone);
+            border-color: var(--brand-moonstone);
+            background: rgba(81, 156, 171, 0.05);
+        }
+
+        .control-panel {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            background: rgba(81, 156, 171, 0.05);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(81, 156, 171, 0.1);
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--brand-moonstone);
+        }
+
+        #syncStatus {
+            display: none;
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 0.8rem 1.5rem;
+            background: var(--brand-gunmetal);
+            color: white;
+            border-radius: 999px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            z-index: 1000;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+    </style>
+    <script src="/js/config/navigation.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Gradebook Intelligence"></wajina-header>
+            
+            <div class="top-row" style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Live Grade Entry</h1>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Synchronizing performance data for <span id="targetContext" style="font-weight:700; color:var(--brand-moonstone);">--</span></p>
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <button class="glass" data-action="saveBatch" style="background: var(--brand-gunmetal); color: white; padding: 0.7rem 1.5rem; font-weight: 800; border: none;">FORCE SYNC</button>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <div class="control-panel">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem;">Subject & Arm Selection</label>
+                        <select id="subjectArmSelector" class="glass" style="padding: 0.6rem; width: 100%; max-width: 400px; border-color: rgba(0,0,0,0.1); font-weight: 700; font-size: 0.8rem; color: var(--brand-gunmetal);">
+                            <option value="">Roster sync in progress...</option>
+                        </select>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="realTimeCalcToggle" checked style="accent-color: var(--brand-moonstone);">
+                        <span>Calculations</span>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="autoSaveToggle" checked style="accent-color: var(--brand-moonstone);">
+                        <span>Auto-Save</span>
+                    </div>
+                </div>
+
+                <div class="gradebook-container">
+                    <table class="gradebook-table" id="gradeGrid">
+                        <thead>
+                            <tr id="gridHeader">
+                                <th class="sticky-col">Loading Roster...</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gridBody">
+                            <tr>
+                                <td colspan="10" style="padding: 4rem; text-align: center;">
+                                    <p style="color: var(--text-muted); font-weight: 600;">Contacting Academic Registry...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/pages/gradebook.js" defer></script>
+</body>
+</body>
+</html>
+

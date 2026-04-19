@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner’s Audit Logs | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <script src="/js/config/navigation.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboardLayout">
+        <div class="sidebar-overlay" data-action="toggleSidebar"></div>
+        <wajina-sidebar></wajina-sidebar>
+
+        <!-- Main Content Area -->
+        <main class="main-content d-flex flex-column">
+            <wajina-header title="Audit Oversight"></wajina-header>
+
+            <!-- Dashboard Body -->
+            <div class="dashboard-body">
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem;">
+                    <div>
+                        <h1 style="font-size: 2rem; letter-spacing: -1px; margin-bottom: 0.3rem;">Immutable Audit Logs</h1>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary);">Chronological record of all administrative decisions and financial recordings.</p>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <input type="text" placeholder="Search logs (e.g. User, Action ID)..." style="padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: var(--white); font-family: inherit; width: 300px;">
+                        <button class="glass" style="padding: 0.6rem 1rem; font-weight: 600; font-size: 0.85rem;">Export CSV</button>
+                    </div>
+                </div>
+
+                <div class="glass" style="padding: 0; background: var(--white); overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+                        <thead style="background: rgba(0,0,0,0.02);">
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.1); color: var(--text-muted); font-family: Sora, sans-serif; font-size: 0.75rem; text-transform: uppercase;">
+                                <th style="padding: 1.2rem 1.5rem;">Timestamp</th>
+                                <th style="padding: 1.2rem 1.5rem;">User / Role</th>
+                                <th style="padding: 1.2rem 1.5rem;">Action Recorded</th>
+                                <th style="padding: 1.2rem 1.5rem;">Campus</th>
+                                <th style="padding: 1.2rem 1.5rem;">Log ID</th>
+                                <th style="padding: 1.2rem 1.5rem; text-align: right;">Oversight</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.03); transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.01)'" onmouseout="this.style.background='transparent'">
+                                <td style="padding: 1.2rem 1.5rem; color: var(--text-secondary); font-weight: 600;">Today, 10:42 AM</td>
+                                <td style="padding: 1.2rem 1.5rem; font-weight: 600;">Mr. Alabi <div style="font-weight: 400; color: var(--text-muted); font-size: 0.7rem;">Principal</div></td>
+                                <td style="padding: 1.2rem 1.5rem;">Approved Result Batch: SS3 Mathematics<br><span style="font-size: 0.7rem; color: var(--text-muted);">42 records processed</span></td>
+                                <td style="padding: 1.2rem 1.5rem;">Campus A</td>
+                                <td style="padding: 1.2rem 1.5rem; font-family: monospace; color: var(--text-muted);">#LOG-892A4</td>
+                                <td style="padding: 1.2rem 1.5rem; text-align: right;"><button class="glass" style="font-size: 0.75rem; padding: 0.4rem 1rem; color: var(--brand-gunmetal); font-weight:600; cursor: pointer;">Review</button></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.03); transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.01)'" onmouseout="this.style.background='transparent'">
+                                <td style="padding: 1.2rem 1.5rem; color: var(--text-secondary); font-weight: 600;">Today, 10:35 AM</td>
+                                <td style="padding: 1.2rem 1.5rem; font-weight: 600;">Mrs. Bello <div style="font-weight: 400; color: var(--text-muted); font-size: 0.7rem;">Bursar</div></td>
+                                <td style="padding: 1.2rem 1.5rem;">Reconciled Payment ₦120,000 (JSS1)<br><span style="font-size: 0.7rem; color: var(--text-muted);">Student ID: WIS-014</span></td>
+                                <td style="padding: 1.2rem 1.5rem;">Campus B</td>
+                                <td style="padding: 1.2rem 1.5rem; font-family: monospace; color: var(--text-muted);">#LOG-892A3</td>
+                                <td style="padding: 1.2rem 1.5rem; text-align: right;"><button class="glass" style="font-size: 0.75rem; padding: 0.4rem 1rem; color: var(--brand-gunmetal); font-weight:600; cursor: pointer;">Review</button></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.03); transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.01)'" onmouseout="this.style.background='transparent'">
+                                <td style="padding: 1.2rem 1.5rem; color: var(--text-secondary); font-weight: 600;">Yesterday, 16:12 PM</td>
+                                <td style="padding: 1.2rem 1.5rem; font-weight: 600;">Mrs. Nnaji <div style="font-weight: 400; color: var(--text-muted); font-size: 0.7rem;">Teacher</div></td>
+                                <td style="padding: 1.2rem 1.5rem;">Submitted Grades: JSS1 English<br><span style="font-size: 0.7rem; color: var(--text-muted);">Subject locked for editing</span></td>
+                                <td style="padding: 1.2rem 1.5rem;">Campus A</td>
+                                <td style="padding: 1.2rem 1.5rem; font-family: monospace; color: var(--text-muted);">#LOG-892A2</td>
+                                <td style="padding: 1.2rem 1.5rem; text-align: right;"><button class="glass" style="font-size: 0.75rem; padding: 0.4rem 1rem; color: var(--brand-gunmetal); font-weight:600; cursor: pointer;">Review</button></td>
+                            </tr>
+                            <tr style="transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.01)'" onmouseout="this.style.background='transparent'">
+                                <td style="padding: 1.2rem 1.5rem; color: var(--text-secondary); font-weight: 600;">Yesterday, 14:05 PM</td>
+                                <td style="padding: 1.2rem 1.5rem; font-weight: 600;">Comr. Mike Ortom <div style="font-weight: 400; color: var(--text-muted); font-size: 0.7rem;">Director (God-View)</div></td>
+                                <td style="padding: 1.2rem 1.5rem;">Issued Query to Bursar (Campus A)<br><span style="font-size: 0.7rem; color: var(--red-500); font-weight: 600;">Re: Fee Waiver Request ID 442</span></td>
+                                <td style="padding: 1.2rem 1.5rem;">Campus A</td>
+                                <td style="padding: 1.2rem 1.5rem; font-family: monospace; color: var(--text-muted);">#LOG-892A1</td>
+                                <td style="padding: 1.2rem 1.5rem; text-align: right;"><button class="glass" style="font-size: 0.75rem; padding: 0.4rem 1rem; color: var(--brand-gunmetal); font-weight:600; cursor: pointer;">Review</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem;">
+                    <button style="padding: 0.5rem 1rem; border: 1px solid rgba(0,0,0,0.1); background: transparent; border-radius: 4px; font-weight: 600; cursor: pointer;">Previous</button>
+                    <button style="padding: 0.5rem 1rem; border: none; background: var(--brand-gunmetal); color: white; border-radius: 4px; font-weight: 600; cursor: pointer;">1</button>
+                    <button style="padding: 0.5rem 1rem; border: 1px solid rgba(0,0,0,0.1); background: transparent; border-radius: 4px; font-weight: 600; cursor: pointer;">2</button>
+                    <button style="padding: 0.5rem 1rem; border: 1px solid rgba(0,0,0,0.1); background: transparent; border-radius: 4px; font-weight: 600; cursor: pointer;">3</button>
+                    <button style="padding: 0.5rem 1rem; border: 1px solid rgba(0,0,0,0.1); background: transparent; border-radius: 4px; font-weight: 600; cursor: pointer;">Next</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        document.addEventListener('click', e => {
+            const btn = e.target.closest('[data-action="toggleSidebar"]');
+            if (btn) document.getElementById('dashboardLayout').classList.toggle('sidebar-open');
+        });
+    </script>
+</body>
+</html>
+

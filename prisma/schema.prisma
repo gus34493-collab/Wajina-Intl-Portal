@@ -1,0 +1,596 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                    String             @id @default(cuid(2))
+  email                 String             @unique
+  password              String
+  name                  String
+  role                  Role
+  status                UserStatus         @default(PENDING)
+  phone                 String?
+  profilePhoto          String?
+  isFormMaster          Boolean            @default(false)
+  parentId              String?
+  armId                 String?
+  classId               String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  campus                SchoolCampus?
+  tokenVersion          Int                @default(0)
+  failedLoginAttempts   Int                @default(0)
+  lockedUntil           DateTime?
+  consentGiven          Boolean            @default(false)
+  consentDate           DateTime?
+  dataExportRequestedAt DateTime?
+  deletionRequestedAt   DateTime?
+  departmentId          String?            @unique
+  joinedAt              DateTime?          @default(now())
+  salary                Float?             @default(0)
+  pushSubscription      Json?
+  attendancesMarked     Attendance[]       @relation("AttendanceMarker")
+  attendance            Attendance[]       @relation("StudentAttendance")
+  auditLogs             AuditLog[]
+  behaviourAsReporter   BehaviourRecord[]  @relation("ReporterBehaviour")
+  behaviourAsStudent    BehaviourRecord[]  @relation("StudentBehaviour")
+  managedClass          Class?             @relation("FormMaster")
+  managedArms           ClassArm[]         @relation("ArmTeacher")
+  complaintsAsParent    Complaint[]        @relation("ComplaintParent")
+  complaintsResolved    Complaint[]        @relation("ComplaintResolver")
+  complaintsAsStudent   Complaint[]        @relation("ComplaintStudent")
+  grades                Grade[]
+  risksCreated          OperationalRisk[]  @relation("RiskCreator")
+  payments              Payment[]
+  receivedRequests      Request[]          @relation("Receiver")
+  sentRequests          Request[]          @relation("Sender")
+  studentRequests       Request[]          @relation("StudentRequest")
+  subjectsTaught        Subject[]          @relation("TeacherToSubject")
+  tasks                 Task[]             @relation("TaskCreator")
+  appraisalsGiven       TeacherAppraisal[] @relation("TeacherEvaluator")
+  appraisalsReceived    TeacherAppraisal[] @relation("TeacherAppraised")
+  enrolledArm           ClassArm?          @relation("StudentEnrolledArm", fields: [armId], references: [id])
+  enrolledClass         Class?             @relation("StudentEnrolled", fields: [classId], references: [id])
+  department            Department?        @relation("HODToDepartment", fields: [departmentId], references: [id])
+  parent                User?              @relation("ParentToWard", fields: [parentId], references: [id])
+  wards                 User[]             @relation("ParentToWard")
+
+  @@index([role])
+  @@index([status])
+  @@index([parentId])
+  @@index([classId])
+  @@index([armId])
+  @@index([campus])
+}
+
+model AcademicSession {
+  id            String        @id @default(cuid(2))
+  name          String
+  year          String        @unique
+  startDate     DateTime
+  endDate       DateTime
+  status        SessionStatus @default(UPCOMING)
+  isDefault     Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  lastUpdatedBy String?
+  termWeights   Json?
+  totalWeeks    Int           @default(36)
+  version       Int           @default(0)
+  admissions    Admission[]
+  feeConfigs    FeeConfig[]
+  grades        Grade[]
+  terms         Term[]
+}
+
+model Term {
+  id          String          @id @default(cuid(2))
+  name        TermName
+  startDate   DateTime
+  endDate     DateTime
+  status      TermStatus      @default(UPCOMING)
+  isCurrent   Boolean         @default(false)
+  sessionId   String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  attendances Attendance[]
+  feeConfigs  FeeConfig[]
+  grades      Grade[]
+  session     AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, name])
+}
+
+model Class {
+  id              String       @id @default(cuid(2))
+  name            String
+  campus          SchoolCampus
+  category        String
+  displayOrder    Int          @default(99)
+  active          Boolean      @default(true)
+  formMasterId    String?      @unique
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  showPosition    Boolean      @default(true)
+  promotionCutoff Float        @default(50.0)
+  formMaster      User?        @relation("FormMaster", fields: [formMasterId], references: [id])
+  arms            ClassArm[]
+  feeConfigs      FeeConfig[]
+  subjects        Subject[]
+  students        User[]       @relation("StudentEnrolled")
+
+  @@unique([name, campus])
+}
+
+model ClassArm {
+  id           String   @id @default(cuid(2))
+  label        String
+  fullName     String
+  capacity     Int?
+  active       Boolean  @default(true)
+  classId      String
+  teacherId    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  timetableUrl String?
+  class        Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacher      User?    @relation("ArmTeacher", fields: [teacherId], references: [id])
+  students     User[]   @relation("StudentEnrolledArm")
+
+  @@unique([classId, label])
+  @@index([teacherId])
+}
+
+model Department {
+  id        String       @id @default(cuid(2))
+  name      String
+  campus    SchoolCampus
+  hodId     String?      @unique
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  subjects  Subject[]
+  hod       User?        @relation("HODToDepartment")
+
+  @@unique([name, campus])
+}
+
+model Request {
+  id          String       @id @default(cuid(2))
+  level       RequestLevel
+  title       String
+  description String
+  status      String       @default("PENDING")
+  isForwarded Boolean      @default(false)
+  senderId    String
+  receiverId  String?
+  createdAt   DateTime     @default(now())
+  category    String?
+  fileUrl     String?
+  feedback    String?
+  studentId   String?
+  receiver    User?        @relation("Receiver", fields: [receiverId], references: [id])
+  sender      User         @relation("Sender", fields: [senderId], references: [id])
+  student     User?        @relation("StudentRequest", fields: [studentId], references: [id])
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([studentId])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model Subject {
+  id           String      @id @default(cuid(2))
+  name         String
+  teacherId    String
+  classId      String
+  departmentId String?
+  grades       Grade[]
+  class        Class       @relation(fields: [classId], references: [id])
+  department   Department? @relation(fields: [departmentId], references: [id])
+  teacher      User        @relation("TeacherToSubject", fields: [teacherId], references: [id])
+
+  @@index([classId])
+  @@index([teacherId])
+  @@index([departmentId])
+}
+
+model Grade {
+  id               String           @id @default(cuid(2))
+  firstCA          Float            @default(0)
+  secondCA         Float            @default(0)
+  thirdCA          Float            @default(0)
+  exam             Float            @default(0)
+  total            Float            @default(0)
+  formMasterRemark String?
+  studentId        String
+  subjectId        String
+  termId           String?
+  sessionId        String?
+  createdAt        DateTime         @default(now())
+  grade            String?
+  position         Int?
+  principalRemark  String?
+  returnReason     String?
+  status           ResultStatus     @default(DRAFT)
+  teacherComment   String?
+  updatedAt        DateTime         @updatedAt
+  fifthCA          Float            @default(0)
+  fourthCA         Float            @default(0)
+  session          AcademicSession? @relation(fields: [sessionId], references: [id])
+  student          User             @relation(fields: [studentId], references: [id])
+  subject          Subject          @relation(fields: [subjectId], references: [id])
+  term             Term?            @relation(fields: [termId], references: [id])
+
+  @@unique([studentId, subjectId, termId])
+  @@index([studentId])
+  @@index([subjectId])
+  @@index([termId, status])
+  @@index([sessionId, status])
+  @@index([status])
+}
+
+model Attendance {
+  id         String           @id @default(cuid(2))
+  date       DateTime         @db.Date
+  status     AttendanceStatus
+  studentId  String
+  armId      String?
+  createdAt  DateTime         @default(now())
+  markedById String?
+  note       String?
+  termId     String?
+  markedBy   User?            @relation("AttendanceMarker", fields: [markedById], references: [id])
+  student    User             @relation("StudentAttendance", fields: [studentId], references: [id])
+  term       Term?            @relation(fields: [termId], references: [id])
+
+  @@unique([studentId, date])
+  @@index([studentId])
+  @@index([date])
+  @@index([termId])
+  @@index([armId])
+  @@index([markedById])
+}
+
+model Payment {
+  id        String    @id @default(cuid(2))
+  reference String    @unique
+  amount    Float
+  status    String
+  studentId String
+  termId    String?
+  sessionId String?
+  category  String    @default("TUITION")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  student   User      @relation(fields: [studentId], references: [id])
+
+  @@index([studentId])
+  @@index([termId, status])
+  @@index([sessionId, status])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id        String    @id @default(cuid(2))
+  action    String
+  entity    String?
+  entityId  String?
+  detail    String?
+  ipAddress String?
+  actorId   String?
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+  actor     User?     @relation(fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([action])
+  @@index([entity])
+  @@index([createdAt])
+  @@index([createdAt], map: "idx_audit_created")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid(2))
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  ipAddress String?
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([usedAt])
+}
+
+model Admission {
+  id            String           @id @default(cuid(2))
+  applicantName String
+  campus        SchoolCampus
+  targetClass   String
+  type          AdmissionType    @default(NEW)
+  status        AdmissionStatus  @default(APPLIED)
+  parentName    String
+  parentPhone   String
+  parentEmail   String?
+  notes         String?
+  sessionId     String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  armId         String?
+  classId       String?
+  entranceScore Float?
+  session       AcademicSession? @relation(fields: [sessionId], references: [id])
+
+  @@index([status])
+  @@index([campus])
+  @@index([sessionId])
+  @@index([type])
+}
+
+model Task {
+  id          String    @id @default(cuid(2))
+  title       String
+  owner       String
+  dueDate     DateTime?
+  status      String    @default("ON_TRACK")
+  riskLevel   String    @default("LOW")
+  progress    Int       @default(0)
+  category    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  createdBy   User?     @relation("TaskCreator", fields: [createdById], references: [id])
+
+  @@index([status])
+  @@index([createdById])
+}
+
+model BehaviourRecord {
+  id              String            @id @default(cuid(2))
+  date            DateTime
+  category        String
+  severity        BehaviourSeverity
+  description     String
+  actionTaken     String?
+  status          BehaviourStatus   @default(OPEN)
+  formTeacherNote String?
+  principalNote   String?
+  studentId       String
+  reporterId      String
+  termId          String?
+  sessionId       String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  reporter        User              @relation("ReporterBehaviour", fields: [reporterId], references: [id])
+  student         User              @relation("StudentBehaviour", fields: [studentId], references: [id])
+
+  @@index([studentId])
+  @@index([reporterId])
+  @@index([status])
+  @@index([termId])
+  @@index([sessionId])
+}
+
+model GlobalConfig {
+  id                     String  @id @default("SCHOOL_CONFIG")
+  schoolName             String  @default("Wajina International Schools")
+  timetableUrl           String?
+  recentEvents           String?
+  currentTermId          String?
+  currentSessionId       String?
+  admissionExamLogistics String?
+}
+
+model FeeConfig {
+  id        String          @id @default(cuid(2))
+  category  String          @default("TUITION")
+  amount    Float
+  campus    SchoolCampus?
+  classId   String?
+  termId    String?
+  sessionId String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  class     Class?          @relation(fields: [classId], references: [id])
+  session   AcademicSession @relation(fields: [sessionId], references: [id])
+  term      Term?           @relation(fields: [termId], references: [id])
+
+  @@unique([category, campus, classId, termId, sessionId])
+}
+
+model Complaint {
+  id         String              @id @default(cuid(2))
+  parentId   String
+  studentId  String
+  subject    String
+  message    String
+  status     ComplaintStatus     @default(PENDING)
+  targetRole ComplaintTargetRole
+  resolvedBy String?
+  createdAt  DateTime            @default(now())
+  response   String?
+  parent     User                @relation("ComplaintParent", fields: [parentId], references: [id])
+  resolver   User?               @relation("ComplaintResolver", fields: [resolvedBy], references: [id])
+  student    User                @relation("ComplaintStudent", fields: [studentId], references: [id])
+
+  @@index([status])
+  @@index([targetRole])
+  @@index([parentId])
+  @@index([studentId])
+}
+
+model OperationalRisk {
+  id          String       @id @default(cuid(2))
+  title       String
+  description String
+  severity    RiskSeverity @default(LOW)
+  status      RiskStatus   @default(OPEN)
+  campus      String
+  createdBy   String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  creator     User         @relation("RiskCreator", fields: [createdBy], references: [id])
+
+  @@index([campus])
+  @@index([severity])
+}
+
+model TeacherAppraisal {
+  id                String   @id @default(cuid(2))
+  teacherId         String
+  evaluatorId       String
+  termId            String?
+  sessionId         String?
+  punctuality       Int      @default(0)
+  lessonPlanning    Int      @default(0)
+  studentEngagement Int      @default(0)
+  professionalism   Int      @default(0)
+  comments          String?
+  status            String   @default("DRAFT")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  evaluator         User     @relation("TeacherEvaluator", fields: [evaluatorId], references: [id])
+  teacher           User     @relation("TeacherAppraised", fields: [teacherId], references: [id])
+
+  @@index([teacherId])
+  @@index([evaluatorId])
+  @@index([status])
+}
+
+enum AdmissionType {
+  NEW
+  TRANSFER
+}
+
+enum AdmissionStatus {
+  APPLIED
+  QUALIFIED
+  OFFERED
+  FEE_CONFIRMED
+  ENROLLED
+  REJECTED
+  SCHOLARSHIP_REVIEW
+}
+
+enum Role {
+  DIRECTOR
+  PRINCIPAL
+  ADMIN_STAFF
+  ACADEMIC_STAFF
+  PARENT
+  STUDENT
+  TEACHER
+  BURSAR
+  ACCOUNTS_OFFICER
+  VP_ACADEMICS
+  VP_ADMIN
+  HOD
+  HEAD_TEACHER
+  ASST_HEAD_TEACHER
+  DEAN_STUDENTS
+  HR
+  FORM_TEACHER
+}
+
+enum RequestLevel {
+  K1
+  K2
+  K3
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+}
+
+enum SessionStatus {
+  ACTIVE
+  UPCOMING
+  CLOSED
+}
+
+enum TermName {
+  FIRST
+  SECOND
+  THIRD
+}
+
+enum TermStatus {
+  CURRENT
+  UPCOMING
+  COMPLETED
+}
+
+enum SchoolCampus {
+  PRIMARY
+  SECONDARY
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+  PENDING
+}
+
+enum ResultStatus {
+  DRAFT
+  SUBMITTED
+  FORM_APPROVED
+  PRINCIPAL_APPROVED
+  RETURNED
+}
+
+enum BehaviourSeverity {
+  COMMENDATION
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum BehaviourStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  ESCALATED
+  CLOSED
+}
+
+enum ComplaintTargetRole {
+  ADMIN
+  DIRECTOR
+  VP_ADMIN
+  PRINCIPAL
+  HEAD_TEACHER
+  TEACHER
+  ACADEMIC_STAFF
+  FORM_TEACHER
+}
+
+enum ComplaintStatus {
+  PENDING
+  RESOLVED
+  ESCALATED
+}
+
+enum RiskSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RiskStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+}

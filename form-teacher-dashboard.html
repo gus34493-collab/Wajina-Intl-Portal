@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Teacher Cockpit | Wajina Intl Portal</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--brand-emerald-light);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 rgba(76, 175, 80, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+        .view-section {
+            display: none;
+        }
+        .view-section.active {
+            display: block;
+        }
+    </style>
+    <script src="/js/components/wajina-toast.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+
+        <main class="main-content">
+            <wajina-header title="Form Teacher Cockpit"></wajina-header>
+
+            <div class="top-row">
+                <h1 id="managedClassName" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Academic Steward</h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Academic Oversight & Parent Communication Center</p>
+            </div>
+
+            <div id="dashboardView">
+                <!-- OVERVIEW VIEW -->
+                <section id="view-overview" class="view-section active">
+                    <!-- Oppo Stats Strip -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Attendance (Today)</h3>
+                                <div class="pulse-dot"></div>
+                            </div>
+                            <div>
+                                <div id="classAttendance" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">--%</div>
+                                <div style="font-size: 0.7rem; color: var(--brand-emerald-light); font-weight: 700;">Stable Trend</div>
+                            </div>
+                        </div>
+                        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Parent Items</h3>
+                                <i class="fa-solid fa-envelope-open-text" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                            </div>
+                            <div>
+                                <div id="pendingParentRequests" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">--</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">Requires Attention</div>
+                            </div>
+                        </div>
+                        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Grade Status</h3>
+                                <i class="fa-solid fa-circle-check" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                            </div>
+                            <div>
+                                <div id="gradesStatus" style="font-size: 1.5rem; font-weight: 800;">Syncing...</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">Term Review Cycle</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Oppo Grid -->
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+                        <!-- Response Center -->
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                                <h3 style="font-size: 1.1rem;">Class Response Center</h3>
+                                <button class="glass" style="font-size: 0.65rem; padding: 0.4rem 0.8rem; font-weight: 700;">Broadcast to Parents</button>
+                            </div>
+                            <div id="parentRequestsFeed" style="display: flex; flex-direction: column; gap: 1rem;">
+                                <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                                    <i class="fa-solid fa-envelope-open-text" style="font-size: 2rem; opacity: 0.2; margin-bottom: 1rem; display: block;"></i>
+                                    <p style="font-size: 0.85rem;">No active parent requests for your class.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Rail: Actions & Tips -->
+                        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                            <div class="card">
+                                <h3 style="font-size: 0.9rem; margin-bottom: 1.5rem;">Quick Actions</h3>
+                                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    <button class="glass" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-align: left;" onclick="showView('attendance')">
+                                        <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(76, 175, 80, 0.1); color: var(--brand-emerald-light); display: grid; place-items: center;">
+                                            <i class="fa-solid fa-calendar-check"></i>
+                                        </div>
+                                        <div style="font-weight: 700; font-size: 0.85rem;">Mark Attendance</div>
+                                    </button>
+                                    <button class="glass" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-align: left;" onclick="window.location.href='/gradebook.html'">
+                                        <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(81, 156, 171, 0.1); color: var(--brand-moonstone); display: grid; place-items: center;">
+                                            <i class="fa-solid fa-table"></i>
+                                        </div>
+                                        <div style="font-weight: 700; font-size: 0.85rem;">Upload Scores</div>
+                                    </button>
+                                    <button class="glass" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-align: left;" onclick="showView('submissions')">
+                                        <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255, 198, 79, 0.1); color: var(--brand-saffron); display: grid; place-items: center;">
+                                            <i class="fa-solid fa-file-signature"></i>
+                                        </div>
+                                        <div style="font-weight: 700; font-size: 0.85rem;">Lesson Notes</div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card" style="background: var(--brand-gunmetal); color: white;">
+                                <h3 style="font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-bottom: 1.5rem;">Management Protocol</h3>
+                                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1rem;">
+                                    <li style="font-size: 0.8rem; display: flex; gap: 0.75rem;">
+                                        <i class="fa-solid fa-circle-exclamation" style="color: var(--brand-saffron); margin-top: 0.1rem;"></i>
+                                        <span>Escalate K3 parent requests to the Head Teacher immediately.</span>
+                                    </li>
+                                    <li style="font-size: 0.8rem; display: flex; gap: 0.75rem;">
+                                        <i class="fa-solid fa-clock" style="color: var(--brand-moonstone); margin-top: 0.1rem;"></i>
+                                        <span>Check attendance consistency every morning before 9 AM.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SUBMISSIONS VIEW -->
+                <section id="view-submissions" class="view-section">
+                    <div class="card">
+                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                            <div>
+                                <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Internal Submissions</h3>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary);">Upload lesson plans and exam questions for unit review.</p>
+                            </div>
+                            <button class="glass" onclick="showView('overview')" style="font-weight: 700;">Back to Overview</button>
+                        </div>
+
+                        <form id="submissionForm" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">CATEGORY</label>
+                                <select id="subCategory" class="glass" style="padding: 0.8rem; font-family: inherit;" required>
+                                    <option value="LESSON_PLAN">Lesson Plan</option>
+                                    <option value="EXAM_QUESTIONS">Exam Questions</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">URGENCY</label>
+                                <select id="subLevel" class="glass" style="padding: 0.8rem; font-family: inherit;" required>
+                                    <option value="K1">K1 - Routine</option>
+                                    <option value="K2">K2 - Priority</option>
+                                </select>
+                            </div>
+                            <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 0.5rem;">
+                                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">TITLE / SUBJECT</label>
+                                <input type="text" id="subTitle" class="glass" style="padding: 0.8rem;" placeholder="e.g., Mathematics Week 4" required>
+                            </div>
+                            <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 0.5rem;">
+                                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">FILE UPLOAD (PDF/DOCX)</label>
+                                <input type="file" id="subFile" class="glass" style="padding: 1rem; border: 2px dashed rgba(0,0,0,0.05);" accept=".pdf,.doc,.docx" required>
+                            </div>
+                            <div style="grid-column: span 2; margin-top: 1rem;">
+                                <button type="submit" class="glass" style="width: 100%; padding: 1rem; background: var(--brand-gunmetal); color: white; font-weight: 800;">UPLOAD SUBMISSION</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/pages/form-teacher-dashboard.js" defer></script>
+</body>
+</body>
+</html>
+
+

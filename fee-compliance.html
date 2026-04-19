@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Compliance | Wajina Intl Portal</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        window.REQUIRED_ROLES = ['DIRECTOR', 'PRINCIPAL', 'HEAD_TEACHER', 'ASST_HEAD_TEACHER'];
+    </script>
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/config/navigation.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/components/wajina-toast.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+
+        <main class="main-content">
+            <wajina-header id="pageHeader" title="Fee Compliance"></wajina-header>
+
+            <div class="top-row">
+                <h1 style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Fee Compliance Hub</h1>
+                <p id="subText" style="font-size: 0.85rem; color: var(--text-secondary);">Real-time monitoring of campus tuition health and receivables.</p>
+            </div>
+
+            <div id="complianceContent">
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; margin-bottom: 3rem;">
+                    <!-- Overall Donut -->
+                    <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 3rem;">
+                        <h3 style="font-size: 0.9rem; margin-bottom: 2.5rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em;">Campus Compliance</h3>
+                        <div style="width: 220px; height: 220px; position: relative;">
+                            <canvas id="complianceDonut"></canvas>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                <div id="compliancePct" style="font-size: 2.5rem; font-weight: 900; color: var(--brand-gunmetal);">--%</div>
+                                <div style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Collected</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Header / Breadcrumb -->
+                    <div style="display: flex; flex-direction: column; justify-content: center;">
+                        <div id="complianceBreadcrumb" style="margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;"></div>
+                        <div id="complianceHeader">
+                            <h2 style="font-size: 2rem; margin-bottom: 0.2rem;" id="viewTitle">Institutional Levels</h2>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;" id="viewSubtitle">Compliance breakdown by academic stage.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="drillDownArea">
+                    <div id="complianceSpinner" style="text-align: center; padding: 10rem 0;">
+                        <i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color: var(--brand-moonstone); opacity: 0.2;"></i>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .compliance-card {
+            background: white; border-radius: 20px; padding: 2rem; border: 1.5px solid rgba(0,0,0,0.03);
+            cursor: pointer; transition: all 0.25s ease; display: flex; flex-direction: column; gap: 1.25rem;
+        }
+        .compliance-card:hover { transform: translateY(-5px); border-color: var(--brand-moonstone); box-shadow: var(--shadow-md); }
+        .status-pill { padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
+        .status-full { background: #E6F4EA; color: #1E7E34; }
+        .status-part { background: #FFF4E5; color: #B25E09; }
+        .status-unpaid { background: #FCE8E6; color: #C62828; }
+        .drill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.5rem; }
+    </style>
+
+    <script>
+        const ComplianceManager = {
+            state: { view: 'CLASSES', data: null, selectedClassId: null, selectedArmId: null, campus: null },
+
+            async init(user) {
+                this.state.campus = user.campus;
+                const apiFetch = window.Wajina.apiFetch;
+                const spinner = document.getElementById('complianceSpinner');
+                
+                try {
+                    const stats = await apiFetch(`/api/finance/dashboard-stats?campus=${this.state.campus || ''}`);
+                    const response = await apiFetch(`/api/finance/student-balances?campus=${this.state.campus || ''}`);
+                    
+                    this.state.data = response.students || [];
+                    this.renderDonut(stats.collectionRate || 0);
+                    this.renderClasses();
+                    if (spinner) spinner.style.display = 'none';
+                } catch (err) {
+                    console.error('Compliance Hub Failure:', err);
+                    document.getElementById('drillDownArea').innerHTML = `
+                        <div style="padding: 5rem; text-align: center; color: #ef4444;">
+                            <i class="fa-solid fa-triangle-exclamation fa-2x mb-3"></i>
+                            <p style="font-weight: 700;">Data Sync Failed</p>
+                            <p style="font-size: 0.8rem; opacity: 0.7;">Unable to reach financial services. Please check your connection.</p>
+                        </div>
+                    `;
+                }
+            },
+
+            renderDonut(rate) {
+                const ctx = document.getElementById('complianceDonut').getContext('2d');
+                document.getElementById('compliancePct').textContent = `${rate}%`;
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [rate, 100 - rate],
+                            backgroundColor: ['#519CAB', '#f3f4f6'],
+                            borderWidth: 0, cutout: '85%', borderRadius: 10
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }}
+                });
+            },
+
+            renderClasses() {
+                this.state.view = 'CLASSES';
+                this.updateHeader('Institutional Levels', 'Compliance breakdown by academic stage.');
+                
+                const classes = {};
+                this.state.data.forEach(s => {
+                    if (!classes[s.classId]) {
+                        classes[s.classId] = { id: s.classId, name: s.className, expected: 0, paid: 0, count: 0 };
+                    }
+                    classes[s.classId].expected += s.termExpectedTotal || 0;
+                    classes[s.classId].paid += s.termTotalPaid || 0;
+                    classes[s.classId].count++;
+                });
+
+                const container = document.getElementById('drillDownArea');
+                const values = Object.values(classes).sort((a, b) => {
+                    const order = ['CRECHE', 'EYFC 1', 'EYFC 2', 'BASIC 1', 'PRIMARY 1'];
+                    const idxA = order.findIndex(o => (a.name || '').toUpperCase().includes(o));
+                    const idxB = order.findIndex(o => (b.name || '').toUpperCase().includes(o));
+                    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                    if (idxA !== -1) return -1;
+                    if (idxB !== -1) return 1;
+                    return (a.name || '').localeCompare(b.name || '');
+                });
+                if (values.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; padding:5rem; opacity:0.5;">No active student records found.</div>';
+                } else {
+                    container.innerHTML = `<div class="drill-grid">` + values.map(c => {
+                        const rate = Math.round((c.paid / c.expected) * 100) || 0;
+                        return `
+                            <div class="compliance-card" onclick="ComplianceManager.showArms('${c.id}')">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:0.65rem; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Level</span>
+                                    <span style="font-size:0.8rem; font-weight:900; color:var(--brand-moonstone);">${rate}%</span>
+                                </div>
+                                <div style="font-weight:800; font-size:1.1rem;">${window.Wajina.DOMUtils.escapeHTML(c.name)}</div>
+                                <div style="height:6px; background:#f3f4f6; border-radius:10px; overflow:hidden;">
+                                    <div style="width:${rate}%; height:100%; background:var(--brand-moonstone);"></div>
+                                </div>
+                                <div style="font-size:0.75rem; color:var(--text-secondary);">${c.count} Students</div>
+                            </div>
+                        `;
+                    }).join('') + `</div>`;
+                }
+                this.updateBreadcrumb();
+            },
+
+            showArms(classId) {
+                this.state.selectedClassId = classId;
+                this.state.view = 'ARMS';
+                const cls = this.state.data.find(s => s.classId === classId);
+                this.updateHeader(`${cls.className} Arms`, 'Detailed compliance for individual class strands.');
+
+                const arms = {};
+                this.state.data.filter(s => s.classId === classId).forEach(s => {
+                    if (!arms[s.armId]) {
+                        arms[s.armId] = { id: s.armId, name: s.armName, expected: 0, paid: 0, count: 0 };
+                    }
+                    arms[s.armId].expected += s.termExpectedTotal || 0;
+                    arms[s.armId].paid += s.termTotalPaid || 0;
+                    arms[s.armId].count++;
+                });
+
+                const container = document.getElementById('drillDownArea');
+                container.innerHTML = `<div class="drill-grid">` + Object.values(arms).map(a => {
+                    const rate = Math.round((a.paid / a.expected) * 100) || 0;
+                    return `
+                        <div class="compliance-card" onclick="ComplianceManager.showStudents('${a.id}')">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:0.65rem; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Arm</span>
+                                <span style="font-size:0.8rem; font-weight:900; color:var(--brand-moonstone);">${rate}%</span>
+                            </div>
+                            <div style="font-weight:800; font-size:1.1rem;">${window.Wajina.DOMUtils.escapeHTML(a.name)}</div>
+                            <div style="font-size:0.75rem; color:var(--text-secondary);">${a.count} Students</div>
+                        </div>
+                    `;
+                }).join('') + `</div>`;
+                this.updateBreadcrumb();
+            },
+
+            showStudents(armId) {
+                this.state.selectedArmId = armId;
+                this.state.view = 'STUDENTS';
+                const arm = this.state.data.find(s => s.armId === armId);
+                this.updateHeader(`${arm.className} - ${arm.armName}`, 'Student-level payment ledger and balance tracking.');
+
+                const students = this.state.data.filter(s => s.armId === armId).sort((a,b) => (b.balance - a.balance));
+                const container = document.getElementById('drillDownArea');
+                container.innerHTML = `
+                    <div class="card" style="padding:0; overflow:hidden;">
+                        <table style="width:100%; border-collapse:collapse; text-align:left;">
+                            <thead>
+                                <tr style="background:#f8f9fa;">
+                                    <th style="padding:1rem 2rem; font-size:0.65rem; text-transform:uppercase; color:var(--text-muted);">Student Name</th>
+                                    <th style="padding:1rem; font-size:0.65rem; text-transform:uppercase; color:var(--text-muted);">Status</th>
+                                    <th style="padding:1rem 2rem; font-size:0.65rem; text-transform:uppercase; color:var(--text-muted); text-align:right;">Outstanding Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${students.map(s => `
+                                    <tr style="border-bottom:1px solid rgba(0,0,0,0.03);">
+                                        <td style="padding:1.25rem 2rem; font-weight:800; color:var(--brand-gunmetal);">${window.Wajina.DOMUtils.escapeHTML(s.name)}</td>
+                                        <td style="padding:1.25rem 1rem;">
+                                            <span class="status-pill status-${(s.status || 'UNPAID').toLowerCase()}">${s.status === 'PAID' ? 'FULL' : (s.status || 'UNPAID')}</span>
+                                        </td>
+                                        <td style="padding:1.25rem 2rem; text-align:right; font-weight:800; color:${(s.balance || 0) > 0 ? '#ef4444' : 'var(--brand-moonstone)'};">
+                                            ₦ ${(s.balance || 0).toLocaleString()}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                this.updateBreadcrumb();
+            },
+
+            updateHeader(title, sub) {
+                document.getElementById('viewTitle').textContent = title;
+                document.getElementById('viewSubtitle').textContent = sub;
+            },
+
+            goBack() {
+                if (this.state.view === 'STUDENTS') {
+                    this.showArms(this.state.selectedClassId);
+                    return true; // Handled
+                } else if (this.state.view === 'ARMS') {
+                    this.renderClasses();
+                    return true; // Handled
+                }
+                return false; // Let browser history take over
+            },
+
+            updateBreadcrumb() {
+                const nav = document.getElementById('complianceBreadcrumb');
+                let html = `<span style="color:var(--brand-moonstone); cursor:pointer;" onclick="ComplianceManager.renderClasses()">Compliance Hub</span>`;
+                if (this.state.view !== 'CLASSES') {
+                    const cls = this.state.data.find(s => s.classId === this.state.selectedClassId);
+                    html += ` <i class="fa-solid fa-chevron-right" style="opacity:0.3; font-size:0.6rem;"></i> <span style="color:var(--brand-moonstone); cursor:pointer;" onclick="ComplianceManager.showArms('${this.state.selectedClassId}')">${cls ? cls.className : 'Class'}</span>`;
+                }
+                if (this.state.view === 'STUDENTS') {
+                    const arm = this.state.data.find(s => s.armId === this.state.selectedArmId);
+                    html += ` <i class="fa-solid fa-chevron-right" style="opacity:0.3; font-size:0.6rem;"></i> <span style="opacity:0.4;">${arm ? arm.armName : 'Arm'}</span>`;
+                }
+                nav.innerHTML = html;
+            }
+        };
+
+        async function initPage(e) {
+            const user = e.detail.user || window.currentUser;
+            if (!user) return;
+            
+            // Register Global Back Hook
+            window.onWajinaBack = () => ComplianceManager.goBack();
+            
+            ComplianceManager.init(user);
+        }
+
+        window.addEventListener('authReady', initPage);
+        // Fallback for immediate load
+        if (window.currentUser) initPage({ detail: { user: window.currentUser } });
+    </script>
+</body>
+</html>

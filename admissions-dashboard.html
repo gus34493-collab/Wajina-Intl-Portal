@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admissions Intelligence | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+    </style>
+    <script src="/js/components/wajina-toast.js"></script>
+    <script src="/js/config/navigation.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Admissions Intelligence"></wajina-header>
+            
+            <div class="top-row">
+                <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">School Growth Hub</h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Real-time analytics for enrollment cycle <span id="currentCycleDisplay">2024/2025</span>.</p>
+            </div>
+
+            <!-- Oppo Stats Strip -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Total Pipeline</h3>
+                        <i class="fa-solid fa-users-rectangle" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="kpiApplications" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">0</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">Active inquiries</div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Conversion Yield</h3>
+                        <i class="fa-solid fa-chart-line" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="kpiYield" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">0%</div>
+                        <div id="kpiYieldNote" style="font-size: 0.7rem; color: var(--brand-emerald-light); font-weight: 700;">Processing...</div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; background: var(--brand-gunmetal); color: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: rgba(255,255,255,0.7);">Fee Confirmed</h3>
+                        <i class="fa-solid fa-circle-check" style="color: var(--brand-saffron); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="kpiFeeConfirmed" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">0</div>
+                        <div style="font-size: 0.7rem; color: var(--brand-saffron); font-weight: 700;">Fully enrolled students</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oppo Grid -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+                
+                <!-- Lifecycle Funnel -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h3 style="font-size: 1.1rem;">Lifecycle Funnel & Velocity</h3>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button onclick="openLogisticsModal()" class="glass" style="padding: 0.5rem 1rem; font-size: 0.7rem; font-weight: 700; color: var(--brand-moonstone); border: 1px solid rgba(81, 156, 171, 0.2); border-radius: 6px; cursor: pointer;">
+                                <i class="fa-solid fa-envelope-open-text mr-1"></i> Configure Exam Email
+                            </button>
+                            <div class="badge" style="background: rgba(81, 156, 171, 0.1); color: var(--brand-moonstone); font-size: 0.65rem;">Updated Today</div>
+                        </div>
+                    </div>
+                    <div id="funnelRows" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                         <div style="text-align: center; padding: 3rem; color: var(--text-muted); font-size: 0.85rem;">Calculating stage weights...</div>
+                    </div>
+                </div>
+
+                <!-- NEW: Exam Pipeline (Candidates awaiting logic) -->
+                <div class="card" style="margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <div>
+                            <h3 style="font-size: 1.1rem; margin-bottom: 0.25rem;">Entrance Exam Pipeline</h3>
+                            <p style="font-size: 0.75rem; color: var(--text-muted);">Applicants awaiting scores after fee confirmation.</p>
+                        </div>
+                        <div id="examWaitCount" class="badge" style="background: var(--brand-gunmetal); color: white;">0 Waiting</div>
+                    </div>
+
+                    <div id="examQueueBody" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem;">
+                        <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">Scanning pipeline history...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Logistics Configuration Modal -->
+    <div id="logisticsModal" class="glass-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="card" style="width: 500px; max-width: 90vw; padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.25rem;">Entrance Exam Logistics</h2>
+                <button onclick="closeLogisticsModal()" style="background: none; border: none; cursor: pointer; color: var(--text-muted);"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.5rem;">This message is sent automatically to parents when an applicant moves to the <strong>Fee Confirmed</strong> stage.</p>
+            
+            <textarea id="logisticsText" style="width: 100%; height: 200px; padding: 1rem; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); font-family: inherit; font-size: 0.9rem; margin-bottom: 1.5rem; resize: none;" placeholder="Enter exam date, time, location and instructions..."></textarea>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                <button onclick="closeLogisticsModal()" class="glass" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+                <button onclick="saveLogistics()" class="glass" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; background: var(--brand-moonstone); color: white; cursor: pointer;">Save Configuration</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/pages/admissions-dashboard.js" defer></script>
+</body>
+</body>
+</html>
+
+
+

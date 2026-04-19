@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Audit Hub | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .breadcrumb-audit {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 2rem;
+            color: var(--text-muted);
+        }
+
+        .breadcrumb-audit span[role="button"] {
+            color: var(--brand-moonstone);
+            cursor: pointer;
+        }
+
+        .breadcrumb-audit span[role="button"]:hover {
+            color: var(--brand-gunmetal);
+            text-decoration: underline;
+        }
+
+        .audit-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .audit-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--brand-moonstone);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        .review-table th {
+            padding: 1rem;
+            background: #f8f9fa;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            border-bottom: 2px solid rgba(0,0,0,0.03);
+        }
+
+        .review-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.02);
+            font-size: 0.85rem;
+        }
+
+        /* Modal Aesthetics */
+        #modalOverlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(32, 55, 59, 0.85); backdrop-filter: blur(8px);
+            display: none; z-index: 1500;
+        }
+
+        #returnModal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90%; max-width: 450px;
+            background: white; border-radius: 20px;
+            display: none; z-index: 1501; padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+    </style>
+
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Institutional Audit Hub"></wajina-header>
+            
+            <div class="top-row">
+                <nav class="breadcrumb-audit" id="breadcrumb">ROOT</nav>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Result Integrity Audit</h1>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary);">Deep-scan grade distributions and flag academic anomalies.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="viewContainer" style="margin-top: 1rem;">
+                <!-- Step containers rendered by AuditManager -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modalOverlay"></div>
+    <div id="returnModal">
+        <h3 style="font-weight: 800; margin-bottom: 1rem;">Formal Correction Request</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">State the integrity violation or error that requires teacher remediation.</p>
+        <textarea id="returnReason" class="glass" style="width: 100%; min-height: 120px; padding: 1rem; border-color: rgba(0,0,0,0.1); margin-bottom: 2rem; font-family: inherit;"></textarea>
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <button class="glass" data-action="closeReturnModal" style="padding: 0.75rem 1.5rem; font-weight: 700;">CANCEL</button>
+            <button class="glass" data-action="confirmReturn" style="background: #e74c3c; color: white; border: none; font-weight: 800; padding: 0.75rem 1.5rem;">REJECT RECORD</button>
+        </div>
+    </div>
+
+    <script src="/js/onion-engine.js" defer></script>
+    <script src="/js/pages/grade-review.js" defer></script>
+</body>
+
+</body>
+</html>
+
