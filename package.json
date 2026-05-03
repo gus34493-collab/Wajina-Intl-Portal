@@ -10,7 +10,8 @@
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node prisma/seed.ts",
+    "test:visual": "percy exec -- playwright test tests/visual/"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.0",
@@ -46,6 +47,9 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@percy/cli": "^1.31.13",
+    "@percy/playwright": "^1.1.0",
+    "@playwright/test": "^1.59.1",
     "@types/node": "^25.5.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -55,6 +59,7 @@
     "svgo": "^4.0.1",
     "tailwindcss": "^4.2.2",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "wait-on": "^9.0.5"
   }
 }
