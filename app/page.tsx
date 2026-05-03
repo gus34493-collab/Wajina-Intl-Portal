@@ -1,38 +1,46 @@
-import Image from "next/image";
-import Link from "next/link";
-import { LandingHero } from "./components/LandingHero";
+"use client";
+
+import { useState, useEffect } from "react";
+import Navbar from "./components/landing/Navbar";
+import Hero from "./components/landing/Hero";
+import Marquee from "./components/landing/Marquee";
+import SixStages from "./components/landing/SixStages";
+import About from "./components/landing/About";
+import Features from "./components/landing/Features";
+import TestimonialsCarousel from "./components/landing/TestimonialsCarousel";
+import NextChapter from "./components/landing/NextChapter";
+import AdmissionsCTA from "./components/landing/AdmissionsCTA";
+import Footer from "./components/landing/Footer";
+import AdmissionsModal from "./components/landing/AdmissionsModal";
+import StickyEnrollBar from "./components/landing/StickyEnrollBar";
 
 export default function LandingPage() {
+  const [isAdmissionsModalOpen, setIsAdmissionsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenAdmissions = () => setIsAdmissionsModalOpen(true);
+    window.addEventListener("open-admissions", handleOpenAdmissions);
+    return () => window.removeEventListener("open-admissions", handleOpenAdmissions);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-brand-bg relative overflow-hidden">
-      {/* Structural Orbs (Static) */}
-      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-brand-moonstone/5 rounded-full blur-[120px]" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-brand-saffron/5 rounded-full blur-[120px]" />
+    <main className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: "var(--color-cinematic-ink)" }}>
+      <Navbar />
+      <Hero />
+      <Marquee />
+      <SixStages />
+      <About />
+      <Features />
+      <TestimonialsCarousel />
+      <NextChapter />
+      <AdmissionsCTA />
+      <Footer />
 
-      <main>
-        <LandingHero />
-      </main>
-
-      {/* Desktop Design Footer (Static) */}
-      <footer className="py-20 border-t border-black/5 relative z-10">
-        <div className="container mx-auto max-w-6xl flex flex-col md:flex-row justify-between items-center text-text-muted text-[10px] font-black uppercase tracking-[0.2em]">
-          <div className="flex items-center gap-6 mb-8 md:mb-0">
-            <Image 
-              src="/images/Logo.png" 
-              alt="Wajina Logo" 
-              width={32} 
-              height={32} 
-              className="grayscale opacity-40 hover:opacity-100 transition-opacity cursor-pointer shadow-sm"
-            />
-            <span>Wajina International Schools</span>
-          </div>
-          <div className="flex gap-12">
-            <Link href="#" className="hover:text-brand-gunmetal transition-colors">Safety</Link>
-            <Link href="#" className="hover:text-brand-gunmetal transition-colors">Privacy</Link>
-            <Link href="#" className="hover:text-brand-gunmetal transition-colors">Governance</Link>
-          </div>
-        </div>
-      </footer>
-    </div>
+      <AdmissionsModal 
+        isOpen={isAdmissionsModalOpen} 
+        onClose={() => setIsAdmissionsModalOpen(false)} 
+      />
+      <StickyEnrollBar />
+    </main>
   );
 }

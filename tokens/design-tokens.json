@@ -1,0 +1,138 @@
+{
+  "meta": {
+    "project": "Wajina International Schools Portal",
+    "version": "1.0.0",
+    "typographicScale": "major-third",
+    "ratio": 1.25,
+    "wcagCompliance": "1.4.4",
+    "maintainer": "Engineering — Wajina International"
+  },
+  "color": {
+    "brand": {
+      "primary":   { "value": "#3F4739", "description": "Charcoal — deep professionalism; primary text, borders, and interactive states." },
+      "secondary": { "value": "#6AB547", "description": "Moss Green — organic growth; CTAs, success states, and brand highlights." },
+      "accent":    { "value": "#058ED9", "description": "Blue Bell — digital precision; links, active focus rings, and data indicators." },
+      "tertiary":  { "value": "#E67737", "description": "Tangerine — alerts and urgency ONLY. Never use decoratively." },
+      "surface":   { "value": "#F0F7EE", "description": "Mint Cream — primary page background and card surfaces." }
+    },
+    "semantic": {
+      "success": { "value": "#4FAD28", "description": "Affirmative states: attendance confirmed, grade submitted, payment received." },
+      "error":   { "value": "#DC2626", "description": "Destructive states: failed validation, system error, access denied." },
+      "blush":   { "value": "#F2FAF0", "description": "Hover and fill backgrounds — a softer tint of the surface for interactive feedback." }
+    },
+    "cinematic": {
+      "ink":      { "value": "#0E120A", "description": "Absolute darkest tone — full-bleed landing page hero backgrounds only." },
+      "deep":     { "value": "#14180F", "description": "Deep background layer — secondary hero sections and cinematic overlays." },
+      "surface":  { "value": "#1F2419", "description": "Dark surface — card backgrounds within dark-themed landing sections." },
+      "surface2": { "value": "#2A2F23", "description": "Elevated dark surface — raised cards and modals in the cinematic context." },
+      "bone":     { "value": "#F8FBF6", "description": "Brightest neutral — primary text and icons on all dark cinematic backgrounds." },
+      "cream":    { "value": "#EFE8DA", "description": "Warm off-white — secondary text and subtle decorative elements on dark backgrounds." },
+      "haze":     { "value": "#E6EFE2", "description": "Cool off-white — dividers and subtle borders within the cinematic palette." },
+      "moss":     { "value": "#6AB547", "description": "Brand secondary adapted for dark contexts — matches brand.secondary on light." },
+      "mossGlow": { "value": "#8FD56B", "description": "Illuminated moss — hover state and active glow on dark backgrounds only." },
+      "mossDeep": { "value": "#3E6E2A", "description": "Deep moss — pressed/active state for moss-colored interactive elements." },
+      "tang":     { "value": "#E67737", "description": "Brand tertiary adapted for dark contexts — alerts and urgency on dark surfaces only." },
+      "tangGlow": { "value": "#FF9555", "description": "Illuminated tang — hover/focus glow for tang-colored elements on dark backgrounds." },
+      "blue":     { "value": "#4FB6F0", "description": "Accent adapted for dark contexts — data indicators and links on dark backgrounds." },
+      "dim":      { "value": "#9AA193", "description": "Muted neutral — secondary or disabled text within the cinematic palette." },
+      "dim2":     { "value": "#C9CDC1", "description": "Light muted neutral — tertiary labels and metadata in the cinematic context." }
+    },
+    "surface": {
+      "foreground": { "value": "#3F4739",                "description": "Default text color — maps to brand.primary." },
+      "background": { "value": "#F0F7EE",                "description": "Default page background — maps to brand.surface." },
+      "border":     { "value": "rgba(63, 71, 57, 0.125)", "description": "Subtle divider and container border — brand.primary at 12.5% opacity." }
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "display": { "value": "Fraunces, Georgia, serif",                              "description": "Headings and expressive brand moments — pair with fontWeight.light or fontWeight.regular for elegance." },
+      "sans":    { "value": "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif", "description": "All body copy, UI labels, and data — the default font for 95% of the interface." },
+      "serif":   { "value": "Georgia, serif",                                          "description": "Fallback serif stack only — never set directly; use fontFamily.display." }
+    },
+    "fontSize": {
+      "container": {
+        "xs":   { "value": "clamp(0.64rem, calc(0.55rem + 0.5cqi), 0.8rem)",    "min": "0.64rem",  "max": "0.8rem",    "description": "Step -2 — micro labels, badge text, timestamps. Ratio: 1.25×." },
+        "sm":   { "value": "clamp(0.8rem, calc(0.65rem + 0.8cqi), 0.9rem)",     "min": "0.8rem",   "max": "0.9rem",    "description": "Step -1 — small UI labels and captions. Ratio: 1.13×." },
+        "base": { "value": "clamp(1rem, calc(0.8rem + 1cqi), 1.125rem)",        "min": "1rem",     "max": "1.125rem",  "description": "Step 0 — body text and default UI size. WCAG 1.4.4 base." },
+        "h4":   { "value": "clamp(1.125rem, calc(0.9rem + 1.2cqi), 1.406rem)",  "min": "1.125rem", "max": "1.406rem",  "description": "Step 1 — subheadings and card titles. Base × 1.25¹." },
+        "h3":   { "value": "clamp(1.406rem, calc(1.1rem + 1.5cqi), 1.758rem)",  "min": "1.406rem", "max": "1.758rem",  "description": "Step 2 — section headings. Base × 1.25²." },
+        "h2":   { "value": "clamp(1.758rem, calc(1.4rem + 1.8cqi), 2.197rem)",  "min": "1.758rem", "max": "2.197rem",  "description": "Step 3 — page-level headings. Base × 1.25³." },
+        "h1":   { "value": "clamp(2.197rem, calc(1.75rem + 2cqi), 2.441rem)",   "min": "2.197rem", "max": "2.441rem",  "description": "Step 4 — dashboard apex heading. Base × 1.25⁴. Use global.h1 for hero contexts without a container." }
+      },
+      "global": {
+        "h1":      { "value": "clamp(2.197rem, calc(1.75rem + 2svw), 2.441rem)",   "min": "2.197rem", "max": "2.441rem",  "description": "Root-level h1 — landing page section headers without a container context. Uses svw for address-bar-safe scaling." },
+        "display": { "value": "clamp(2.441rem, calc(1.95rem + 2.5svw), 3.052rem)", "min": "2.441rem", "max": "3.052rem",  "description": "Hero display text — Step 5. Landing page only; no container context. Base × 1.25⁵. Ratio: 1.25×." }
+      }
+    },
+    "fontWeight": {
+      "light":   { "value": 300, "description": "Display headings in Fraunces — editorial elegance." },
+      "regular": { "value": 400, "description": "Body copy and default prose in Plus Jakarta Sans." },
+      "medium":  { "value": 500, "description": "UI labels, navigation items, and subtle emphasis." },
+      "bold":    { "value": 700, "description": "Strong emphasis, KPI figures, and dashboard metrics." },
+      "black":   { "value": 900, "description": "Maximum weight — apex data callouts only. Use sparingly." }
+    },
+    "letterSpacing": {
+      "tight":   { "value": "-0.025em", "description": "Large display headings to correct optical looseness." },
+      "normal":  { "value": "0",        "description": "Default — body copy and standard UI text." },
+      "wide":    { "value": "0.1em",    "description": "Navigation labels and button text." },
+      "wider":   { "value": "0.2em",    "description": "Section eyebrow labels and category tags." },
+      "widest":  { "value": "0.4em",    "description": "All-caps micro labels and institutional headings." }
+    },
+    "lineHeight": {
+      "none":    { "value": 1,     "description": "Display and hero text where optical tightness is intentional." },
+      "tight":   { "value": 1.25,  "description": "Large headings (h1–h2)." },
+      "snug":    { "value": 1.375, "description": "Subheadings (h3–h4)." },
+      "normal":  { "value": 1.5,   "description": "Body copy — default for readability." },
+      "relaxed": { "value": 1.625, "description": "Long-form prose and help text." }
+    }
+  },
+  "spacing": {
+    "0":  { "value": "0rem",    "description": "No spacing." },
+    "1":  { "value": "0.25rem", "description": "4px equiv — micro gaps and icon padding." },
+    "2":  { "value": "0.5rem",  "description": "8px equiv — tight inner padding." },
+    "3":  { "value": "0.75rem", "description": "12px equiv — compact component padding." },
+    "4":  { "value": "1rem",    "description": "16px equiv — standard inner padding (base unit)." },
+    "5":  { "value": "1.25rem", "description": "20px equiv — relaxed inner padding." },
+    "6":  { "value": "1.5rem",  "description": "24px equiv — section internal spacing." },
+    "8":  { "value": "2rem",    "description": "32px equiv — card padding and section gaps." },
+    "10": { "value": "2.5rem",  "description": "40px equiv — large card padding." },
+    "12": { "value": "3rem",    "description": "48px equiv — section separation." },
+    "16": { "value": "4rem",    "description": "64px equiv — major layout separation." },
+    "20": { "value": "5rem",    "description": "80px equiv — page-level vertical rhythm." },
+    "24": { "value": "6rem",    "description": "96px equiv — hero section vertical breathing room." }
+  },
+  "borderRadius": {
+    "none": { "value": "0rem",        "description": "Sharp corners — table cells and strict data grids." },
+    "sm":   { "value": "0.125rem",    "description": "2px equiv — very subtle rounding for inline elements." },
+    "base": { "value": "0.375rem",    "description": "6px equiv — standard input fields and small buttons." },
+    "md":   { "value": "0.5rem",      "description": "8px equiv — medium interactive elements." },
+    "lg":   { "value": "0.75rem",     "description": "12px equiv — standard cards and panels." },
+    "xl":   { "value": "0.75rem",     "description": "12px equiv — Tailwind xl mapping for larger interactive elements." },
+    "2xl":  { "value": "1rem",        "description": "16px equiv — prominent cards and modals." },
+    "3xl":  { "value": "1.5rem",      "description": "24px equiv — elevated surface containers." },
+    "card": { "value": "2.5rem",      "description": "40px equiv — signature Wajina card corner. Primary brand shape." },
+    "full": { "value": "624.9375rem", "description": "Effectively infinite — pills, avatars, and circular elements." }
+  },
+  "shadow": {
+    "soft":     { "value": "0 4px 20px -4px rgba(22, 48, 43, 0.06)",                                             "description": "Lightest elevation — subtle depth for inline elements and hover states." },
+    "card":     { "value": "0 16px 40px -8px rgba(22, 48, 43, 0.07)",                                            "description": "Standard card elevation — default depth for all dashboard card surfaces." },
+    "prestige": { "value": "0 10px 30px -5px rgba(63, 71, 57, 0.1), 0 4px 6px -2px rgba(63, 71, 57, 0.05)",     "description": "Premium double-layer shadow — modals, drawers, and elevated overlays." },
+    "premium":  { "value": "0 20px 60px -12px rgba(22, 48, 43, 0.12), 0 4px 8px -2px rgba(22, 48, 43, 0.04)",   "description": "Highest elevation — hero feature cards and command palette surfaces." }
+  },
+  "motion": {
+    "easing": {
+      "brand":     { "value": [0.17, 0.67, 0.83, 0.67], "cssValue": "cubic-bezier(0.17, 0.67, 0.83, 0.67)", "description": "Wajina brand spring — GPU-composited. Default for all Motion variants." },
+      "easeOut":   { "value": [0, 0, 0.2, 1],           "cssValue": "cubic-bezier(0, 0, 0.2, 1)",           "description": "Standard deceleration — elements entering the viewport or expanding." },
+      "easeIn":    { "value": [0.4, 0, 1, 1],            "cssValue": "cubic-bezier(0.4, 0, 1, 1)",           "description": "Standard acceleration — elements leaving the viewport or collapsing." },
+      "easeInOut": { "value": [0.4, 0, 0.2, 1],          "cssValue": "cubic-bezier(0.4, 0, 0.2, 1)",         "description": "Symmetrical — state toggles where enter and exit share equal weight." }
+    },
+    "duration": {
+      "instant":   { "value": 100,  "unit": "ms", "description": "Immediate feedback — focus rings, checkbox ticks." },
+      "fast":      { "value": 200,  "unit": "ms", "description": "Micro-interactions — button press, badge update." },
+      "base":      { "value": 300,  "unit": "ms", "description": "Standard transition — default for all Motion variants." },
+      "moderate":  { "value": 500,  "unit": "ms", "description": "Panel and sheet reveals." },
+      "slow":      { "value": 700,  "unit": "ms", "description": "Page-level transitions and complex layout shifts." },
+      "cinematic": { "value": 1200, "unit": "ms", "description": "Hero and scrollytelling sequences — landing page only." }
+    }
+  }
+}
