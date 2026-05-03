@@ -83,7 +83,7 @@ export default function Sidebar({
             >
               <div className="bg-white p-1 rounded-xl shadow-inner">
                 <Image
-                  src="/images/wajina-logo.jpg"
+                  src="/images/logo-no-bg.png"
                   alt="Wajina International Schools"
                   width={32}
                   height={32}

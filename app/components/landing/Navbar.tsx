@@ -54,7 +54,7 @@ export default function Navbar() {
         {/* Brand */}
         <div className="flex items-center gap-3 overflow-hidden">
           <Image
-            src="/images/wajina-logo.jpg"
+            src="/images/logo-no-bg.png"
             alt="Wajina International Schools"
             width={32}
             height={32}

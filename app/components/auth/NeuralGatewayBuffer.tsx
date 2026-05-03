@@ -22,7 +22,7 @@ export default function NeuralGatewayBuffer() {
         className="w-32 h-32 bg-white/5 rounded-[2.5rem] flex items-center justify-center border border-white/10"
       >
         <Image
-          src="/images/wajina-logo.jpg"
+          src="/images/logo-no-bg.png"
           alt="Wajina International Schools"
           width={64}
           height={64}

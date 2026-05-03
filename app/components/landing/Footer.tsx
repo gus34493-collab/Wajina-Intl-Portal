@@ -20,7 +20,7 @@ export default function Footer({ minimal: _ = false }: { minimal?: boolean }) {
           <div className="space-y-6">
             <div className="flex items-center gap-3">
               <Image
-                src="/images/wajina-logo.jpg"
+                src="/images/logo-no-bg.png"
                 alt="Wajina International Schools"
                 width={32}
                 height={32}

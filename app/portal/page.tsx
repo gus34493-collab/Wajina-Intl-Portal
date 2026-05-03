@@ -191,7 +191,7 @@ export default function PortalPage() {
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-white rounded-[2rem] shadow-inner mb-10 border border-brand-primary/5">
               <Image
-                src="/images/wajina-logo.jpg"
+                src="/images/logo-no-bg.png"
                 alt="Wajina International Schools"
                 width={56}
                 height={56}
