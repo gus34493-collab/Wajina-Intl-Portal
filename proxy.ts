@@ -6,25 +6,73 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "fallback-secret-for-development-only"
 );
 
-// Define protected routes and their required roles
-// If role is undefined, it just requires being logged in
+/**
+ * Protected routes and their allowed roles.
+ * Restored 1:1 from legacy auth-guard.js RBAC mapping.
+ */
 const PROTECTED_ROUTES: Record<string, string[]> = {
-  "/parent-dashboard": ["PARENT", "DIRECTOR"],
+  // Executive
   "/director-dashboard": ["DIRECTOR"],
-  "/principal-dashboard": ["PRINCIPAL", "DIRECTOR"],
-  "/operations-hub": ["DIRECTOR", "VP_ADMIN", "HEAD_TEACHER"],
-  "/academic-performance": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ACADEMICS", "VP_ADMIN"],
+  "/director-finances": ["DIRECTOR", "ACCOUNTS_OFFICER"],
+  "/director-academics": ["DIRECTOR"],
+  "/director-audit-logs": ["DIRECTOR"],
+  "/retention-analysis": ["DIRECTOR"],
+  "/expense-approval": ["DIRECTOR", "ACCOUNTS_OFFICER"],
+
+  // Campus Leadership
+  "/principal-dashboard": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS"],
+  "/head-teacher-dashboard": ["DIRECTOR", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
+  "/operations-hub": ["DIRECTOR", "VP_ADMIN", "HEAD_TEACHER", "ADMIN"],
+
+  // Departmental
+  "/hod-dashboard": ["DIRECTOR", "PRINCIPAL", "HOD"],
+  "/dean-dashboard": ["DIRECTOR", "PRINCIPAL", "DEAN_STUDENTS"],
+
+  // Finance
+  "/bursar-primary-dashboard": ["DIRECTOR", "BURSAR"],
+  "/bursar-secondary-dashboard": ["DIRECTOR", "BURSAR"],
+  "/bursar-dashboard": ["DIRECTOR", "BURSAR"],
+  "/accounts-officer-dashboard": ["DIRECTOR", "ACCOUNTS_OFFICER"],
+  "/fee-compliance": ["DIRECTOR", "BURSAR", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
+
+  // HR
   "/hr-dashboard": ["DIRECTOR", "HR"],
+
+  // Academic
+  "/teacher-dashboard": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "TEACHER", "FORM_TEACHER"],
+  "/gradebook": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "TEACHER", "FORM_TEACHER", "DEAN_STUDENTS"],
+  "/review-grades": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HOD", "DEAN_STUDENTS"],
+  "/academic-performance": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ACADEMICS", "VP_ADMIN", "HOD"],
+  "/teacher-submissions-review": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
+  "/results-approval": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "VP_ADMIN", "ACCOUNTS_OFFICER"],
+
+  // Student & Parent
+  "/parent-dashboard": ["PARENT", "DIRECTOR"],
+  "/student-dashboard": ["STUDENT", "DIRECTOR"],
+
+  // Admin
+  "/admissions-dashboard": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "BURSAR", "REGISTRAR"],
+  "/staff-directory": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "VP_ADMIN", "HR", "HOD", "HEAD_TEACHER"],
+  "/staff-onboarding": ["DIRECTOR", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
+  "/pupil-records": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "HR", "HOD", "DEAN_STUDENTS"],
+  "/session-planner": ["DIRECTOR", "PRINCIPAL", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
+  "/testimonials": ["DIRECTOR", "PRINCIPAL", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Skip static assets and public routes
   if (
     pathname.startsWith("/api/auth") ||
-    pathname === "/portal" ||
+    pathname.startsWith("/api/admissions") ||
+    pathname.startsWith("/api/support") ||
+    pathname.startsWith("/api/payments") ||
+    pathname.replace(/\/$/, "") === "/portal" ||
     pathname === "/" ||
+    pathname.startsWith("/academics") ||
+    pathname.startsWith("/future") ||
+    pathname.startsWith("/our-story") ||
     pathname.startsWith("/_next") ||
     pathname.includes(".")
   ) {
@@ -59,7 +107,7 @@ export async function middleware(request: NextRequest) {
         if (!allowedRoles.includes(userRole)) {
           const url = request.nextUrl.clone();
           url.pathname = "/portal";
-          url.searchParams.set("error", "Access denied: Insufficient privileges.");
+          url.searchParams.set("error", "You do not have permission to view this dashboard.");
           return NextResponse.redirect(url);
         }
       }
@@ -67,10 +115,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
     
-    // 5. If access token missing but refresh exists, 
-    // we let the request through if it's NOT an API call, 
-    // assuming the client-side will refresh, OR we could refresh here.
-    // For simplicity and standard practice, let's redirect if access is dead.
+    // 5. If access token missing but refresh exists, redirect
     const url = request.nextUrl.clone();
     url.pathname = "/portal";
     url.searchParams.set("error", "Session re-authentication required.");

@@ -21,6 +21,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden - Director Only" }, { status: 403 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const selectedCampus = searchParams.get("campus");
+
     let session = await prisma.academicSession.findFirst({ where: { status: 'ACTIVE' } });
     if (!session) session = await prisma.academicSession.findFirst({ orderBy: { year: 'desc' } });
     
@@ -34,7 +37,8 @@ export async function GET(req: NextRequest) {
         status: 'APPROVED',
         category: 'TUITION',
         sessionId: session.id,
-        createdAt: { gte: sixWeeksAgo }
+        createdAt: { gte: sixWeeksAgo },
+        ...(selectedCampus && selectedCampus !== 'ALL' ? { student: { campus: selectedCampus as any } } : {})
       },
       select: { amount: true, createdAt: true },
     });

@@ -20,11 +20,12 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const termId = searchParams.get("termId");
+    const sessionId = searchParams.get("sessionId");
     const studentId = searchParams.get("studentId") || userId; // Default to self
 
     // Security: Only certain roles can view others' grades
     if (studentId !== userId) {
-      const isManagement = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ACADEMICS", "VP_ADMIN", "TEACHER", "FORM_TEACHER"].includes(userRole);
+      const isManagement = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ACADEMICS", "VP_ADMIN", "TEACHER", "FORM_TEACHER", "PARENT"].includes(userRole);
       if (!isManagement) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
@@ -32,22 +33,30 @@ export async function GET(req: NextRequest) {
 
     const where: any = {
       studentId,
-      ...(termId && { termId })
+      ...(termId && { termId }),
+      ...(sessionId && { sessionId })
     };
 
-    const grades = await prisma.grade.findMany({
-      where,
-      include: {
-        subject: { select: { name: true } },
-        term: { select: { name: true, academicSessionId: true } }
-      },
-      orderBy: { subject: { name: 'asc' } }
-    });
+    const [grades, sessions] = await Promise.all([
+      prisma.grade.findMany({
+        where,
+        include: {
+          subject: { select: { name: true } },
+          term: { select: { name: true, academicSessionId: true } },
+          session: { select: { name: true, year: true } }
+        },
+        orderBy: { subject: { name: 'asc' } }
+      }),
+      prisma.academicSession.findMany({
+        orderBy: { year: 'desc' }
+      })
+    ]);
 
-    return NextResponse.json({ grades });
+    return NextResponse.json({ grades, sessions });
     
   } catch (err: any) {
     console.error("[API Grades] Failure:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+

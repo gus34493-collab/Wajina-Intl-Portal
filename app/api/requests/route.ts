@@ -10,7 +10,7 @@ const JWT_SECRET = new TextEncoder().encode(
 export async function GET(req: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_token")?.value;
+    const token = cookieStore.get("wajina_access")?.value || cookieStore.get("wajina_token")?.value;
 
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -22,13 +22,18 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
     const level = searchParams.get("level");
+    const selectedCampus = searchParams.get("campus");
 
     let where: any = {};
     if (status) where.status = status.toUpperCase();
     if (level) where.level = level.toUpperCase();
     
     // Campus/Role Scope: Non-directors only see their campus or things specifically sent to them
-    if (userRole !== 'DIRECTOR' && userCampus) {
+    if (userRole === 'DIRECTOR') {
+      if (selectedCampus && selectedCampus !== 'ALL') {
+        where.sender = { campus: selectedCampus as any };
+      }
+    } else if (userCampus) {
       where.OR = [
         { sender: { campus: userCampus as any } },
         { receiverId: userId }

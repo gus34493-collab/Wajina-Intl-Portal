@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     `;
 
     await resend.emails.send({
-      from: process.env.EMAIL_FROM || "Wajina Security <security@wajina.edu.ng>",
+      from: process.env.EMAIL_FROM || "Wajina Security <security@wajina.com.ng>",
       to: user.email,
       subject: "Identity Verification: Password Reset Request",
       html: emailHtml,
