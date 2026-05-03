@@ -13,7 +13,10 @@ model User {
   email                 String             @unique
   password              String
   name                  String
-  role                  Role
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  campus                SchoolCampus?
+  role                  Role               @default(STUDENT)
   status                UserStatus         @default(PENDING)
   phone                 String?
   profilePhoto          String?
@@ -21,9 +24,6 @@ model User {
   parentId              String?
   armId                 String?
   classId               String?
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
-  campus                SchoolCampus?
   tokenVersion          Int                @default(0)
   failedLoginAttempts   Int                @default(0)
   lockedUntil           DateTime?
@@ -61,6 +61,11 @@ model User {
   parent                User?              @relation("ParentToWard", fields: [parentId], references: [id])
   wards                 User[]             @relation("ParentToWard")
   refreshTokens         RefreshToken[]
+  issuedAttestations    Attestation[]      @relation("IssuerAttestation")
+  studentAttestations   Attestation[]      @relation("StudentAttestation")
+  issuedTestimonials    Testimonial[]      @relation("IssuerTestimonial")
+  studentTestimonials   Testimonial[]      @relation("StudentTestimonial")
+  signatures            DigitalSignature[]
 
   @@index([role])
   @@index([status])
@@ -228,6 +233,9 @@ model Grade {
   student          User             @relation(fields: [studentId], references: [id])
   subject          Subject          @relation(fields: [subjectId], references: [id])
   term             Term?            @relation(fields: [termId], references: [id])
+  signatureId      String?          @unique
+  signature        DigitalSignature? @relation(fields: [signatureId], references: [id])
+  campus           SchoolCampus?    @default(PRIMARY)
 
   @@unique([studentId, subjectId, termId])
   @@index([studentId])
@@ -344,12 +352,24 @@ model Admission {
   armId         String?
   classId       String?
   entranceScore Float?
+  isScholarshipEligible Boolean @default(false)
+  paymentRef           String?          @unique
   session       AcademicSession? @relation(fields: [sessionId], references: [id])
 
   @@index([status])
   @@index([campus])
   @@index([sessionId])
   @@index([type])
+}
+
+model AdmissionConfig {
+  id               String       @id @default(cuid(2))
+  campus           SchoolCampus @unique
+  entranceFee      Float        @default(25000)
+  deadline         DateTime?
+  cutoffScore      Float        @default(50)
+  scholarshipScore Float        @default(90)
+  updatedAt        DateTime     @updatedAt
 }
 
 model Task {
@@ -488,7 +508,9 @@ enum AdmissionType {
 }
 
 enum AdmissionStatus {
+  PENDING_FEE
   APPLIED
+  EXAM_DETAILS_SENT
   QUALIFIED
   OFFERED
   FEE_CONFIRMED
@@ -500,21 +522,19 @@ enum AdmissionStatus {
 enum Role {
   DIRECTOR
   PRINCIPAL
-  ADMIN_STAFF
-  ACADEMIC_STAFF
-  PARENT
-  STUDENT
-  TEACHER
-  BURSAR
-  ACCOUNTS_OFFICER
-  VP_ACADEMICS
   VP_ADMIN
+  VP_ACADEMICS
   HOD
   HEAD_TEACHER
   ASST_HEAD_TEACHER
-  DEAN_STUDENTS
   HR
+  DEAN
+  BURSAR
+  ACCOUNTS_OFFICER
   FORM_TEACHER
+  TEACHER
+  PARENT
+  STUDENT
 }
 
 enum RequestLevel {
@@ -563,6 +583,13 @@ enum ResultStatus {
   FORM_APPROVED
   PRINCIPAL_APPROVED
   RETURNED
+  ISSUED
+}
+
+enum DocumentStatus {
+  DRAFT
+  APPROVED
+  ISSUED
 }
 
 enum BehaviourSeverity {
@@ -609,4 +636,58 @@ enum RiskStatus {
   OPEN
   INVESTIGATING
   RESOLVED
+}
+
+model Attestation {
+  id          String           @id @default(cuid(2))
+  studentId   String
+  issuerId    String
+  title       String
+  content     Json
+  status      DocumentStatus   @default(DRAFT)
+  campus      SchoolCampus
+  signatureId String?          @unique
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  student     User             @relation("StudentAttestation", fields: [studentId], references: [id])
+  issuer      User             @relation("IssuerAttestation", fields: [issuerId], references: [id])
+  signature   DigitalSignature? @relation(fields: [signatureId], references: [id])
+
+  @@index([studentId])
+  @@index([campus])
+}
+
+model Testimonial {
+  id          String           @id @default(cuid(2))
+  studentId   String
+  issuerId    String
+  content     Json
+  status      DocumentStatus   @default(DRAFT)
+  campus      SchoolCampus
+  signatureId String?          @unique
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  student     User             @relation("StudentTestimonial", fields: [studentId], references: [id])
+  issuer      User             @relation("IssuerTestimonial", fields: [issuerId], references: [id])
+  signature   DigitalSignature? @relation(fields: [signatureId], references: [id])
+
+  @@index([studentId])
+  @@index([campus])
+}
+
+model DigitalSignature {
+  id               String      @id @default(cuid(2))
+  entityId         String
+  entityType       String      // "RESULT", "ATTESTATION", "TESTIMONIAL"
+  signatureHash    String      // Cryptographic hash of the record
+  signatureData    String?     @db.Text // Base64 manual signature drawing
+  signerId         String
+  signedAt         DateTime    @default(now())
+  signer           User        @relation(fields: [signerId], references: [id])
+  gradeRecord      Grade?
+  attestation      Attestation?
+  testimonial      Testimonial?
+
+  @@index([signerId])
+  @@index([entityId])
 }
