@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogIn, ShieldAlert, CheckCircle2, Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
@@ -189,7 +190,15 @@ export default function PortalPage() {
         <div className="bg-white p-10 md:p-16 rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-white/5">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-white rounded-[2rem] shadow-inner mb-10 border border-brand-primary/5">
-              <img src="/images/Logo.png" alt="Wajina Logo" className="w-14 h-14 object-contain" />
+              <Image
+                src="/images/wajina-logo.jpg"
+                alt="Wajina International Schools"
+                width={56}
+                height={56}
+                priority
+                className="object-contain"
+                style={{ width: "var(--space-14, 3.5rem)", height: "var(--space-14, 3.5rem)" }}
+              />
             </div>
             <h1 className="text-4xl font-display font-black text-brand-primary tracking-tight mb-4 uppercase leading-none">Welcome<br/><span className="text-brand-accent">Back.</span></h1>
             <p className="text-brand-primary/40 text-token-micro font-black uppercase tracking-[0.5em] leading-none">Sign in to your account</p>

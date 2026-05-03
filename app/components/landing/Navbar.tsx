@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -50,8 +51,17 @@ export default function Navbar() {
       }}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 md:px-12 py-5">
-        {/* Brand — NO logo, school name fades in when scrolled past hero name */}
+        {/* Brand */}
         <div className="flex items-center gap-3 overflow-hidden">
+          <Image
+            src="/images/wajina-logo.jpg"
+            alt="Wajina International Schools"
+            width={32}
+            height={32}
+            priority
+            className="rounded-full object-contain"
+            style={{ width: "var(--space-8)", height: "var(--space-8)" }}
+          />
           <span
             className="font-black tracking-tight transition-all duration-500"
             style={{

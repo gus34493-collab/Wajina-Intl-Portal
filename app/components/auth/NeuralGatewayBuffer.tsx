@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Activity } from "lucide-react";
 
@@ -20,7 +21,15 @@ export default function NeuralGatewayBuffer() {
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         className="w-32 h-32 bg-white/5 rounded-[2.5rem] flex items-center justify-center border border-white/10"
       >
-        <img src="/images/Logo.png" alt="Wajina Logo" className="w-16 h-16 object-contain grayscale brightness-200 opacity-50" />
+        <Image
+          src="/images/wajina-logo.jpg"
+          alt="Wajina International Schools"
+          width={64}
+          height={64}
+          priority
+          className="object-contain grayscale brightness-200 opacity-50"
+          style={{ width: "var(--space-16)", height: "var(--space-16)" }}
+        />
       </motion.div>
       <div className="flex flex-col items-center gap-2">
         <div className="flex items-center gap-3">

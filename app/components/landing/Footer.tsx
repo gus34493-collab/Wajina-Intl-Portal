@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { MapPin, Phone, Mail } from "lucide-react";
 
 export default function Footer({ minimal: _ = false }: { minimal?: boolean }) {
@@ -18,17 +19,15 @@ export default function Footer({ minimal: _ = false }: { minimal?: boolean }) {
           {/* Brand */}
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div
-                className="w-8 h-8 flex items-center justify-center font-black text-sm select-none"
-                style={{
-                  background: "var(--color-cinematic-moss)",
-                  color: "var(--color-cinematic-ink)",
-                  fontFamily: "var(--font-display)",
-                  fontStyle: "italic",
-                }}
-              >
-                W
-              </div>
+              <Image
+                src="/images/wajina-logo.jpg"
+                alt="Wajina International Schools"
+                width={32}
+                height={32}
+                priority
+                className="rounded-full object-contain bg-white"
+                style={{ width: "var(--space-8)", height: "var(--space-8)", padding: "var(--space-1)" }}
+              />
               <span
                 className="font-black tracking-tight"
                 style={{ color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-sans)" }}

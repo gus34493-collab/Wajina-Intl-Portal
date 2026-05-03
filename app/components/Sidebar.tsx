@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -81,7 +82,15 @@ export default function Sidebar({
               className="flex items-center gap-4 shrink-0"
             >
               <div className="bg-white p-1 rounded-xl shadow-inner">
-                <img src="/images/Logo.png" alt="Logo" className="h-8" />
+                <Image
+                  src="/images/wajina-logo.jpg"
+                  alt="Wajina International Schools"
+                  width={32}
+                  height={32}
+                  priority
+                  className="object-contain"
+                  style={{ width: "var(--space-8)", height: "var(--space-8)" }}
+                />
               </div>
               <div className="flex flex-col">
                 <h1 className="text-token-caption font-display font-black text-white uppercase tracking-[0.3em] leading-none">
