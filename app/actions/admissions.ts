@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { AdmissionStatus } from "@prisma/client";
 import { Resend } from "resend";
 import { revalidatePath } from "next/cache";
 
@@ -25,7 +26,7 @@ export async function saveApplicantLead(data: {
         parentPhone: data.parentPhone,
         parentEmail: data.parentEmail,
         notes: data.notes || "",
-        status: "PENDING_FEE",
+        status: AdmissionStatus.PENDING_FEE,
       }
     });
     
