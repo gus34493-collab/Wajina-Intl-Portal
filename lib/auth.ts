@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import prisma from './prisma';
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'fallback-secret-for-development-core'
+  process.env.JWT_SECRET || 'fallback-secret-for-development-only'
 );
 
 const ACCESS_TOKEN_EXPIRY = '2h';
@@ -89,6 +89,15 @@ export async function createSession(user: any) {
     sameSite: 'lax',
     path: '/',
     maxAge: 2 * 60 * 60, // 2 hours
+  });
+
+  // Compatibility Alias for legacy API routes
+  cookieStore.set('wajina_token', accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 2 * 60 * 60, 
   });
 
   // Set Refresh Token (7d)
