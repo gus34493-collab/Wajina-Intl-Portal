@@ -53,7 +53,7 @@ export default function AdmissionsCTA() {
         >
           <div className="space-y-5">
             <span
-              className="text-[10px] font-black uppercase tracking-[0.45em]"
+              className="text-token-micro font-black uppercase tracking-[0.45em]"
               style={{ color: "#3E6E2A", fontFamily: "var(--font-sans)" }}
             >
               Plate VI · Admissions 2025–2026
@@ -127,7 +127,7 @@ export default function AdmissionsCTA() {
           className="space-y-6"
         >
           <h3
-            className="text-[11px] font-black uppercase tracking-[0.4em]"
+            className="text-token-caption font-black uppercase tracking-[0.4em]"
             style={{ color: "#5a5e52", fontFamily: "var(--font-sans)" }}
           >
             Admissions Calendar
@@ -166,14 +166,14 @@ export default function AdmissionsCTA() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span
-                    className="text-[10px] font-black uppercase tracking-widest"
+                    className="text-token-micro font-black uppercase tracking-widest"
                     style={{ color: "#5a5e52", fontFamily: "var(--font-sans)" }}
                   >
                     {row.date}
                   </span>
                   {row.open && (
                     <span
-                      className="text-[9px] font-black uppercase tracking-widest px-2 py-1"
+                      className="text-token-micro font-black uppercase tracking-widest px-2 py-1"
                       style={{
                         background: "var(--color-cinematic-moss)",
                         color: "var(--color-cinematic-ink)",
@@ -189,7 +189,7 @@ export default function AdmissionsCTA() {
           </div>
 
           <p
-            className="text-[10px] font-black uppercase tracking-widest"
+            className="text-token-micro font-black uppercase tracking-widest"
             style={{ color: "#8a8e82", fontFamily: "var(--font-sans)" }}
           >
             Limited places available. Early application is strongly encouraged.

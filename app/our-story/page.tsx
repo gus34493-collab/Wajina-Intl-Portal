@@ -19,7 +19,7 @@ export default function OurStoryPage() {
       >
         <Link
           href="/"
-          className="text-[10px] font-black uppercase tracking-[0.4em] transition-colors duration-200"
+          className="text-token-micro font-black uppercase tracking-[0.4em] transition-colors duration-200"
           style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}
           onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-cinematic-moss)")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-cinematic-dim)")}
@@ -27,7 +27,7 @@ export default function OurStoryPage() {
           ← Back to Home
         </Link>
         <span
-          className="text-[10px] font-black uppercase tracking-[0.4em]"
+          className="text-token-micro font-black uppercase tracking-[0.4em]"
           style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}
         >
           Our Story
@@ -54,7 +54,7 @@ export default function OurStoryPage() {
             className="space-y-4"
           >
             <span
-              className="text-[10px] font-black uppercase tracking-[0.5em] block"
+              className="text-token-micro font-black uppercase tracking-[0.5em] block"
               style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}
             >
               Heritage & Mission
@@ -267,7 +267,7 @@ export default function OurStoryPage() {
         style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
       >
         <p
-          className="text-[9px] font-black uppercase tracking-[0.4em]"
+          className="text-token-micro font-black uppercase tracking-[0.4em]"
           style={{ color: "var(--color-cinematic-dim-2)", fontFamily: "var(--font-sans)" }}
         >
           © {new Date().getFullYear()} Wajina International Schools · Citadel of Excellence

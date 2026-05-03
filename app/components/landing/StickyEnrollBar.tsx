@@ -39,14 +39,14 @@ export default function StickyEnrollBar() {
             <div className="flex items-center gap-3 md:gap-8 flex-1 min-w-0">
               <div className="flex items-center gap-3">
                 <Calendar size={12} className="shrink-0" style={{ color: "var(--color-cinematic-moss)" }} />
-                <span className="text-[7px] md:text-[9px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] truncate" style={{ color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)" }}>
+                <span className="text-token-micro md:text-token-micro font-black uppercase tracking-[0.2em] md:tracking-[0.3em] truncate" style={{ color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)" }}>
                   Session 2025/2026
                 </span>
               </div>
               <div className="hidden sm:block w-px h-4 bg-white/10" />
               <div className="flex items-center gap-3">
                 <MapPin size={12} className="shrink-0" style={{ color: "var(--color-cinematic-tang)" }} />
-                <span className="text-[7px] md:text-[9px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] truncate" style={{ color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)" }}>
+                <span className="text-token-micro md:text-token-micro font-black uppercase tracking-[0.2em] md:tracking-[0.3em] truncate" style={{ color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)" }}>
                   Primary & Secondary
                 </span>
               </div>
@@ -59,7 +59,7 @@ export default function StickyEnrollBar() {
                 onClick={openAdmissions}
                 className="group flex items-center gap-3 transition-all duration-300"
               >
-                <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em]" style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}>
+                <span className="text-token-micro md:text-token-micro font-black uppercase tracking-[0.3em] md:tracking-[0.4em]" style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}>
                   Apply Now
                 </span>
                 <div 

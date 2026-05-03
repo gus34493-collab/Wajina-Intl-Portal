@@ -86,7 +86,7 @@ export default function Navbar() {
             <button
               key={link.id}
               onClick={() => scrollTo(link.id)}
-              className="text-[10px] font-black uppercase tracking-[0.25em] transition-colors duration-200"
+              className="text-token-micro font-black uppercase tracking-[0.25em] transition-colors duration-200"
               style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-cinematic-bone)")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-cinematic-dim)")}
@@ -100,7 +100,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="text-[8px] md:text-[10px] font-black uppercase tracking-widest px-2 md:px-4 py-2 transition-colors duration-200"
+            className="text-token-micro md:text-token-micro font-black uppercase tracking-widest px-2 md:px-4 py-2 transition-colors duration-200"
             style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-cinematic-bone)")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-cinematic-dim)")}
@@ -108,7 +108,7 @@ export default function Navbar() {
             Portal Login
           </Link>
           <button
-            className="text-[8px] md:text-[10px] font-black uppercase tracking-widest px-3 md:px-6 py-2 md:py-3 transition-all duration-200"
+            className="text-token-micro md:text-token-micro font-black uppercase tracking-widest px-3 md:px-6 py-2 md:py-3 transition-all duration-200"
             style={{
               background: "var(--color-cinematic-moss)",
               color: "var(--color-cinematic-ink)",
@@ -156,7 +156,7 @@ export default function Navbar() {
                     scrollTo(link.id);
                     setIsMenuOpen(false);
                   }}
-                  className="w-full px-8 py-6 text-left text-[11px] font-black uppercase tracking-[0.3em] border-b border-white/5 transition-colors active:bg-white/5"
+                  className="w-full px-8 py-6 text-left text-token-caption font-black uppercase tracking-[0.3em] border-b border-white/5 transition-colors active:bg-white/5"
                   style={{ color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)" }}
                 >
                   {link.label}
@@ -166,7 +166,7 @@ export default function Navbar() {
               <Link
                 href="/login"
                 onClick={() => setIsMenuOpen(false)}
-                className="w-full px-8 py-6 text-left text-[11px] font-black uppercase tracking-[0.3em] border-b border-white/5 transition-colors active:bg-white/5"
+                className="w-full px-8 py-6 text-left text-token-caption font-black uppercase tracking-[0.3em] border-b border-white/5 transition-colors active:bg-white/5"
                 style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}
               >
                 Portal Login
@@ -180,7 +180,7 @@ export default function Navbar() {
                 className="w-full px-8 py-8 flex items-center justify-between group"
                 style={{ background: "var(--color-cinematic-moss)", color: "var(--color-cinematic-ink)" }}
               >
-                <span className="text-[11px] font-black uppercase tracking-[0.4em]" style={{ fontFamily: "var(--font-sans)" }}>
+                <span className="text-token-caption font-black uppercase tracking-[0.4em]" style={{ fontFamily: "var(--font-sans)" }}>
                   Begin Application
                 </span>
                 <ArrowRight size={18} className="transition-transform group-active:translate-x-1" />

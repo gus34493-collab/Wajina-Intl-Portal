@@ -129,9 +129,10 @@ export const RevenueGauge = ({ collected, expected }: { collected: number; expec
     <div className="relative w-full h-full flex items-center justify-center">
       <Doughnut data={chartData} options={options} />
       <div className="absolute inset-0 flex flex-col items-center justify-center pt-4">
-        <span className="text-2xl font-display font-black text-brand-gunmetal">{percentage}%</span>
-        <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-[-4px]">Goal</span>
+        <span className="text-2xl font-display font-black text-brand-primary">{percentage}%</span>
+        <span className="text-token-micro font-bold text-brand-tertiary uppercase tracking-widest mt-[-4px]">Goal</span>
       </div>
     </div>
   );
 };
+

@@ -63,7 +63,7 @@ export default function SixStages() {
         columnHeaders={{ left: "Period", right: "Ethos" }}
         header={
           <div className="flex flex-col items-center">
-            <span className="text-[10px] font-black uppercase tracking-[0.5em] text-moss mb-4">The Wajina Path</span>
+            <span className="text-token-micro font-black uppercase tracking-[0.5em] text-moss mb-4">The Wajina Path</span>
             <div className="flex gap-4 items-baseline">
               <span className="font-display italic text-6xl md:text-8xl text-bone">Six</span>
               <span className="font-display text-4xl md:text-6xl text-moss">Stages.</span>

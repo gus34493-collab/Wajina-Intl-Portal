@@ -48,7 +48,7 @@ export default function Footer({ minimal: _ = false }: { minimal?: boolean }) {
           {/* Pathways */}
           <div className="space-y-6">
             <h4
-              className="text-[10px] font-black uppercase tracking-[0.4em]"
+              className="text-token-micro font-black uppercase tracking-[0.4em]"
               style={{ color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans)" }}
             >
               Pathways
@@ -80,7 +80,7 @@ export default function Footer({ minimal: _ = false }: { minimal?: boolean }) {
           {/* The School */}
           <div className="space-y-6">
             <h4
-              className="text-[10px] font-black uppercase tracking-[0.4em]"
+              className="text-token-micro font-black uppercase tracking-[0.4em]"
               style={{ color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans)" }}
             >
               The School
@@ -112,7 +112,7 @@ export default function Footer({ minimal: _ = false }: { minimal?: boolean }) {
           {/* Visit */}
           <div className="space-y-6">
             <h4
-              className="text-[10px] font-black uppercase tracking-[0.4em]"
+              className="text-token-micro font-black uppercase tracking-[0.4em]"
               style={{ color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans)" }}
             >
               Visit
@@ -163,7 +163,7 @@ export default function Footer({ minimal: _ = false }: { minimal?: boolean }) {
           style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
         >
           <p
-            className="text-[9px] font-black uppercase tracking-[0.3em]"
+            className="text-token-micro font-black uppercase tracking-[0.3em]"
             style={{ color: "rgba(255,255,255,0.14)", fontFamily: "var(--font-sans)" }}
           >
             © 2025–2026 Wajina International Schools. All Rights Reserved.
@@ -173,7 +173,7 @@ export default function Footer({ minimal: _ = false }: { minimal?: boolean }) {
               <a
                 key={label}
                 href={label === "Portal Login" ? "/login" : "#"}
-                className="text-[9px] font-black uppercase tracking-[0.3em] transition-colors duration-200"
+                className="text-token-micro font-black uppercase tracking-[0.3em] transition-colors duration-200"
                 style={{ color: "rgba(255,255,255,0.14)", fontFamily: "var(--font-sans)" }}
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.color = "rgba(255,255,255,0.45)")

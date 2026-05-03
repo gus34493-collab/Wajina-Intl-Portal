@@ -210,7 +210,7 @@ export default function AdmissionsModal({ isOpen, onClose }: AdmissionsModalProp
             </button>
             <div className="flex items-center gap-4 mb-4">
                <div className="h-px w-8" style={{ background: "var(--color-cinematic-moss)" }} />
-               <span className="text-[10px] font-black uppercase tracking-[0.4em]" style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}>ADMISSIONS OFFICE</span>
+               <span className="text-token-micro font-black uppercase tracking-[0.4em]" style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}>ADMISSIONS OFFICE</span>
             </div>
             <h2 className="leading-none tracking-tight" style={{ fontFamily: "var(--font-display)", fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 300, fontStyle: "italic", color: "var(--color-cinematic-bone)" }}>
               {step === 1 ? "Begin Enrollment." : "Payment Portal."}
@@ -218,12 +218,12 @@ export default function AdmissionsModal({ isOpen, onClose }: AdmissionsModalProp
 
             {/* Steps Indicators */}
             <div className="flex items-center gap-6 mt-10">
-               <div className={`text-[10px] font-black tracking-[0.2em] flex items-center gap-3 ${step >= 1 ? "text-bone" : "opacity-20 text-bone"}`}>
+               <div className={`text-token-micro font-black tracking-[0.2em] flex items-center gap-3 ${step >= 1 ? "text-bone" : "opacity-20 text-bone"}`}>
                   <span className={`w-6 h-6 flex items-center justify-center transition-all ${step >= 1 ? "bg-moss text-ink" : "border border-white/20"}`} style={{ background: step >= 1 ? "var(--color-cinematic-moss)" : "transparent", color: step >= 1 ? "var(--color-cinematic-ink)" : "inherit" }}>1</span>
                   IDENTITY
                </div>
                <div className="h-px w-6 opacity-10" style={{ background: "var(--color-cinematic-bone)" }} />
-               <div className={`text-[10px] font-black tracking-[0.2em] flex items-center gap-3 ${step >= 2 ? "text-bone" : "opacity-20 text-bone"}`}>
+               <div className={`text-token-micro font-black tracking-[0.2em] flex items-center gap-3 ${step >= 2 ? "text-bone" : "opacity-20 text-bone"}`}>
                   <span className={`w-6 h-6 flex items-center justify-center transition-all ${step >= 2 ? "bg-moss text-ink" : "border border-white/20"}`} style={{ background: step >= 2 ? "var(--color-cinematic-moss)" : "transparent", color: step >= 2 ? "var(--color-cinematic-ink)" : "inherit" }}>2</span>
                   COMPLIANCE
                </div>
@@ -306,7 +306,7 @@ export default function AdmissionsModal({ isOpen, onClose }: AdmissionsModalProp
                 </div>
 
                 {feedback && (
-                  <p className="text-[10px] font-black p-4 border uppercase tracking-widest" style={{ color: "var(--color-cinematic-tang)", background: "rgba(230,119,55,0.05)", borderColor: "rgba(230,119,55,0.1)" }}>{feedback}</p>
+                  <p className="text-token-micro font-black p-4 border uppercase tracking-widest" style={{ color: "var(--color-cinematic-tang)", background: "rgba(230,119,55,0.05)", borderColor: "rgba(230,119,55,0.1)" }}>{feedback}</p>
                 )}
 
                 <button
@@ -324,18 +324,18 @@ export default function AdmissionsModal({ isOpen, onClose }: AdmissionsModalProp
               <div className="flex flex-col gap-10">
                 <div className="p-8 relative" style={{ background: "var(--color-cinematic-deep)", border: "1px solid rgba(255,255,255,0.05)" }}>
                    <div className="absolute top-0 left-0 w-1 h-full" style={{ background: "var(--color-cinematic-moss)" }} />
-                   <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 opacity-40" style={{ color: "var(--color-cinematic-bone)" }}>VALIDATION SUMMARY</h4>
+                   <h4 className="text-token-micro font-black uppercase tracking-[0.3em] mb-6 opacity-40" style={{ color: "var(--color-cinematic-bone)" }}>VALIDATION SUMMARY</h4>
                    <div className="space-y-4">
                       <div className="flex justify-between border-b border-white/5 pb-2">
-                         <span className="text-[10px] font-black opacity-40" style={{ color: "var(--color-cinematic-bone)" }}>STUDENT</span>
+                         <span className="text-token-micro font-black opacity-40" style={{ color: "var(--color-cinematic-bone)" }}>STUDENT</span>
                          <span className="text-xs font-black uppercase" style={{ color: "var(--color-cinematic-bone)" }}>{pendingApplicant.studentName}</span>
                       </div>
                       <div className="flex justify-between border-b border-white/5 pb-2">
-                         <span className="text-[10px] font-black opacity-40" style={{ color: "var(--color-cinematic-bone)" }}>CLASS</span>
+                         <span className="text-token-micro font-black opacity-40" style={{ color: "var(--color-cinematic-bone)" }}>CLASS</span>
                          <span className="text-xs font-black uppercase" style={{ color: "var(--color-cinematic-bone)" }}>{pendingApplicant.studentClass}</span>
                       </div>
                       <div className="flex justify-between border-b border-white/5 pb-2">
-                         <span className="text-[10px] font-black opacity-40" style={{ color: "var(--color-cinematic-bone)" }}>CAMPUS</span>
+                         <span className="text-token-micro font-black opacity-40" style={{ color: "var(--color-cinematic-bone)" }}>CAMPUS</span>
                          <span className="text-xs font-black uppercase" style={{ color: "var(--color-cinematic-bone)" }}>{pendingApplicant.campusLabel}</span>
                       </div>
                    </div>
@@ -346,20 +346,20 @@ export default function AdmissionsModal({ isOpen, onClose }: AdmissionsModalProp
                       <span className="text-xs font-black uppercase tracking-widest" style={{ color: "var(--color-cinematic-dim)" }}>ENTRANCE FEE</span>
                       <span className="font-black" style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--color-cinematic-moss)" }}>₦{entranceFee.toLocaleString()}</span>
                    </div>
-                   <p className="text-[10px] font-black leading-relaxed uppercase tracking-tight opacity-40" style={{ color: "var(--color-cinematic-bone)" }}>
+                   <p className="text-token-micro font-black leading-relaxed uppercase tracking-tight opacity-40" style={{ color: "var(--color-cinematic-bone)" }}>
                       MANDATORY PROCESSING FEE FOR ENTRANCE EXAM AND ASSESSMENT.
                    </p>
                 </div>
 
                 <div className="flex items-start gap-4 p-6 border" style={{ background: "rgba(106,181,71,0.03)", borderColor: "rgba(106,181,71,0.1)" }}>
                    <ShieldCheck size={24} style={{ color: "var(--color-cinematic-moss)" }} className="shrink-0" />
-                   <p className="text-[10px] font-black leading-relaxed uppercase tracking-wider opacity-60" style={{ color: "var(--color-cinematic-bone)" }}>
+                   <p className="text-token-micro font-black leading-relaxed uppercase tracking-wider opacity-60" style={{ color: "var(--color-cinematic-bone)" }}>
                       SECURE REDIRECT TO <span style={{ color: "var(--color-cinematic-moss)" }}>FLUTTERWAVE</span>. ENCRYPTED END-TO-END GATEWAY COMPLIANCE.
                    </p>
                 </div>
 
                 {feedback && (
-                  <p className="text-[10px] font-black p-4 border uppercase tracking-widest" style={{ color: "var(--color-cinematic-tang)", background: "rgba(230,119,55,0.05)", borderColor: "rgba(230,119,55,0.1)" }}>{feedback}</p>
+                  <p className="text-token-micro font-black p-4 border uppercase tracking-widest" style={{ color: "var(--color-cinematic-tang)", background: "rgba(230,119,55,0.05)", borderColor: "rgba(230,119,55,0.1)" }}>{feedback}</p>
                 )}
 
                 <div className="flex gap-4">
@@ -393,7 +393,7 @@ export default function AdmissionsModal({ isOpen, onClose }: AdmissionsModalProp
 function FormField({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-3">
-      <label className="text-[10px] font-black uppercase tracking-[0.3em] px-1 opacity-40" style={{ color: "var(--color-cinematic-bone)" }}>
+      <label className="text-token-micro font-black uppercase tracking-[0.3em] px-1 opacity-40" style={{ color: "var(--color-cinematic-bone)" }}>
         {label} {required && <span style={{ color: "var(--color-cinematic-tang)" }}>*</span>}
       </label>
       {children}

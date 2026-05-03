@@ -150,7 +150,7 @@ export default function About() {
                   {stat.value}
                 </p>
                 <p
-                  className="text-[10px] font-black uppercase tracking-widest"
+                  className="text-token-micro font-black uppercase tracking-widest"
                   style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}
                 >
                   {stat.label}

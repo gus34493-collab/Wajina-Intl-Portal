@@ -45,34 +45,34 @@ export default function AcademicPerformance() {
         
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-display font-black text-brand-gunmetal tracking-tight">Subject Intelligence</h1>
-          <p className="text-text-secondary text-sm font-medium mt-1">Institutional academic performance metrics and mastery trends.</p>
+          <h1 className="text-3xl font-display font-black text-brand-primary tracking-tight">Subject Intelligence</h1>
+          <p className="text-brand-primary/60 text-sm font-medium mt-1">Institutional academic performance metrics and mastery trends.</p>
         </div>
 
         {/* Search & Stats */}
         <div className="flex flex-col md:flex-row gap-6 items-center">
           <div className="relative flex-1 w-full group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-moonstone w-5 h-5 group-focus-within:scale-110 transition-transform" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-tertiary w-5 h-5 group-focus-within:scale-110 transition-transform" />
             <input 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by subject nomenclature or class..."
-              className="w-full bg-white border border-black/5 rounded-2xl py-4 pl-12 pr-6 text-sm font-bold shadow-soft focus:ring-4 focus:ring-brand-moonstone/10 outline-none transition-all placeholder:text-text-muted/50"
+              className="w-full bg-white border border-brand-primary/8 rounded-2xl py-4 pl-12 pr-6 text-sm font-bold shadow-soft focus:ring-4 focus:ring-brand-tertiary/10 outline-none transition-all placeholder:text-brand-tertiary/50"
             />
           </div>
           <div className="flex gap-4 w-full md:w-auto">
-             <div className="bg-white border border-black/5 rounded-2xl px-6 py-4 flex items-center gap-3 shadow-sm border-l-4 border-l-brand-moonstone">
-                <BookOpen className="w-5 h-5 text-brand-moonstone" />
+             <div className="bg-white border border-brand-primary/8 rounded-2xl px-6 py-4 flex items-center gap-3 shadow-sm border-l-4 border-l-brand-tertiary">
+                <BookOpen className="w-5 h-5 text-brand-tertiary" />
                 <div>
-                   <p className="text-[10px] font-black uppercase text-text-muted tracking-widest">Active Subjects</p>
-                   <p className="text-sm font-black text-brand-gunmetal leading-none mt-0.5">{subjects.length}</p>
+                   <p className="text-token-micro font-black uppercase text-brand-tertiary tracking-widest">Active Subjects</p>
+                   <p className="text-sm font-black text-brand-primary leading-none mt-0.5">{subjects.length}</p>
                 </div>
              </div>
-             <div className="bg-white border border-black/5 rounded-2xl px-6 py-4 flex items-center gap-3 shadow-sm border-l-4 border-l-brand-success">
+             <div className="bg-white border border-brand-primary/8 rounded-2xl px-6 py-4 flex items-center gap-3 shadow-sm border-l-4 border-l-brand-success">
                 <GraduationCap className="w-5 h-5 text-brand-success" />
                 <div>
-                   <p className="text-[10px] font-black uppercase text-text-muted tracking-widest">High Mastery</p>
-                   <p className="text-sm font-black text-brand-gunmetal leading-none mt-0.5">
+                   <p className="text-token-micro font-black uppercase text-brand-tertiary tracking-widest">High Mastery</p>
+                   <p className="text-sm font-black text-brand-primary leading-none mt-0.5">
                     {subjects.filter(s => s.average >= 70).length}
                    </p>
                 </div>
@@ -89,7 +89,7 @@ export default function AcademicPerformance() {
               ))
             ) : filteredSubjects.length === 0 ? (
               <div className="col-span-full py-20 text-center opacity-50">
-                <p className="font-bold text-text-muted">Zero subject data found in current academic vector.</p>
+                <p className="font-bold text-brand-tertiary">Zero subject data found in current academic vector.</p>
               </div>
             ) : (
               filteredSubjects.map((s, i) => (
@@ -119,14 +119,14 @@ function SubjectCard({ subject, index }: { subject: any, index: number }) {
     >
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h3 className="text-lg font-display font-black text-brand-gunmetal tracking-tight leading-tight group-hover:text-brand-moonstone transition-colors">
+          <h3 className="text-lg font-display font-black text-brand-primary tracking-tight leading-tight group-hover:text-brand-tertiary transition-colors">
             {subject.name}
           </h3>
-          <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.15em] mt-1">{subject.className}</p>
+          <p className="text-token-micro font-black text-brand-tertiary uppercase tracking-[0.15em] mt-1">{subject.className}</p>
         </div>
         <div className={clsx(
           "p-2 rounded-xl transition-colors",
-          isHigh ? "bg-emerald-50 text-emerald-600" : isLow ? "bg-red-50 text-red-600" : "bg-brand-bg text-text-muted"
+          isHigh ? "bg-brand-secondary/10 text-brand-secondary" : isLow ? "bg-rose-50 text-rose-700" : "bg-brand-blush text-brand-tertiary"
         )}>
           {isHigh ? <TrendingUp size={20} /> : isLow ? <TrendingDown size={20} /> : <Minus size={20} />}
         </div>
@@ -135,19 +135,19 @@ function SubjectCard({ subject, index }: { subject: any, index: number }) {
       <div className="flex items-baseline gap-2 mb-8">
         <span className={clsx(
           "text-4xl font-display font-black tracking-tighter",
-          isHigh ? "text-brand-success" : isLow ? "text-brand-error" : "text-brand-gunmetal"
+          isHigh ? "text-brand-success" : isLow ? "text-brand-error" : "text-brand-primary"
         )}>
           {subject.average}
         </span>
-        <span className="text-[10px] font-black text-text-muted uppercase tracking-widest">Avg Score</span>
+        <span className="text-token-micro font-black text-brand-tertiary uppercase tracking-widest">Avg Score</span>
       </div>
 
-      <div className="pt-4 border-t border-black/5 flex justify-between items-center">
-        <div className="flex items-center gap-2 text-text-secondary">
-          <Users size={14} className="text-text-muted" />
-          <span className="text-[10px] font-black uppercase tracking-widest">{subject.studentCount} Scholars</span>
+      <div className="pt-4 border-t border-brand-primary/8 flex justify-between items-center">
+        <div className="flex items-center gap-2 text-brand-primary/60">
+          <Users size={14} className="text-brand-tertiary" />
+          <span className="text-token-micro font-black uppercase tracking-widest">{subject.studentCount} Scholars</span>
         </div>
-        <button className="flex items-center gap-1 text-[10px] font-black text-brand-moonstone hover:underline uppercase tracking-widest">
+        <button className="flex items-center gap-1 text-token-micro font-black text-brand-tertiary hover:underline uppercase tracking-widest">
           View Data
           <ChevronRight size={12} />
         </button>
@@ -161,17 +161,17 @@ function SubjectSkeleton() {
     <div className="card h-52 flex flex-col gap-4">
       <div className="flex justify-between">
         <div className="space-y-2">
-          <div className="h-4 w-32 bg-brand-bg rounded animate-pulse" />
-          <div className="h-2 w-20 bg-brand-bg rounded animate-pulse" />
+          <div className="h-4 w-32 bg-brand-blush rounded animate-pulse" />
+          <div className="h-2 w-20 bg-brand-blush rounded animate-pulse" />
         </div>
-        <div className="w-10 h-10 bg-brand-bg rounded-xl animate-pulse" />
+        <div className="w-10 h-10 bg-brand-blush rounded-xl animate-pulse" />
       </div>
       <div className="flex-1 flex items-center">
-        <div className="h-10 w-24 bg-brand-bg rounded animate-pulse" />
+        <div className="h-10 w-24 bg-brand-blush rounded animate-pulse" />
       </div>
-      <div className="h-8 w-full border-t border-black/5 pt-2 flex justify-between items-center">
-         <div className="h-2 w-16 bg-brand-bg rounded animate-pulse" />
-         <div className="h-2 w-20 bg-brand-bg rounded animate-pulse" />
+      <div className="h-8 w-full border-t border-brand-primary/8 pt-2 flex justify-between items-center">
+         <div className="h-2 w-16 bg-brand-blush rounded animate-pulse" />
+         <div className="h-2 w-20 bg-brand-blush rounded animate-pulse" />
       </div>
     </div>
   );
@@ -180,3 +180,4 @@ function SubjectSkeleton() {
 function clsx(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
 }
+

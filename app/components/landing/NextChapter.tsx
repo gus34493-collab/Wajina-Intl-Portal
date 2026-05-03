@@ -81,7 +81,7 @@ export default function NextChapter() {
           className="max-w-2xl space-y-5"
         >
           <span
-            className="text-[10px] font-black uppercase tracking-[0.45em]"
+            className="text-token-micro font-black uppercase tracking-[0.45em]"
             style={{ color: "var(--color-cinematic-tang)", fontFamily: "var(--font-sans)" }}
           >
             The Road Ahead
@@ -148,7 +148,7 @@ export default function NextChapter() {
                 {/* Tag on image */}
                 <div className="absolute top-5 left-5 z-20">
                   <span
-                    className="text-[9px] font-black uppercase tracking-[0.35em] px-3 py-1.5"
+                    className="text-token-micro font-black uppercase tracking-[0.35em] px-3 py-1.5"
                     style={{
                       background: `color-mix(in srgb, ${item.accent === "var(--color-cinematic-moss)" ? "#6AB547" : "#E67737"} 15%, rgba(0,0,0,0.6))`,
                       color: item.accent === "var(--color-cinematic-moss)" ? "#8ed464" : "#f0954d",
@@ -210,7 +210,7 @@ export default function NextChapter() {
                 <div className="flex items-center gap-6 pt-3">
                   <Link
                     href={`/future/${item.slug}`}
-                    className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] transition-colors duration-200"
+                    className="inline-flex items-center gap-2 text-token-micro font-black uppercase tracking-[0.3em] transition-colors duration-200"
                     style={{
                       color: item.accent === "var(--color-cinematic-moss)" ? "#8ed464" : "#f0954d",
                       fontFamily: "var(--font-sans)",
@@ -228,7 +228,7 @@ export default function NextChapter() {
                   </Link>
                   <Link
                     href={`/future/${item.slug}`}
-                    className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] px-5 py-2.5 transition-all duration-200"
+                    className="inline-flex items-center gap-2 text-token-micro font-black uppercase tracking-[0.3em] px-5 py-2.5 transition-all duration-200"
                     style={{
                       border: "1px solid rgba(255,255,255,0.1)",
                       color: "var(--color-cinematic-bone)",

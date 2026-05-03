@@ -138,7 +138,7 @@ export default function TestimonialCarousel({
                   {current.name}
                 </p>
                 <p
-                  className="text-[10px] font-black uppercase tracking-widest"
+                  className="text-token-micro font-black uppercase tracking-widest"
                   style={{ color: "var(--color-cinematic-ink)", opacity: 0.45, fontFamily: "var(--font-sans)" }}
                 >
                   {current.role}

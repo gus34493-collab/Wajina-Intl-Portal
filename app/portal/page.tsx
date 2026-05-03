@@ -3,13 +3,19 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogIn, ShieldAlert, CheckCircle2, Loader2, Mail, Lock } from "lucide-react";
+import { LogIn, ShieldAlert, CheckCircle2, Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { getDefaultRoute } from "@/lib/navigation";
+import RecoveryModal from "@/components/auth/RecoveryModal";
+import NeuralGatewayBuffer from "@/app/components/auth/NeuralGatewayBuffer";
+import { useAuth } from "@/app/components/AuthContext";
 
-function LoginForm() {
+function LoginForm({ onAuthStart }: { onAuthStart: () => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { updateUser } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -41,26 +47,19 @@ function LoginForm() {
 
       setSuccess(true);
       sessionStorage.clear();
+      updateUser(data); // Sync context instantly
+      onAuthStart(); 
 
       setTimeout(() => {
-        const dest = getDestination(data.role);
-        router.push(dest);
-      }, 800);
+        const dest = getDefaultRoute(data.role);
+        router.replace(dest);
+      }, 1000);
 
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
-
-  const getDestination = (role: string) => {
-    const r = role.toUpperCase();
-    if (r === "DIRECTOR") return "/director-dashboard";
-    if (r === "PARENT") return "/parent-dashboard";
-    if (r === "PRINCIPAL") return "/principal-dashboard";
-    if (["ADMIN", "VP_ADMIN", "HEAD_TEACHER", "REGISTRAR"].includes(r)) return "/operations-hub";
-    return "/dashboard";
   };
 
   return (
@@ -73,7 +72,7 @@ function LoginForm() {
             exit={{ opacity: 0, height: 0 }}
             className="mb-6 overflow-hidden"
           >
-            <div className="bg-red-50 border border-red-100 rounded-xl p-4 flex items-center gap-3">
+            <div className="bg-rose-50 border border-red-100 rounded-xl p-4 flex items-center gap-3">
               <ShieldAlert className="w-5 h-5 text-brand-error shrink-0" />
               <p className="text-xs font-semibold text-brand-error">{error}</p>
             </div>
@@ -86,60 +85,70 @@ function LoginForm() {
             animate={{ opacity: 1, height: "auto" }}
             className="mb-6 overflow-hidden"
           >
-            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex items-center gap-3">
+            <div className="bg-brand-secondary/10 border border-brand-secondary/20 rounded-xl p-4 flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-brand-success shrink-0" />
-              <p className="text-xs font-semibold text-brand-success">Authentication successful! Redirecting...</p>
+              <p className="text-xs font-semibold text-brand-success">Signed in. Taking you in...</p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="space-y-2">
-          <label className="text-[11px] font-black uppercase tracking-wider text-text-muted px-2">Work Email Address</label>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-3">
+          <label className="text-token-micro font-black uppercase tracking-[0.3em] text-brand-primary/40 px-2 leading-none">Email address</label>
           <div className="relative group">
-            <div className="absolute inset-y-0 left-4 flex items-center text-text-muted group-focus-within:text-brand-moonstone transition-colors pointer-events-none">
-              <Mail className="w-4 h-4" />
+            <div className="absolute inset-y-0 left-5 flex items-center text-brand-primary z-10 pointer-events-none">
+              <Mail size={20} strokeWidth={2.5} />
             </div>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-white border border-black/[0.06] focus:border-brand-moonstone focus:ring-4 focus:ring-brand-moonstone/10 rounded-xl py-3 pl-12 pr-4 text-sm font-medium transition-all"
-              placeholder="name@wajina.edu.ng"
+              style={{ paddingLeft: '56px', backgroundColor: 'white' }}
+              className="w-full border border-brand-primary/5 focus:border-brand-accent focus:ring-8 focus:ring-brand-accent/5 rounded-2xl py-5 pr-6 text-sm font-black tracking-tight transition-all outline-none"
+              placeholder="name@wajina.com.ng"
             />
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-[11px] font-black uppercase tracking-wider text-text-muted px-2">Access Password</label>
+        <div className="space-y-3">
+          <label className="text-token-micro font-black uppercase tracking-[0.3em] text-brand-primary/40 px-2 leading-none">Password</label>
           <div className="relative group">
-            <div className="absolute inset-y-0 left-4 flex items-center text-text-muted group-focus-within:text-brand-moonstone transition-colors pointer-events-none">
-              <Lock className="w-4 h-4" />
+            <div className="absolute inset-y-0 left-5 flex items-center text-brand-primary z-10 pointer-events-none">
+              <Lock size={20} strokeWidth={2.5} />
             </div>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-white border border-black/[0.06] focus:border-brand-moonstone focus:ring-4 focus:ring-brand-moonstone/10 rounded-xl py-3 pl-12 pr-4 text-sm font-medium transition-all"
+              style={{ paddingLeft: '56px', backgroundColor: 'white' }}
+              className="w-full border border-brand-primary/5 focus:border-brand-accent focus:ring-8 focus:ring-brand-accent/5 rounded-2xl py-5 pr-14 text-sm font-black transition-all outline-none"
               placeholder="••••••••"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{ right: '24px' }}
+              className="absolute inset-y-0 flex items-center text-brand-primary/60 hover:text-brand-accent transition-colors z-10"
+            >
+              {showPassword ? <EyeOff size={20} strokeWidth={2.5} /> : <Eye size={20} strokeWidth={2.5} />}
+            </button>
           </div>
         </div>
 
         <button
           type="submit"
           disabled={loading || success}
-          className="w-full bg-brand-gunmetal hover:bg-brand-gunmetal/90 text-white flex items-center justify-center gap-2 group press-effect mt-8 py-5 rounded-2xl shadow-xl transition-all"
+          className="w-full bg-brand-primary hover:bg-brand-accent text-white flex items-center justify-center gap-4 group mt-10 py-6 rounded-[2rem] shadow-2xl transition-all disabled:opacity-50"
         >
           {loading ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <Loader2 className="w-6 h-6 animate-spin" />
           ) : (
             <>
-              <span className="text-xs font-black uppercase tracking-widest">Enter Workspace</span>
-              <LogIn className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <span className="text-xs font-black uppercase tracking-[0.4em]">Sign In</span>
+              <LogIn className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </>
           )}
         </button>
@@ -149,38 +158,74 @@ function LoginForm() {
 }
 
 export default function PortalPage() {
-  return (
-    <div className="min-h-screen bg-brand-bg flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-moonstone/5 rounded-full blur-[120px]" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-brand-saffron/5 rounded-full blur-[120px]" />
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const [isRecoveryOpen, setIsRecoveryOpen] = useState(false);
+  const [status, setStatus] = useState<"checking" | "ready" | "authenticating">("checking");
 
+  useEffect(() => {
+    if (!authLoading) {
+      if (user?.role) {
+        // If already logged in, do NOT show the form at all
+        router.replace(getDefaultRoute(user.role));
+      } else {
+        setTimeout(() => setStatus("ready"), 800);
+      }
+    }
+  }, [user, authLoading, router]);
+
+  if (status !== "ready" || authLoading) {
+    return <NeuralGatewayBuffer />;
+  }
+
+  return (
+    <div className="min-h-screen bg-brand-primary flex items-center justify-center p-4 relative overflow-hidden no-scrollbar">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md relative z-10"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-lg relative z-10"
       >
-        <div className="bg-white/80 backdrop-blur-xl border border-black/5 p-8 md:p-12 rounded-[40px] shadow-premium">
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-brand-bg rounded-3xl shadow-sm mb-6 border border-black/5">
-              <img src="/images/Logo.png" alt="Wajina Logo" className="w-12 h-12 object-contain" />
+        <div className="bg-white p-10 md:p-16 rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-white/5">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-white rounded-[2rem] shadow-inner mb-10 border border-brand-primary/5">
+              <img src="/images/Logo.png" alt="Wajina Logo" className="w-14 h-14 object-contain" />
             </div>
-            <h1 className="text-3xl font-display font-black text-brand-gunmetal tracking-tight mb-2 uppercase italic">Portal Access</h1>
-            <p className="text-text-secondary text-xs font-black uppercase tracking-widest opacity-50 italic">Institutional Governance Suite</p>
+            <h1 className="text-4xl font-display font-black text-brand-primary tracking-tight mb-4 uppercase leading-none">Welcome<br/><span className="text-brand-accent">Back.</span></h1>
+            <p className="text-brand-primary/40 text-token-micro font-black uppercase tracking-[0.5em] leading-none">Sign in to your account</p>
           </div>
 
-          <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-brand-moonstone" /></div>}>
-            <LoginForm />
+          <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-brand-accent" /></div>}>
+            <LoginForm onAuthStart={() => setStatus("authenticating")} />
           </Suspense>
 
-          <div className="mt-12 text-center pt-8 border-t border-black/5">
-            <a href="#" className="text-[10px] font-black uppercase tracking-widest text-brand-moonstone hover:underline">System Recovery Archive</a>
+          <div className="mt-16 text-center pt-10 border-t border-brand-primary/5">
+            <button 
+              onClick={() => setIsRecoveryOpen(true)}
+              className="text-token-micro font-black uppercase tracking-[0.3em] text-brand-primary hover:text-brand-accent transition-colors flex items-center gap-3 mx-auto"
+            >
+               <ShieldAlert size={14} /> Forgot your password?
+            </button>
           </div>
         </div>
 
-        <p className="text-center mt-12 text-[10px] font-black uppercase tracking-[0.3em] text-text-muted opacity-30">
-          © 2026 Wajina International • Intelligence Core
-        </p>
+        <RecoveryModal 
+          isOpen={isRecoveryOpen} 
+          onClose={() => setIsRecoveryOpen(false)} 
+        />
+
+        <div className="mt-12 flex flex-col items-center gap-4">
+           <div className="h-px w-8 bg-brand-accent" />
+           <p className="text-token-micro font-black uppercase tracking-[0.3em] text-white/20">
+             © 2026 Wajina International Schools
+           </p>
+        </div>
       </motion.div>
+
+      {/* Background Decorative Slabs */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-brand-accent/30" />
+      <div className="absolute bottom-0 right-0 w-1/2 h-2 bg-brand-secondary/10" />
     </div>
   );
 }
+

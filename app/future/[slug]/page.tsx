@@ -39,7 +39,7 @@ export default function FutureDetailPage() {
           <h1 className="text-4xl tracking-tight" style={{ fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic", color: "var(--color-cinematic-bone)" }}>
             Initiative not found.
           </h1>
-          <Link href="/" className="inline-block text-[10px] font-black uppercase tracking-[0.3em] px-8 py-4" style={{ background: "var(--color-cinematic-moss)", color: "var(--color-cinematic-ink)", fontFamily: "var(--font-sans)" }}>
+          <Link href="/" className="inline-block text-token-micro font-black uppercase tracking-[0.3em] px-8 py-4" style={{ background: "var(--color-cinematic-moss)", color: "var(--color-cinematic-ink)", fontFamily: "var(--font-sans)" }}>
             Back home
           </Link>
         </div>
@@ -58,9 +58,9 @@ export default function FutureDetailPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 p-6 md:p-8 pointer-events-none flex justify-between items-start">
         <button onClick={() => router.push("/")} className="pointer-events-auto flex items-center gap-3 px-6 py-4 transition-all duration-300 group" style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.08)", color: "var(--color-cinematic-bone)" }}>
           <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-          <span className="text-[9px] font-black uppercase tracking-[0.4em]" style={{ fontFamily: "var(--font-sans)" }}>Back home</span>
+          <span className="text-token-micro font-black uppercase tracking-[0.4em]" style={{ fontFamily: "var(--font-sans)" }}>Back home</span>
         </button>
-        <span className="pointer-events-none text-[9px] font-black uppercase tracking-[0.4em] px-6 py-4" style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)", background: "rgba(0,0,0,0.4)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <span className="pointer-events-none text-token-micro font-black uppercase tracking-[0.4em] px-6 py-4" style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)", background: "rgba(0,0,0,0.4)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.08)" }}>
           {project.subtitle}
         </span>
       </nav>
@@ -76,7 +76,7 @@ export default function FutureDetailPage() {
             <div className="flex items-center gap-4">
               <div className="px-4 py-1.5 flex items-center gap-2" style={{ background: "rgba(106,181,71,0.15)" }}>
                 <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--color-cinematic-moss)" }} />
-                <span className="text-[9px] font-black uppercase tracking-[0.4em]" style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}>Projected Initiative</span>
+                <span className="text-token-micro font-black uppercase tracking-[0.4em]" style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}>Projected Initiative</span>
               </div>
             </div>
             <h1 className="leading-[0.85] tracking-tight" style={{ fontFamily: "var(--font-display)", fontSize: "clamp(3rem, 8vw, 7rem)", fontWeight: 300, fontStyle: "italic", color: "var(--color-cinematic-bone)" }}>
@@ -103,14 +103,14 @@ export default function FutureDetailPage() {
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="p-10 text-left space-y-5" style={{ background: "var(--color-cinematic-ink)" }}>
               <div className="flex items-center gap-3">
                 <Target size={16} style={{ color: "var(--color-cinematic-moss)" }} />
-                <span className="text-[10px] font-black uppercase tracking-[0.35em]" style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}>Strategic Vision</span>
+                <span className="text-token-micro font-black uppercase tracking-[0.35em]" style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}>Strategic Vision</span>
               </div>
               <p className="text-base leading-relaxed" style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}>{project.vision}</p>
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="p-10 text-left space-y-5" style={{ background: "var(--color-cinematic-ink)" }}>
               <div className="flex items-center gap-3">
                 <Milestone size={16} style={{ color: "var(--color-cinematic-tang)" }} />
-                <span className="text-[10px] font-black uppercase tracking-[0.35em]" style={{ color: "var(--color-cinematic-tang)", fontFamily: "var(--font-sans)" }}>Current Status</span>
+                <span className="text-token-micro font-black uppercase tracking-[0.35em]" style={{ color: "var(--color-cinematic-tang)", fontFamily: "var(--font-sans)" }}>Current Status</span>
               </div>
               <p className="text-base leading-relaxed" style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}>{project.status}</p>
             </motion.div>
@@ -126,7 +126,7 @@ export default function FutureDetailPage() {
               {project.stats.map((s: any, i: number) => (
                 <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="p-8 md:p-10 text-center space-y-2" style={{ background: "var(--color-cinematic-surface)" }}>
                   <div className="tracking-tight" style={{ fontFamily: "var(--font-display)", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 300, fontStyle: "italic", color: "var(--color-cinematic-moss)" }}>{s.value}</div>
-                  <div className="text-[9px] font-black uppercase tracking-[0.3em]" style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}>{s.label}</div>
+                  <div className="text-token-micro font-black uppercase tracking-[0.3em]" style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}>{s.label}</div>
                 </motion.div>
               ))}
             </div>
@@ -141,7 +141,7 @@ export default function FutureDetailPage() {
             <motion.div key={idx} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.08, ease: EASE }} className="flex flex-col md:flex-row items-stretch" style={{ background: "var(--color-cinematic-surface)" }}>
               <div className={`flex-1 p-10 md:p-14 space-y-5 ${idx % 2 === 1 ? "md:order-2" : ""}`}>
                 <span className="font-black leading-none select-none" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: "2.5rem", color: "rgba(255,255,255,0.04)" }}>0{idx + 1}</span>
-                <h3 className="text-[11px] font-black uppercase tracking-[0.3em]" style={{ color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)" }}>{section.title}</h3>
+                <h3 className="text-token-caption font-black uppercase tracking-[0.3em]" style={{ color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)" }}>{section.title}</h3>
                 <p className="text-sm leading-relaxed" style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}>{section.content}</p>
               </div>
               <div className="hidden md:flex w-20 items-center justify-center" style={{ background: "var(--color-cinematic-ink)" }}>
@@ -168,7 +168,7 @@ export default function FutureDetailPage() {
                     <div className="w-2 h-2" style={{ background: "var(--color-cinematic-moss)" }} />
                   </div>
                   <div className="flex-1 space-y-1 pb-2">
-                    <div className="text-[9px] font-black uppercase tracking-[0.35em]" style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}>{m.year}</div>
+                    <div className="text-token-micro font-black uppercase tracking-[0.35em]" style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}>{m.year}</div>
                     <p className="text-sm leading-relaxed" style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}>{m.label}</p>
                   </div>
                 </motion.div>
@@ -229,10 +229,10 @@ export default function FutureDetailPage() {
             Ready to partner with<br /><span style={{ color: "var(--color-cinematic-moss)" }}>future excellence.</span>
           </motion.h2>
           <div className="flex justify-center flex-wrap gap-4 pt-4">
-            <button onClick={() => setIsSupportModalOpen(true)} className="text-[10px] font-black uppercase tracking-[0.3em] px-10 py-5 transition-opacity duration-200 hover:opacity-85" style={{ background: "var(--color-cinematic-moss)", color: "var(--color-cinematic-ink)", fontFamily: "var(--font-sans)" }}>
+            <button onClick={() => setIsSupportModalOpen(true)} className="text-token-micro font-black uppercase tracking-[0.3em] px-10 py-5 transition-opacity duration-200 hover:opacity-85" style={{ background: "var(--color-cinematic-moss)", color: "var(--color-cinematic-ink)", fontFamily: "var(--font-sans)" }}>
               Support this Initiative
             </button>
-            <button onClick={() => router.push("/")} className="text-[10px] font-black uppercase tracking-[0.3em] px-10 py-5 transition-all duration-200 hover:bg-white/[0.04] hover:border-white/30" style={{ border: "1px solid rgba(255,255,255,0.12)", color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)", background: "transparent" }}>
+            <button onClick={() => router.push("/")} className="text-token-micro font-black uppercase tracking-[0.3em] px-10 py-5 transition-all duration-200 hover:bg-white/[0.04] hover:border-white/30" style={{ border: "1px solid rgba(255,255,255,0.12)", color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)", background: "transparent" }}>
               Back home
             </button>
           </div>
@@ -251,7 +251,7 @@ export default function FutureDetailPage() {
               <div className="w-20 h-20 flex items-center justify-center mx-auto mb-8" style={{ background: "var(--color-cinematic-moss)", color: "var(--color-cinematic-ink)" }}><Heart size={40} fill="currentColor" /></div>
               <h2 className="leading-[0.9] tracking-tight" style={{ fontFamily: "var(--font-display)", fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 300, fontStyle: "italic", color: "var(--color-cinematic-bone)" }}>Partnership<br /><span style={{ color: "var(--color-cinematic-moss)" }}>confirmed.</span></h2>
               <p className="text-base leading-relaxed max-w-md mx-auto" style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}>Thank you for your generous contribution to the {project.title}. Your support directly fuels our mission of excellence and community transformation.</p>
-              <button onClick={() => setShowSuccess(false)} className="text-[10px] font-black uppercase tracking-[0.3em] px-8 py-4 transition-all duration-200 hover:border-white/30" style={{ border: "1px solid rgba(255,255,255,0.12)", color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)" }}>Return to Initiative</button>
+              <button onClick={() => setShowSuccess(false)} className="text-token-micro font-black uppercase tracking-[0.3em] px-8 py-4 transition-all duration-200 hover:border-white/30" style={{ border: "1px solid rgba(255,255,255,0.12)", color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)" }}>Return to Initiative</button>
             </motion.div>
           </motion.div>
         )}

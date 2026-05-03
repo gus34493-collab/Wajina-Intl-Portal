@@ -31,6 +31,11 @@
   --font-serif:   Georgia, serif;
   --font-display: var(--font-fraunces), Georgia, serif;
 
+  /* Fluid token utilities — replaces all text-[Xpx] arbitrary values.  */
+  /* Major Third scale, WCAG 1.4.4 compliant (max/min ≤ 2.5×).          */
+  --text-token-micro:   clamp(0.64rem, calc(0.55rem + 0.5cqi), 0.8rem);
+  --text-token-caption: clamp(0.8rem,  calc(0.65rem + 0.8cqi), 0.9rem);
+
   /* ─── Geometry ──────────────────────────────────────────────── */
   --radius-heritage: 0rem;
   --radius-slab:     0rem;

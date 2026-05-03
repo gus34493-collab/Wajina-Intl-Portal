@@ -32,7 +32,7 @@ export default function Marquee() {
         {doubled.map((item, i) => (
           <span key={i} className="inline-flex items-center shrink-0">
             <span
-              className="text-[11px] font-black uppercase tracking-[0.35em] px-8"
+              className="text-token-caption font-black uppercase tracking-[0.35em] px-8"
               style={{
                 fontFamily: "var(--font-display)",
                 fontStyle: "italic",

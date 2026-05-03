@@ -93,7 +93,7 @@ export default function Testimonials() {
           className="text-center space-y-4"
         >
           <span
-            className="text-[10px] font-black uppercase tracking-[0.45em]"
+            className="text-token-micro font-black uppercase tracking-[0.45em]"
             style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}
           >
             Plate V · Voices
@@ -123,7 +123,7 @@ export default function Testimonials() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className="relative px-8 py-3 text-[10px] font-black uppercase tracking-[0.3em] transition-colors duration-200"
+              className="relative px-8 py-3 text-token-micro font-black uppercase tracking-[0.3em] transition-colors duration-200"
               style={{
                 color: activeTab === tab ? "var(--color-cinematic-moss)" : "var(--color-cinematic-dim)",
                 fontFamily: "var(--font-sans)",
@@ -182,7 +182,7 @@ export default function Testimonials() {
                 {current.name}
               </p>
               <p
-                className="text-[10px] font-black uppercase tracking-widest"
+                className="text-token-micro font-black uppercase tracking-widest"
                 style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}
               >
                 {current.detail}

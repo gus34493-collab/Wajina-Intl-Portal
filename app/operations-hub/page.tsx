@@ -1,330 +1,269 @@
+
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import DashboardShell from "@/app/components/DashboardShell";
 import { 
-  ShieldCheck, 
-  Plus, 
-  AlertTriangle, 
-  CheckCircle2, 
-  ExternalLink, 
-  RotateCcw,
+  Zap, 
+  Settings, 
+  Users, 
+  FileText, 
+  ShieldAlert, 
+  Activity, 
+  ChevronRight, 
+  Bell, 
+  History,
+  LayoutDashboard,
   Search,
-  ChevronRight,
-  X,
-  Loader2
+  Filter
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
-export default function OperationsHub() {
-  const [risks, setRisks] = useState<any[]>([]);
-  const [campusFilter, setCampusFilter] = useState("ALL");
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    async function fetchRisks() {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/risks?status=OPEN${campusFilter !== "ALL" ? "&campus=" + campusFilter : ""}`);
-        const data = await res.json();
-        setRisks(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("Failed to fetch risks:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchRisks();
-  }, [campusFilter]);
+export default function OperationsHubPage() {
+  const [activeTab, setActiveTab] = useState("COMMAND");
 
   return (
     <DashboardShell>
       <div className="flex flex-col gap-8">
-        
-        {/* Header Actions */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="max-w-xl">
-            <h1 className="text-3xl font-display font-black text-brand-gunmetal tracking-tight">Command Operations</h1>
-            <p className="text-text-secondary text-sm font-medium mt-1">Manage institutional compliance, operational hazards, and facility logistics across all campuses.</p>
+        {/* Hub Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-display font-black text-brand-primary tracking-tight uppercase flex items-center gap-3">
+              Operational <span className="text-[brand-secondary]">Command</span>
+            </h1>
+            <p className="text-brand-tertiary text-token-micro font-black uppercase tracking-[0.3em] mt-1">
+              Centralized orchestration hub for multi-campus institutional logistics.
+            </p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col gap-1.5 min-w-[140px]">
-              <label className="text-[10px] font-black uppercase text-text-muted px-1 tracking-widest">Campus Scope</label>
-              <select 
-                value={campusFilter}
-                onChange={(e) => setCampusFilter(e.target.value)}
-                className="bg-white border border-black/5 rounded-xl px-4 py-2.5 text-xs font-bold shadow-sm focus:ring-2 focus:ring-brand-moonstone/20 outline-none transition-all"
-              >
-                <option value="ALL">All Campuses</option>
-                <option value="PRIMARY">Primary Campus</option>
-                <option value="SECONDARY">College Campus</option>
-              </select>
-            </div>
-            <button 
-              onClick={() => setIsModalOpen(true)}
-              className="btn-primary flex items-center gap-2 group h-[42px] px-6 mt-auto"
-            >
-              <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
-              <span className="text-[10px] font-black uppercase tracking-widest">Log Operational Task</span>
-            </button>
+          <div className="flex items-center gap-3">
+             <button className="bg-white border-2 border-brand-primary/8 text-brand-primary px-6 py-3.5 rounded-2xl shadow-sm font-black text-token-micro uppercase tracking-widest flex items-center gap-2 hover:border-[brand-secondary]/30 transition-all">
+                <History size={16} />
+                Command History
+             </button>
+             <button className="bg-white border-2 border-[brand-secondary] text-brand-primary px-6 py-3.5 rounded-2xl shadow-lg shadow-[brand-secondary]/10 font-black text-token-micro uppercase tracking-widest flex items-center gap-2 hover:bg-[brand-secondary] transition-all">
+                <Settings size={16} />
+                Global Config
+             </button>
           </div>
         </div>
 
-        {/* Regulatory Compliance Matrix */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 px-2">
-            <div className="p-2 bg-brand-moonstone/10 rounded-lg">
-              <ShieldCheck className="w-5 h-5 text-brand-moonstone" />
-            </div>
-            <h3 className="text-lg font-display font-black text-brand-gunmetal uppercase tracking-tight">Regulatory Compliance Matrix</h3>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <ComplianceCard 
-              title="MOH Health Inspection" 
-              status="Current" 
-              desc="Institutional sanitation and infirmary standards audit."
-              exp="Dec 2026"
-              action="View Cert"
-            />
-            <ComplianceCard 
-              title="Fire Safety Audit" 
-              status="Expiring Soon" 
-              statusType="pending"
-              desc="Annual Federal Fire Service equipment and evacuation audit."
-              exp="Jul 2026"
-              action="Initiate Renewal"
-              actionIcon={<RotateCcw className="w-3 h-3" />}
-            />
-            <ComplianceCard 
-              title="Academic Accreditation" 
-              status="Verified" 
-              desc="Lagos State Ministry of Education Quality Assurance (LASG-QED)."
-              exp="Audit 2028"
-              action="Full Audit Log"
-            />
-             <ComplianceCard 
-              title="NDPR Data Privacy" 
-              status="Action Required" 
-              statusType="error"
-              desc="Annual Data Privacy Audit Report (DPAR) for NDPR standards."
-              exp="Missed"
-              action="Download Notice"
-            />
-          </div>
+        {/* Rapid Action Strip */}
+        <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+           <QuickAction label="Onboard Staff" icon={<Users size={18}/>} color="bg-black/5" />
+           <QuickAction label="Audit Finances" icon={<FileText size={18}/>} color="bg-black/5" />
+           <QuickAction label="Welfare Flag" icon={<ShieldAlert size={18}/>} color="bg-black/5" />
+           <QuickAction label="Sync Systems" icon={<Activity size={18}/>} color="bg-[brand-secondary]/10" highlight />
         </div>
 
-        {/* Active Operational Queue */}
-        <div className="space-y-6 mt-4">
-          <h3 className="text-lg font-display font-black text-brand-gunmetal px-2 uppercase tracking-tight">Active Operational Queue</h3>
-          
-          <div className="space-y-3">
-            <AnimatePresence mode="wait">
-              {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 opacity-50">
-                  <Loader2 className="w-8 h-8 animate-spin text-brand-moonstone" />
-                  <p className="text-xs font-bold mt-4 uppercase tracking-widest">Synchronizing Campus Operations...</p>
-                </div>
-              ) : risks.length === 0 ? (
-                <div className="card bg-black/5 border-dashed border-2 border-black/10 py-20 flex flex-col items-center opacity-50">
-                  <CheckCircle2 className="w-10 h-10 text-brand-success mb-4" />
-                  <p className="text-sm font-bold">No active operational tasks found for this scope.</p>
-                </div>
-              ) : (
-                risks.map((risk, i) => (
-                  <OperationTask key={risk.id} task={risk} index={i} />
-                ))
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+        {/* Command Center Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+           {/* Terminal Feed */}
+           <div className="lg:col-span-3 flex flex-col gap-8">
+              {/* Active Logistics Feed */}
+              <div className="card p-0 overflow-hidden border border-brand-primary/8 shadow-xl bg-white relative">
+                 <div className="p-6 border-b border-brand-primary/8 flex items-center justify-between bg-black/[0.01]">
+                    <div className="flex items-center gap-3">
+                       <LayoutDashboard size={18} className="text-[brand-secondary]" />
+                       <h4 className="font-black text-brand-primary uppercase tracking-widest text-token-micro">Real-time Logistics Stream</h4>
+                    </div>
+                    <div className="flex items-center gap-3">
+                       <Filter size={14} className="text-brand-tertiary" />
+                       <span className="text-token-micro font-black text-brand-tertiary uppercase tracking-widest">Filter Analytical Stream</span>
+                    </div>
+                 </div>
+                 
+                 <div className="divide-y divide-black/[0.03]">
+                    <EventNode 
+                       time="09:42 AM" 
+                       tag="ACADEMIC" 
+                       content="Result publication threshold reached for JSS 1 Alpha. Final audit initiated by Form Master." 
+                       status="PROCESSED"
+                    />
+                    <EventNode 
+                       time="08:15 AM" 
+                       tag="SECURITY" 
+                       content="Director key accessed for Student Previous Results archive (Session 2023/24)." 
+                       status="VERIFIED"
+                       alert
+                    />
+                    <EventNode 
+                       time="07:30 AM" 
+                       tag="FINANCIAL" 
+                       content="Bulk tuition reconciliation completed for Primary Campus segment. ₦12.5M verified." 
+                       status="FINALIZED"
+                    />
+                    <EventNode 
+                       time="06:00 AM" 
+                       tag="SYSTEM" 
+                       content="Daily cloud backup successful. Integrity check: 100%. Latency: 42ms." 
+                       status="OPTIMAL"
+                       highlight
+                    />
+                 </div>
 
-      </div>
-
-      {/* Log Task Modal */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-brand-gunmetal/90 backdrop-blur-md"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[32px] overflow-hidden shadow-2xl"
-            >
-              <div className="p-8 md:p-10">
-                <div className="flex justify-between items-center mb-8">
-                  <h2 className="text-2xl font-display font-black text-brand-gunmetal tracking-tight">Log Operational Task</h2>
-                  <button onClick={() => setIsModalOpen(false)} className="press-effect p-2 rounded-full hover:bg-black/5 transition-colors">
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
-
-                <LogTaskForm onSuccess={() => {
-                  setIsModalOpen(false);
-                  // Trigger re-fetch (can use a key or state)
-                  setCampusFilter(prev => prev === "ALL" ? " " : "ALL");
-                  setTimeout(() => setCampusFilter("ALL"), 10);
-                }} />
+                 <div className="p-4 bg-black/[0.01] text-center border-t border-brand-primary/8">
+                    <button className="text-token-micro font-black uppercase tracking-widest text-[brand-secondary] hover:underline">
+                       Load Forensic Data Logs
+                    </button>
+                 </div>
               </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+
+              {/* Strategic Command Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <CommandCard 
+                    title="Staffing Pulse" 
+                    desc="Institutional HR health and deployment status." 
+                    stat="142 Active" 
+                    trend="+2 Provisioning" 
+                 />
+                 <CommandCard 
+                    title="Enrollment Velocity" 
+                    desc="Real-time admissions and retention metrics." 
+                    stat="482 Pupils" 
+                    trend="92% Retention" 
+                    highlight
+                 />
+              </div>
+           </div>
+
+           {/* Side Command Column */}
+           <div className="flex flex-col gap-6">
+              <div className="card bg-white text-brand-primary flex flex-col gap-8 relative overflow-hidden border border-brand-primary/8 shadow-2xl">
+                 <div className="absolute top-0 right-0 p-8 opacity-5 text-[brand-secondary]">
+                    <Zap size={100} />
+                 </div>
+                 <h4 className="text-token-micro font-black uppercase tracking-[0.2em] opacity-40">Administrative Intelligence</h4>
+                 <div className="space-y-6 relative z-10">
+                    <div className="p-5 bg-black/[0.02] border border-brand-primary/8 rounded-2xl group cursor-pointer hover:bg-black/[0.04] transition-all">
+                       <div className="flex justify-between items-center mb-3">
+                          <p className="text-token-micro font-black text-brand-tertiary uppercase tracking-widest">Audit Required</p>
+                          <ChevronRight size={14} className="text-[brand-secondary] opacity-0 group-hover:opacity-100 transition-all translate-x-1" />
+                       </div>
+                       <h5 className="font-black text-sm mb-1 uppercase tracking-tight">Financial Closure</h5>
+                       <p className="text-token-micro font-bold text-brand-tertiary leading-relaxed uppercase">
+                          Term 1 fee reconciliation is at 84%. Initiate protocol?
+                       </p>
+                    </div>
+                    <div className="p-5 bg-black/[0.02] border border-brand-primary/8 rounded-2xl group cursor-pointer hover:border-[brand-secondary]/30 transition-all">
+                       <div className="flex justify-between items-center mb-3">
+                          <p className="text-token-micro font-black text-[brand-secondary] uppercase tracking-widest">Retention Flare</p>
+                          <ChevronRight size={14} className="text-[brand-secondary] opacity-40 group-hover:opacity-100 transition-all" />
+                       </div>
+                       <h5 className="font-black text-sm mb-1 uppercase tracking-tight">Student At-Risk</h5>
+                       <p className="text-token-micro font-bold text-brand-tertiary leading-relaxed uppercase">
+                          SS 2 absence surge. Strategic welfare sync required.
+                       </p>
+                    </div>
+                 </div>
+              </div>
+
+              <div className="card border-brand-primary/8 bg-white flex flex-col gap-5 shadow-xl">
+                 <div className="flex items-center gap-3">
+                    <Activity size={18} className="text-[brand-secondary]" />
+                    <h4 className="font-black text-token-micro uppercase tracking-widest text-brand-primary">Hub Sync Status</h4>
+                 </div>
+                 <div className="space-y-4">
+                    <div className="space-y-2">
+                       <div className="flex justify-between items-center">
+                          <span className="text-token-micro font-black uppercase tracking-tight text-brand-tertiary">Primary Campus</span>
+                          <span className="text-token-micro font-black text-[brand-secondary]">OPTIMAL</span>
+                       </div>
+                       <div className="h-1 bg-black/5 rounded-full overflow-hidden">
+                          <div className="h-full bg-[brand-secondary] w-full" />
+                       </div>
+                    </div>
+                    <div className="space-y-2">
+                       <div className="flex justify-between items-center">
+                          <span className="text-token-micro font-black uppercase tracking-tight text-brand-tertiary">Secondary Campus</span>
+                          <span className="text-token-micro font-black text-[brand-secondary]">OPTIMAL</span>
+                       </div>
+                       <div className="h-1 bg-black/5 rounded-full overflow-hidden">
+                          <div className="h-full bg-[brand-secondary] w-full" />
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+      </div>
     </DashboardShell>
   );
 }
 
-function ComplianceCard({ title, status, desc, exp, action, statusType = "success", actionIcon }: any) {
-  return (
-    <div className="card flex flex-col gap-4 border-l-4 border-l-brand-moonstone hover:shadow-soft">
-      <div className="flex justify-between items-start">
-        <h4 className="font-black text-brand-gunmetal text-sm leading-tight flex-1 pr-2">{title}</h4>
-        <span className={clsx(
-          "text-[9px] font-black px-2 py-1 rounded-[6px] uppercase tracking-wider",
-          statusType === "success" ? "bg-emerald-50 text-emerald-700" : 
-          statusType === "pending" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-700"
-        )}>
-          {status}
-        </span>
-      </div>
-      <p className="text-xs text-text-muted leading-relaxed min-h-[48px]">{desc}</p>
-      <div className="mt-auto pt-4 border-t border-black/5 flex justify-between items-center">
-        <span className="text-[10px] font-bold text-text-secondary">Exp: <span className="text-brand-gunmetal">{exp}</span></span>
-        <button className="flex items-center gap-1.5 text-[10px] font-black text-brand-moonstone hover:underline uppercase tracking-widest">
-          {action}
-          {actionIcon || <ExternalLink className="w-3 h-3" />}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function OperationTask({ task, index }: any) {
-  const sevColors: any = {
-    CRITICAL: "bg-red-500",
-    HIGH: "bg-orange-500",
-    MEDIUM: "bg-amber-500",
-    LOW: "bg-brand-moonstone"
-  };
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className="card p-5 flex items-center justify-between border-black/[0.03] group hover:border-brand-moonstone/30"
-    >
-      <div className="flex items-center gap-5">
-        <div className={clsx("w-1 h-8 rounded-full shrink-0", sevColors[task.severity] || "bg-gray-300")} />
-        <div>
-          <h4 className="text-sm font-black text-brand-gunmetal">{task.title}</h4>
-          <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mt-0.5">
-            {task.campus} · Logged by {task.creator?.name || 'Operations'}
-          </p>
-        </div>
-      </div>
-      <div className="flex items-center gap-6">
-        <span className="hidden md:block text-[10px] font-black text-text-muted uppercase tracking-widest">
-          {new Date(task.createdAt).toLocaleDateString()}
-        </span>
-        <button className="bg-brand-bg hover:bg-black/5 text-brand-gunmetal font-black text-[10px] py-2.5 px-6 rounded-lg uppercase tracking-widest transition-all">
-          Review
-        </button>
-      </div>
-    </motion.div>
-  );
-}
-
-function LogTaskForm({ onSuccess }: { onSuccess: () => void }) {
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData(e.target as HTMLFormElement);
-    const payload = {
-      title: formData.get("title"),
-      severity: formData.get("severity"),
-      campus: formData.get("campus"),
-      description: formData.get("description"),
-    };
-
-    try {
-      const res = await fetch("/api/risks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (res.ok) {
-        onSuccess();
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-2">
-        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted px-1">Task Title</label>
-        <input 
-          name="title"
-          required
-          placeholder="e.g. Broken perimeter fence"
-          className="w-full bg-brand-bg border border-black/5 rounded-2xl p-4 text-sm font-bold focus:ring-4 focus:ring-brand-moonstone/10 outline-none"
-        />
-      </div>
-      
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted px-1">Urgency</label>
-          <select name="severity" className="w-full bg-brand-bg border border-black/5 rounded-2xl p-4 text-sm font-bold outline-none">
-            <option value="CRITICAL">Critical / Immediate</option>
-            <option value="HIGH">High Priority</option>
-            <option value="MEDIUM">Standard Operation</option>
-            <option value="LOW">Low Maintenance</option>
-          </select>
-        </div>
-        <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted px-1">Target Campus</label>
-          <select name="campus" className="w-full bg-brand-bg border border-black/5 rounded-2xl p-4 text-sm font-bold outline-none">
-            <option value="PRIMARY">Wajina Primary</option>
-            <option value="SECONDARY">Wajina College</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted px-1">Instruction Details</label>
-        <textarea 
-          name="description"
-          required
-          placeholder="Describe the operational requirement..."
-          className="w-full bg-brand-bg border border-black/5 rounded-2xl p-4 text-sm font-bold h-32 focus:ring-4 focus:ring-brand-moonstone/10 outline-none"
-        />
-      </div>
-
-      <button 
-        disabled={loading}
-        className="w-full btn-primary py-5 rounded-2xl flex items-center justify-center gap-3 press-effect mt-4"
-      >
-        {loading ? <Loader2 className="animate-spin" /> : <ShieldCheck className="w-5 h-5" />}
-        <span className="font-display font-black uppercase tracking-widest">Log Task into Queue</span>
+function QuickAction({ label, icon, color, highlight }: any) {
+   return (
+      <button className={cn(
+        "flex items-center gap-4 bg-white border px-6 py-5 rounded-[1.5rem] shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all min-w-[240px] group",
+        highlight ? "border-[brand-secondary]/30" : "border-brand-primary/8"
+      )}>
+         <div className={cn(
+           "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
+           highlight ? "bg-[brand-secondary] text-brand-primary" : "bg-black/5 text-brand-tertiary group-hover:bg-[brand-secondary]/10 group-hover:text-[brand-secondary]"
+         )}>
+            {icon}
+         </div>
+         <span className="text-token-micro font-black text-brand-primary uppercase tracking-[0.2em]">{label}</span>
       </button>
-    </form>
-  );
+   );
 }
 
-function clsx(...classes: any[]) {
-  return classes.filter(Boolean).join(' ');
+function EventNode({ time, tag, content, status, alert, highlight }: any) {
+   return (
+      <div className={cn(
+        "p-6 flex gap-8 transition-all border-l-4",
+        alert ? "border-l-red-500 bg-rose-600/[0.01]" : highlight ? "border-l-[brand-secondary] bg-[brand-secondary]/[0.01]" : "border-l-transparent"
+      )}>
+         <div className="flex flex-col items-center">
+            <span className="text-token-micro font-black text-brand-tertiary/60 whitespace-nowrap tabular-nums">{time}</span>
+            <div className="w-[1px] flex-1 bg-black/[0.05] my-2" />
+         </div>
+         <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+               <span className={cn(
+                 "text-token-micro font-black px-2 py-0.5 rounded border tracking-widest",
+                 alert ? "border-red-500/30 text-rose-600" : highlight ? "border-[brand-secondary]/30 text-[brand-secondary]" : "border-brand-primary/10 text-brand-tertiary"
+               )}>
+                  {tag}
+               </span>
+               <span className="text-token-micro font-black text-brand-tertiary/60 uppercase tracking-widest">{status}</span>
+            </div>
+            <p className="text-xs font-bold text-brand-primary/80 leading-relaxed max-w-2xl lowercase font-sans">
+               {content}
+            </p>
+         </div>
+         <button className="w-8 h-8 rounded-lg bg-black/5 opacity-0 group-hover:opacity-100 transition-all grid place-items-center">
+            <ChevronRight size={14} className="text-brand-tertiary" />
+         </button>
+      </div>
+   );
 }
+
+function CommandCard({ title, desc, stat, trend, highlight }: any) {
+   return (
+      <div className={cn(
+        "card bg-white group hover:shadow-2xl transition-all border shadow-lg",
+        highlight ? "border-[brand-secondary]/30" : "border-brand-primary/8"
+      )}>
+         <div className="flex justify-between items-start mb-8">
+            <div>
+               <h4 className="text-sm font-black text-brand-primary uppercase tracking-tight mb-2">{title}</h4>
+               <p className="text-token-micro font-bold text-brand-tertiary uppercase max-w-[180px] leading-relaxed">{desc}</p>
+            </div>
+            <div className="text-right">
+              <span className="text-3xl font-display font-black text-brand-primary tracking-tighter tabular-nums block">{stat}</span>
+              <div className={cn("w-full h-1 bg-[brand-secondary] mt-1 rounded-full", highlight ? "opacity-100" : "opacity-0 group-hover:opacity-100 transition-opacity")} />
+            </div>
+         </div>
+         <div className="pt-5 border-t border-brand-primary/8 flex justify-between items-center">
+            <span className={cn("text-token-micro font-black uppercase tracking-widest", highlight ? "text-[brand-secondary]" : "text-brand-tertiary")}>{trend}</span>
+            <div className="flex gap-1.5">
+               <div className={cn("w-1.5 h-1.5 rounded-full", highlight ? "bg-[brand-secondary]" : "bg-black/10")} />
+               <div className="w-1.5 h-1.5 bg-black/5 rounded-full" />
+               <div className="w-1.5 h-1.5 bg-black/[0.02] rounded-full" />
+            </div>
+         </div>
+      </div>
+   );
+}
+

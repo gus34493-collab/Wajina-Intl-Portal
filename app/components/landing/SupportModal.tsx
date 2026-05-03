@@ -108,7 +108,7 @@ export default function SupportModal({ isOpen, onClose, initiativeTitle, initiat
             <div className="flex items-center gap-3 mb-4">
               <div className="w-6 h-px" style={{ background: "var(--color-cinematic-moss)" }} />
               <span
-                className="text-[9px] font-black uppercase tracking-[0.4em]"
+                className="text-token-micro font-black uppercase tracking-[0.4em]"
                 style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}
               >
                 Institutional Partner
@@ -173,7 +173,7 @@ export default function SupportModal({ isOpen, onClose, initiativeTitle, initiat
                         key={amt}
                         type="button"
                         onClick={() => setAmount(amt)}
-                        className="py-3 text-[10px] font-black transition-all duration-200"
+                        className="py-3 text-token-micro font-black transition-all duration-200"
                         style={{
                           background: amount === amt ? "var(--color-cinematic-moss)" : "var(--color-cinematic-ink)",
                           color: amount === amt ? "var(--color-cinematic-ink)" : "var(--color-cinematic-dim)",
@@ -210,7 +210,7 @@ export default function SupportModal({ isOpen, onClose, initiativeTitle, initiat
               >
                 <ShieldCheck size={18} style={{ color: "var(--color-cinematic-moss)", flexShrink: 0, marginTop: 1 }} />
                 <p
-                  className="text-[10px] font-bold leading-relaxed uppercase tracking-wider"
+                  className="text-token-micro font-bold leading-relaxed uppercase tracking-wider"
                   style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}
                 >
                   Secure transaction via{" "}
@@ -221,7 +221,7 @@ export default function SupportModal({ isOpen, onClose, initiativeTitle, initiat
 
               {feedback && (
                 <p
-                  className="text-[10px] font-black uppercase tracking-widest text-center p-4"
+                  className="text-token-micro font-black uppercase tracking-widest text-center p-4"
                   style={{
                     background: "rgba(230,70,70,0.08)",
                     border: "1px solid rgba(230,70,70,0.15)",
@@ -236,7 +236,7 @@ export default function SupportModal({ isOpen, onClose, initiativeTitle, initiat
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-5 font-black text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all duration-200 disabled:opacity-50"
+                className="w-full py-5 font-black text-token-micro uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all duration-200 disabled:opacity-50"
                 style={{
                   background: "var(--color-cinematic-moss)",
                   color: "var(--color-cinematic-ink)",
@@ -265,7 +265,7 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
   return (
     <div className="flex flex-col gap-2">
       <label
-        className="text-[9px] font-black uppercase tracking-[0.3em] px-1"
+        className="text-token-micro font-black uppercase tracking-[0.3em] px-1"
         style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}
       >
         {label}

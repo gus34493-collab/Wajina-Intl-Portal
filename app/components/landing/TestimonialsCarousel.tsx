@@ -58,7 +58,7 @@ export default function TestimonialsCarousel() {
           className="space-y-4"
         >
           <span
-            className="text-[10px] font-black uppercase tracking-[0.45em]"
+            className="text-token-micro font-black uppercase tracking-[0.45em]"
             style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}
           >
             Plate V · Voices

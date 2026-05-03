@@ -111,7 +111,7 @@ export default function Hero() {
                 style={{ background: "var(--color-cinematic-moss)" }}
               />
               <span
-                className="text-[10px] font-black uppercase tracking-[0.4em]"
+                className="text-token-micro font-black uppercase tracking-[0.4em]"
                 style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}
               >
                 Citadel of Excellence
@@ -165,7 +165,7 @@ export default function Hero() {
               className="flex flex-row items-start gap-2 md:gap-4 pt-2"
             >
               <button
-                className="text-[9px] md:text-xs font-black uppercase tracking-[0.25em] px-4 md:px-10 py-3 md:py-5 transition-all duration-200"
+                className="text-token-micro md:text-xs font-black uppercase tracking-[0.25em] px-4 md:px-10 py-3 md:py-5 transition-all duration-200"
                 style={{
                   background: "var(--color-cinematic-moss)",
                   color: "var(--color-cinematic-ink)",
@@ -184,7 +184,7 @@ export default function Hero() {
                 Begin Enrollment
               </button>
               <button
-                className="text-[9px] md:text-xs font-black uppercase tracking-[0.25em] px-4 md:px-10 py-3 md:py-5 transition-all duration-200"
+                className="text-token-micro md:text-xs font-black uppercase tracking-[0.25em] px-4 md:px-10 py-3 md:py-5 transition-all duration-200"
                 style={{
                   border: "1px solid rgba(255,255,255,0.15)",
                   color: "var(--color-cinematic-bone)",
@@ -345,7 +345,7 @@ export default function Hero() {
                 }}
               >
                 <span
-                  className="text-[7px] md:text-[9px] font-black uppercase tracking-[0.3em]"
+                  className="text-token-micro md:text-token-micro font-black uppercase tracking-[0.3em]"
                   style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}
                 >
                   Early Years
@@ -365,7 +365,7 @@ export default function Hero() {
         }}
       >
         <span
-          className="text-[7px] md:text-[9px] font-black uppercase tracking-[0.55em]"
+          className="text-token-micro md:text-token-micro font-black uppercase tracking-[0.55em]"
           style={{
             color: "rgba(255,255,255,0.08)",
             fontFamily: "var(--font-sans)",

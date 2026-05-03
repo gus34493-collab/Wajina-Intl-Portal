@@ -124,7 +124,7 @@ export default function Features() {
             </p>
           </div>
           <span
-            className="text-[10px] font-black uppercase tracking-widest tabular-nums shrink-0"
+            className="text-token-micro font-black uppercase tracking-widest tabular-nums shrink-0"
             style={{ color: "var(--color-cinematic-dim-2)", fontFamily: "var(--font-sans)" }}
           >
             {String(PILLARS.length).padStart(2, "0")} Pillars
@@ -173,13 +173,13 @@ export default function Features() {
               </div>
               <div className="space-y-2">
                 <h3
-                  className="text-[11px] font-black uppercase tracking-[0.3em] transition-colors duration-300"
+                  className="text-token-caption font-black uppercase tracking-[0.3em] transition-colors duration-300"
                   style={{ color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)" }}
                 >
                   {pillar.title}
                 </h3>
                 <p
-                  className="text-[9px] font-bold uppercase tracking-[0.25em]"
+                  className="text-token-micro font-bold uppercase tracking-[0.25em]"
                   style={{ color: pillar.accent, fontFamily: "var(--font-sans)" }}
                 >
                   {pillar.subtitle}

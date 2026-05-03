@@ -125,7 +125,7 @@ export default function Pathways() {
             className="space-y-3"
           >
             <span
-              className="text-[10px] font-black uppercase tracking-[0.45em]"
+              className="text-token-micro font-black uppercase tracking-[0.45em]"
               style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}
             >
               Plate II · Educational Journey
@@ -149,7 +149,7 @@ export default function Pathways() {
           {/* Counter + arrows */}
           <div className="flex items-center gap-5">
             <span
-              className="text-[10px] font-black uppercase tracking-widest tabular-nums"
+              className="text-token-micro font-black uppercase tracking-widest tabular-nums"
               style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}
             >
               {String(active + 1).padStart(2, "0")} /{" "}
@@ -236,7 +236,7 @@ export default function Pathways() {
                   >
                     <div>
                       <p
-                        className="text-[9px] font-black uppercase tracking-[0.35em] mb-1"
+                        className="text-token-micro font-black uppercase tracking-[0.35em] mb-1"
                         style={{ color: path.accent, fontFamily: "var(--font-sans)" }}
                       >
                         {path.subtitle}
@@ -263,7 +263,7 @@ export default function Pathways() {
                       {path.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="text-[9px] font-black uppercase tracking-wider px-2 py-1"
+                          className="text-token-micro font-black uppercase tracking-wider px-2 py-1"
                           style={{
                             background: "rgba(255,255,255,0.04)",
                             border: "1px solid rgba(255,255,255,0.06)",
@@ -280,7 +280,7 @@ export default function Pathways() {
                         e.stopPropagation();
                         window.dispatchEvent(new CustomEvent("open-admissions"));
                       }}
-                      className="w-full py-3 text-[9px] font-black uppercase tracking-[0.3em] transition-all duration-300 border border-white/5 hover:bg-moss hover:text-ink hover:border-moss"
+                      className="w-full py-3 text-token-micro font-black uppercase tracking-[0.3em] transition-all duration-300 border border-white/5 hover:bg-moss hover:text-ink hover:border-moss"
                       style={{ background: "rgba(255,255,255,0.02)", color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)" }}
                     >
                       Apply for Track

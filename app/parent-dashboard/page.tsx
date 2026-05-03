@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import DashboardShell from "@/app/components/DashboardShell";
 import { 
   Users, 
@@ -14,24 +14,38 @@ import {
   BadgeAlert
 } from "lucide-react";
 import { motion } from "framer-motion";
+import PaymentModal from "@/app/components/PaymentModal";
+import { toast } from "sonner"; // Assuming sonner is used, if not we'll use alert
+import { useSearchParams } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export default function ParentDashboard() {
+function ParentDashboardContent() {
   const [wards, setWards] = useState<any[]>([]);
   const [complaints, setComplaints] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedWard, setSelectedWard] = useState<any>(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const paymentStatus = searchParams.get("payment");
+    if (paymentStatus === "cancelled") toast.error("Payment was cancelled.");
+    if (paymentStatus === "failed") toast.error("Payment verification failed.");
+    if (paymentStatus === "error") toast.error("An error occurred during payment.");
+  }, [searchParams]);
 
   useEffect(() => {
     async function fetchData() {
       try {
         const [dashRes, complaintsRes] = await Promise.all([
           fetch("/api/parent/dashboard"),
-          fetch("/api/complaints") // We'll need to migrate this endpoint too
+          fetch("/api/complaints") 
         ]);
         
         const dashData = await dashRes.json();
         setWards(dashData.wards || []);
         
-        // Handle case where complaints API isn't migrated yet
         if (complaintsRes.ok) {
           const complaintsData = await complaintsRes.json();
           setComplaints(complaintsData || []);
@@ -58,24 +72,24 @@ export default function ParentDashboard() {
       <div className="flex flex-col gap-8">
         
         {/* Quick Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatCard 
-            icon={<Users className="text-brand-moonstone" />} 
-            label="Enrolled Wards" 
-            value={wards.length} 
-            subValue="Children registered"
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <StatCard
+            icon={<Users className="text-brand-primary" />}
+            label="My Children"
+            value={wards.length}
+            subValue="Linked to this account"
           />
-          <StatCard 
-            icon={<Percent className="text-brand-saffron" />} 
-            label="Average Attendance" 
-            value={`${avgAttendance}%`} 
-            subValue="Term-to-date"
+          <StatCard
+            icon={<Percent className="text-brand-accent" />}
+            label="Attendance Rate"
+            value={`${avgAttendance}%`}
+            subValue="Term Average"
           />
-          <StatCard 
-            icon={<Wallet className={pendingFeesCount > 0 ? "text-brand-error" : "text-brand-success"} />} 
-            label="Financial Standing" 
-            value={pendingFeesCount === 0 ? "Cleared" : "Attention"} 
-            subValue={pendingFeesCount === 0 ? "All fees settled" : `${pendingFeesCount} billing(s) pending`}
+          <StatCard
+            icon={<Wallet className={pendingFeesCount > 0 ? "text-brand-error" : "text-brand-success"} />}
+            label="Fee Status"
+            value={pendingFeesCount === 0 ? "ALL PAID" : "ACTION NEEDED"}
+            subValue={pendingFeesCount === 0 ? "All paid up" : `${pendingFeesCount} unpaid fee(s)`}
           />
         </div>
 
@@ -83,15 +97,23 @@ export default function ParentDashboard() {
           
           {/* Children Overview (Left 2/3) */}
           <div className="lg:col-span-2 flex flex-col gap-6">
-            <h3 className="text-xl font-display font-black text-brand-gunmetal px-2">Family Overview</h3>
+            <h3 className="text-xl font-display font-black text-brand-primary px-2">Family Overview</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {wards.map((ward, idx) => (
-                <WardCard key={ward.id} ward={ward} index={idx} />
+                <WardCard 
+                  key={ward.id} 
+                  ward={ward} 
+                  index={idx} 
+                  onPaymentClick={(w) => {
+                    setSelectedWard(w);
+                    setIsPaymentModalOpen(true);
+                  }}
+                />
               ))}
               {wards.length === 0 && !loading && (
-                <div className="col-span-2 card bg-black/5 border-dashed border-2 border-black/10 flex flex-col items-center justify-center py-16 opacity-60">
-                  <p className="font-bold text-text-muted">No children linked to this account</p>
-                  <p className="text-xs">Please contact the Registrar for synchronization.</p>
+                <div className="col-span-2 card bg-black/5 border-dashed border-2 border-brand-primary/10 flex flex-col items-center justify-center py-16 opacity-60">
+                  <p className="font-bold text-brand-primary/60">No children linked to this account.</p>
+                  <p className="text-xs text-brand-primary/40">Please contact the school office.</p>
                 </div>
               )}
             </div>
@@ -99,24 +121,24 @@ export default function ParentDashboard() {
             {/* Support Tickets Section */}
             <div className="card">
               <div className="flex justify-between items-center mb-6">
-                <h4 className="font-black text-brand-gunmetal">Recent Support Tickets</h4>
-                <button className="text-[10px] font-black uppercase tracking-widest text-brand-moonstone hover:underline">New Ticket</button>
+                <h4 className="font-black text-brand-primary">Recent Support Tickets</h4>
+                <button className="text-token-micro font-black uppercase tracking-widest text-brand-primary/50 hover:text-brand-primary transition-colors">New Ticket</button>
               </div>
               <div className="space-y-4">
                 {complaints.slice(0, 3).map((c, i) => (
-                  <div key={i} className="flex gap-4 p-4 rounded-xl bg-brand-bg border border-black/5 group hover:border-brand-moonstone/20 transition-all">
-                    <div className={`w-1 h-10 rounded-full ${c.status === 'RESOLVED' ? 'bg-brand-success' : 'bg-brand-moonstone'} opacity-40`} />
+                  <div key={i} className="flex gap-4 p-4 rounded-xl bg-brand-blush border border-brand-primary/8 group hover:border-brand-primary/20 transition-all">
+                    <div className={`w-1 h-10 rounded-full ${c.status === 'RESOLVED' ? 'bg-brand-success' : 'bg-brand-accent'} opacity-40`} />
                     <div className="flex-1">
                       <div className="flex justify-between">
-                        <p className="text-sm font-bold text-brand-gunmetal">{c.subject}</p>
-                        <span className="text-[10px] font-black text-text-muted">{c.status}</span>
+                        <p className="text-sm font-bold text-brand-primary">{c.subject}</p>
+                        <span className="text-token-micro font-black text-brand-primary/50">{c.status}</span>
                       </div>
-                      <p className="text-xs text-text-secondary mt-1 line-clamp-1">{c.message}</p>
+                      <p className="text-xs text-brand-primary/60 mt-1 line-clamp-1">{c.message}</p>
                     </div>
                   </div>
                 ))}
                 {complaints.length === 0 && (
-                  <p className="text-center text-xs text-text-muted py-4">No active support tickets found.</p>
+                  <p className="text-center text-xs text-brand-primary/40 py-4 font-bold uppercase tracking-widest">No support tickets yet.</p>
                 )}
               </div>
             </div>
@@ -127,28 +149,28 @@ export default function ParentDashboard() {
             
             {/* Campus Roadmap Module */}
             <div className="card glass-premium">
-              <h4 className="font-black text-brand-gunmetal mb-4">
+              <h4 className="font-black text-brand-primary mb-4">
                 {isSecondary ? 'Secondary Roadmap' : 'Primary Path'}
               </h4>
               <div className="space-y-4">
                 {isSecondary ? (
-                   <RoadmapItem 
-                    date="Oct 28" 
-                    title="Mid-Term Cycle" 
+                   <RoadmapItem
+                    date="Oct 28"
+                    title="Mid-Term Exams"
                     sub="Secondary-wide Assessments"
-                    accent="bg-brand-moonstone"
+                    accent="bg-brand-accent"
                   />
                 ) : (
                   <div className="grid grid-cols-1 gap-4">
-                    <div className="p-4 rounded-xl bg-brand-moonstone/5 border border-brand-moonstone/10">
-                      <span className="text-[10px] font-black text-brand-moonstone uppercase">Current</span>
+                    <div className="p-4 rounded-xl bg-brand-secondary/5 border border-brand-secondary/10">
+                      <span className="text-token-micro font-black text-brand-secondary uppercase">Current</span>
                       <p className="font-bold text-sm mt-1">Numeracy & Logic</p>
-                      <p className="text-[10px] text-text-muted mt-0.5">Room 104 • Mr. Adebayo</p>
+                      <p className="text-token-micro text-brand-primary/50 mt-0.5">Room 104 • Mr. Adebayo</p>
                     </div>
-                    <div className="p-4 rounded-xl bg-brand-saffron/5 border border-brand-saffron/10">
-                      <span className="text-[10px] font-black text-brand-saffron uppercase tracking-wider">Upcoming (11:00)</span>
+                    <div className="p-4 rounded-xl bg-brand-accent/5 border border-brand-accent/10">
+                      <span className="text-token-micro font-black text-brand-accent uppercase tracking-wider">Upcoming (11:00)</span>
                       <p className="font-bold text-sm mt-1">Literacy & Diction</p>
-                      <p className="text-[10px] text-text-muted mt-0.5">Main Library • Mrs. Okafor</p>
+                      <p className="text-token-micro text-brand-primary/50 mt-0.5">Main Library • Mrs. Okafor</p>
                     </div>
                   </div>
                 )}
@@ -156,9 +178,9 @@ export default function ParentDashboard() {
             </div>
 
             {/* School Announcements */}
-            <div className="card bg-brand-gunmetal text-white border-none shadow-soft overflow-hidden relative">
+            <div className="card bg-brand-primary text-white border-none shadow-soft overflow-hidden relative">
               <div className="absolute top-[-20%] right-[-10%] w-32 h-32 bg-white/5 rounded-full blur-2xl" />
-              <h4 className="font-black text-brand-saffron mb-4 text-xs uppercase tracking-widest">Global Announcements</h4>
+              <h4 className="font-black text-brand-accent mb-4 text-xs uppercase tracking-widest">School Announcements</h4>
               <div className="space-y-6 relative">
                 <div>
                   <p className="font-bold text-sm">Inter-House Sports Day</p>
@@ -174,68 +196,106 @@ export default function ParentDashboard() {
           </div>
         </div>
       </div>
+
+      <PaymentModal 
+        isOpen={isPaymentModalOpen} 
+        onClose={() => setIsPaymentModalOpen(false)} 
+        ward={selectedWard} 
+      />
     </DashboardShell>
   );
 }
 
+export default function ParentDashboard() {
+  return (
+    <Suspense fallback={
+      <DashboardShell>
+        <div className="min-h-[60vh] flex flex-col items-center justify-center p-12 text-center">
+          <Loader2 className="w-12 h-12 text-brand-accent animate-spin mb-4" />
+          <p className="text-token-micro font-black uppercase tracking-[0.2em] text-brand-primary/60">Loading your dashboard...</p>
+        </div>
+      </DashboardShell>
+    }>
+      <ParentDashboardContent />
+    </Suspense>
+  );
+}
+
+
 function StatCard({ icon, label, value, subValue }: { icon: React.ReactNode, label: string, value: any, subValue: string }) {
   return (
-    <div className="card flex items-center gap-6">
-      <div className="w-14 h-14 rounded-2xl bg-brand-bg flex items-center justify-center">
-        {icon}
+    <div className="card flex items-center gap-8 group hover:translate-y-[-4px] transition-all duration-300 shadow-xl">
+      <div className="w-16 h-16 rounded-2xl bg-brand-primary/5 flex items-center justify-center group-hover:bg-brand-primary group-hover:text-white transition-all duration-500">
+        <div className="scale-125">
+          {icon}
+        </div>
       </div>
       <div>
-        <p className="text-[10px] font-black text-text-muted uppercase tracking-wider">{label}</p>
-        <p className="text-xl font-display font-black text-brand-gunmetal my-0.5 tracking-tight">{value}</p>
-        <p className="text-[10px] font-bold text-brand-moonstone">{subValue}</p>
+        <p className="text-token-micro font-black text-brand-primary/30 uppercase tracking-[0.3em] mb-1">{label}</p>
+        <p className="text-2xl font-display font-black text-brand-primary my-1 tracking-tighter uppercase">{value}</p>
+        <p className="text-token-micro font-black text-brand-accent uppercase tracking-widest">{subValue}</p>
       </div>
     </div>
   );
 }
 
-function WardCard({ ward, index }: { ward: any, index: number }) {
+function WardCard({ ward, index, onPaymentClick }: { ward: any, index: number, onPaymentClick: (ward: any) => void }) {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className="card group hover:border-brand-moonstone/30"
+      className="card group hover:border-brand-primary/10 bg-white flex flex-col p-10"
     >
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-12 h-12 rounded-xl bg-brand-bg grid place-items-center font-black text-brand-gunmetal text-lg shadow-sm">
+      <div className="flex items-center gap-6 mb-8">
+        <div className="w-16 h-16 rounded-2xl bg-brand-primary text-white grid place-items-center font-black text-2xl shadow-xl">
           {ward.name.charAt(0)}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h4 className="font-black text-brand-gunmetal text-sm truncate">{ward.name}</h4>
-            <span className={clsx(
-              "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider",
-              ward.campus === "SECONDARY" ? "bg-purple-100 text-purple-700" : "bg-emerald-100 text-emerald-700"
-            )}>
-              {ward.campus}
-            </span>
+          <div className="flex flex-col gap-1">
+             <div className="flex items-center gap-2">
+               <h4 className="font-black text-brand-primary text-base truncate uppercase tracking-tight leading-none">{ward.name}</h4>
+               <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-pulse" />
+             </div>
+             <span className="text-token-micro font-black text-brand-primary/40 uppercase tracking-[0.3em] leading-none">
+                {ward.campus} Campus
+             </span>
           </div>
-          <p className="text-xs text-text-muted font-bold mt-0.5">{ward.class.name}</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="p-3 bg-brand-bg rounded-xl border border-black/5">
-          <p className="text-[9px] font-black text-text-muted uppercase tracking-widest">Term GPA</p>
-          <p className="text-sm font-black text-brand-gunmetal mt-1">{ward.avgGrade.toFixed(2)}</p>
+      <div className="flex items-center gap-2 mb-8">
+         <span className={cn(
+           "px-3 py-1 rounded-full text-token-micro font-black uppercase tracking-widest",
+           ward.campus === "SECONDARY" ? "bg-brand-accent/10 text-brand-accent" : "bg-brand-secondary/10 text-brand-secondary"
+         )}>
+           {ward.campus} Campus
+         </span>
+         <span className="px-3 py-1 rounded-full text-token-micro font-black uppercase tracking-widest bg-brand-primary/5 text-brand-primary">
+            {ward.class.name}
+         </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="p-4 bg-white/50 rounded-2xl border border-brand-primary/5 shadow-inner">
+          <p className="text-token-micro font-black text-brand-primary/30 uppercase tracking-[0.2em]">Academic GPA</p>
+          <p className="text-lg font-black text-brand-primary mt-1">{ward.avgGrade.toFixed(2)}</p>
         </div>
-        <div className="p-3 bg-brand-bg rounded-xl border border-black/5">
-          <p className="text-[9px] font-black text-text-muted uppercase tracking-widest">Attendance</p>
-          <p className="text-sm font-black text-brand-gunmetal mt-1">{ward.attendanceRate}%</p>
+        <div className="p-4 bg-white/50 rounded-2xl border border-brand-primary/5 shadow-inner">
+          <p className="text-token-micro font-black text-brand-primary/30 uppercase tracking-[0.2em]">Attendance</p>
+          <p className="text-lg font-black text-brand-primary mt-1">{ward.attendanceRate}%</p>
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <button className="flex-1 bg-brand-bg text-brand-gunmetal border border-black/5 font-black text-[10px] py-3 rounded-lg hover:bg-black/5 transition-all">
-          Academic Records
+      <div className="grid grid-cols-1 gap-3">
+        <button className="w-full bg-brand-primary text-white font-black text-token-micro py-4 rounded-xl uppercase tracking-[0.2em] hover:bg-brand-accent hover:text-brand-primary transition-all shadow-lg active:scale-95">
+          View Academic Records
         </button>
-        <button className="flex-1 bg-brand-bg text-brand-moonstone border border-brand-moonstone/10 font-black text-[10px] py-3 rounded-lg hover:bg-brand-moonstone/5 transition-all">
-          Fees & Receipts
+        <button 
+          onClick={() => onPaymentClick(ward)}
+          className="w-full bg-white text-brand-primary border border-brand-primary/10 font-black text-token-micro py-4 rounded-xl uppercase tracking-[0.2em] hover:bg-brand-primary hover:text-white transition-all active:scale-95 shadow-sm"
+        >
+          Pay Fees
         </button>
       </div>
     </motion.div>
@@ -244,14 +304,14 @@ function WardCard({ ward, index }: { ward: any, index: number }) {
 
 function RoadmapItem({ date, title, sub, accent }: { date: string, title: string, sub: string, accent: string }) {
   return (
-    <div className="flex gap-4 items-center p-4 rounded-xl bg-black/[0.02] border border-black/5 hover:bg-black/[0.04] transition-all cursor-pointer">
+    <div className="flex gap-4 items-center p-4 rounded-xl bg-black/[0.02] border border-brand-primary/8 hover:bg-black/[0.04] transition-all cursor-pointer">
       <div className={clsx("w-14 h-14 rounded-xl flex flex-col items-center justify-center text-white shrink-0", accent)}>
-        <span className="text-[9px] font-bold uppercase opacity-80">{date.split(' ')[0]}</span>
+        <span className="text-token-micro font-bold uppercase opacity-80">{date.split(' ')[0]}</span>
         <span className="text-base font-black leading-none">{date.split(' ')[1]}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-sm text-brand-gunmetal truncate">{title}</p>
-        <p className="text-[10px] text-text-muted mt-0.5">{sub}</p>
+        <p className="font-bold text-sm text-brand-primary truncate">{title}</p>
+        <p className="text-token-micro text-brand-primary/50 mt-0.5">{sub}</p>
       </div>
     </div>
   )
@@ -260,3 +320,4 @@ function RoadmapItem({ date, title, sub, accent }: { date: string, title: string
 function clsx(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
 }
+
