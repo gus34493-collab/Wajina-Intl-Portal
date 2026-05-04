@@ -52,6 +52,6 @@ jobs:
         run: npx wait-on http://localhost:3000 --timeout 60000
 
       - name: Run Percy visual snapshots
-        run: npx percy exec -- npx playwright test tests/visual/
+        run: npx @percy/cli exec -- npx playwright test tests/visual/
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}

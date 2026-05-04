@@ -11,7 +11,7 @@
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "seed": "ts-node prisma/seed.ts",
-    "test:visual": "percy exec -- playwright test tests/visual/"
+    "test:visual": "npx @percy/cli exec -- playwright test tests/visual/"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.0",
