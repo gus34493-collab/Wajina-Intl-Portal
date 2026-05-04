@@ -14,6 +14,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     env:
       DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
       DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
@@ -42,6 +57,9 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
+      - name: Run database migrations
+        run: npx prisma migrate deploy
+
       - name: Build Next.js
         run: npm run build
 
@@ -52,6 +70,6 @@ jobs:
         run: npx wait-on http://localhost:3000 --timeout 60000
 
       - name: Run Percy visual snapshots
-        run: npx @percy/cli exec -- npx playwright test tests/visual/
+        run: npx @percy/cli exec -- npx playwright test tests/visual/ --reporter=list
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
