@@ -8,6 +8,10 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// USERS & AUTH
+// ─────────────────────────────────────────────────────────────────────────────
+
 model User {
   id                    String             @id @default(cuid(2))
   email                 String             @unique
@@ -15,13 +19,12 @@ model User {
   name                  String
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
-  campus                SchoolCampus?
+  campus                SchoolCampus       @default(PRIMARY)   // RED-1: was SchoolCampus? — backfill secondary users after migration
   role                  Role               @default(STUDENT)
   status                UserStatus         @default(PENDING)
   phone                 String?
   profilePhoto          String?
   isFormMaster          Boolean            @default(false)
-  parentId              String?
   armId                 String?
   classId               String?
   tokenVersion          Int                @default(0)
@@ -31,35 +34,45 @@ model User {
   consentDate           DateTime?
   dataExportRequestedAt DateTime?
   deletionRequestedAt   DateTime?
-  departmentId          String?            @unique
   joinedAt              DateTime?          @default(now())
   salary                Float?             @default(0)
   pushSubscription      Json?
+
+  // Relations — academic
   attendancesMarked     Attendance[]       @relation("AttendanceMarker")
   attendance            Attendance[]       @relation("StudentAttendance")
-  auditLogs             AuditLog[]
   behaviourAsReporter   BehaviourRecord[]  @relation("ReporterBehaviour")
   behaviourAsStudent    BehaviourRecord[]  @relation("StudentBehaviour")
   managedClass          Class?             @relation("FormMaster")
   managedArms           ClassArm[]         @relation("ArmTeacher")
-  complaintsAsParent    Complaint[]        @relation("ComplaintParent")
-  complaintsResolved    Complaint[]        @relation("ComplaintResolver")
-  complaintsAsStudent   Complaint[]        @relation("ComplaintStudent")
   grades                Grade[]
-  risksCreated          OperationalRisk[]  @relation("RiskCreator")
-  payments              Payment[]
-  receivedRequests      Request[]          @relation("Receiver")
-  sentRequests          Request[]          @relation("Sender")
-  studentRequests       Request[]          @relation("StudentRequest")
   subjectsTaught        Subject[]          @relation("TeacherToSubject")
-  tasks                 Task[]             @relation("TaskCreator")
   appraisalsGiven       TeacherAppraisal[] @relation("TeacherEvaluator")
   appraisalsReceived    TeacherAppraisal[] @relation("TeacherAppraised")
   enrolledArm           ClassArm?          @relation("StudentEnrolledArm", fields: [armId], references: [id])
   enrolledClass         Class?             @relation("StudentEnrolled", fields: [classId], references: [id])
-  department            Department?        @relation("HODToDepartment", fields: [departmentId], references: [id])
-  parent                User?              @relation("ParentToWard", fields: [parentId], references: [id])
-  wards                 User[]             @relation("ParentToWard")
+  department            Department?        @relation("HODToDepartment")
+
+  // Relations — family (RED-3: replaced self-referential parentId FK with junction table)
+  guardians             StudentParent[]    @relation("StudentGuardians")
+  children              StudentParent[]    @relation("ParentChildren")
+
+  // Relations — financial
+  payments              Payment[]
+  invoices              Invoice[]          @relation("StudentInvoices")
+
+  // Relations — operational
+  complaintsAsParent    Complaint[]        @relation("ComplaintParent")
+  complaintsResolved    Complaint[]        @relation("ComplaintResolver")
+  complaintsAsStudent   Complaint[]        @relation("ComplaintStudent")
+  risksCreated          OperationalRisk[]  @relation("RiskCreator")
+  receivedRequests      Request[]          @relation("Receiver")
+  sentRequests          Request[]          @relation("Sender")
+  studentRequests       Request[]          @relation("StudentRequest")
+  tasks                 Task[]             @relation("TaskCreator")
+
+  // Relations — auth & documents
+  auditLogs             AuditLog[]
   refreshTokens         RefreshToken[]
   issuedAttestations    Attestation[]      @relation("IssuerAttestation")
   studentAttestations   Attestation[]      @relation("StudentAttestation")
@@ -69,11 +82,62 @@ model User {
 
   @@index([role])
   @@index([status])
-  @@index([parentId])
+  @@index([campus])
   @@index([classId])
   @@index([armId])
-  @@index([campus])
 }
+
+// RED-3: Junction table replacing the single parentId FK on User.
+// Supports multi-parent, multi-student, and typed guardian relationships.
+model StudentParent {
+  id                  String        @id @default(cuid(2))
+  studentId           String
+  parentId            String
+  relationshipType    GuardianType
+  isPrimary           Boolean       @default(false)
+  canAuthorisePayment Boolean       @default(false)
+  canPickup           Boolean       @default(true)
+  createdAt           DateTime      @default(now())
+  student             User          @relation("StudentGuardians", fields: [studentId], references: [id])
+  parent              User          @relation("ParentChildren", fields: [parentId], references: [id])
+
+  @@unique([studentId, parentId])
+  @@index([studentId])
+  @@index([parentId])
+}
+
+model RefreshToken {
+  id          String   @id @default(cuid(2))
+  tokenHash   String   @unique
+  userId      String
+  expiresAt   DateTime
+  revoked     Boolean  @default(false)
+  replacedBy  String?
+  createdAt   DateTime @default(now())
+  createdByIp String?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid(2))
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  ipAddress String?
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([usedAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ACADEMIC CALENDAR
+// ─────────────────────────────────────────────────────────────────────────────
 
 model AcademicSession {
   id            String        @id @default(cuid(2))
@@ -93,6 +157,7 @@ model AcademicSession {
   feeConfigs    FeeConfig[]
   grades        Grade[]
   terms         Term[]
+  invoices      Invoice[]
 }
 
 model Term {
@@ -108,10 +173,15 @@ model Term {
   attendances Attendance[]
   feeConfigs  FeeConfig[]
   grades      Grade[]
+  invoices    Invoice[]
   session     AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@unique([sessionId, name])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCHOOL STRUCTURE
+// ─────────────────────────────────────────────────────────────────────────────
 
 model Class {
   id              String       @id @default(cuid(2))
@@ -135,19 +205,20 @@ model Class {
 }
 
 model ClassArm {
-  id           String   @id @default(cuid(2))
+  id           String       @id @default(cuid(2))
   label        String
   fullName     String
   capacity     Int?
-  active       Boolean  @default(true)
+  active       Boolean      @default(true)
   classId      String
   teacherId    String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
   timetableUrl String?
-  class        Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
-  teacher      User?    @relation("ArmTeacher", fields: [teacherId], references: [id])
-  students     User[]   @relation("StudentEnrolledArm")
+  class        Class        @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacher      User?        @relation("ArmTeacher", fields: [teacherId], references: [id])
+  students     User[]       @relation("StudentEnrolledArm")
+  attendances  Attendance[] // YELLOW-2: added for FK integrity on Attendance.armId
 
   @@unique([classId, label])
   @@index([teacherId])
@@ -161,10 +232,246 @@ model Department {
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
   subjects  Subject[]
-  hod       User?        @relation("HODToDepartment")
+  hod       User?        @relation("HODToDepartment", fields: [hodId], references: [id])
 
   @@unique([name, campus])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ACADEMICS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Subject {
+  id           String       @id @default(cuid(2))
+  name         String
+  teacherId    String
+  classId      String
+  departmentId String?
+  campus       SchoolCampus @default(PRIMARY) // RED-1: added — backfill secondary subjects after migration
+  grades       Grade[]
+  class        Class        @relation(fields: [classId], references: [id])
+  department   Department?  @relation(fields: [departmentId], references: [id])
+  teacher      User         @relation("TeacherToSubject", fields: [teacherId], references: [id])
+
+  @@index([classId])
+  @@index([teacherId])
+  @@index([departmentId])
+  @@index([campus])
+}
+
+model Grade {
+  id               String            @id @default(cuid(2))
+  firstCA          Float             @default(0)
+  secondCA         Float             @default(0)
+  thirdCA          Float             @default(0)
+  fourthCA         Float             @default(0)
+  fifthCA          Float             @default(0)
+  exam             Float             @default(0)
+  total            Float             @default(0)
+  grade            String?
+  position         Int?
+  formMasterRemark String?
+  principalRemark  String?
+  teacherComment   String?
+  returnReason     String?
+  status           ResultStatus      @default(DRAFT)
+  campus           SchoolCampus      @default(PRIMARY) // RED-1: was SchoolCampus? — removed nullable
+  studentId        String
+  subjectId        String
+  termId           String
+  sessionId        String?
+  signatureId      String?           @unique
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  session          AcademicSession?  @relation(fields: [sessionId], references: [id])
+  student          User              @relation(fields: [studentId], references: [id])
+  subject          Subject           @relation(fields: [subjectId], references: [id])
+  term             Term              @relation(fields: [termId], references: [id])
+  signature        DigitalSignature? @relation(fields: [signatureId], references: [id])
+
+  @@unique([studentId, subjectId, termId])
+  @@index([studentId])
+  @@index([subjectId])
+  @@index([studentId, termId])      // YELLOW-1: report card generation
+  @@index([studentId, sessionId])   // YELLOW-1: full-year transcript queries
+  @@index([termId, status])
+  @@index([sessionId, status])
+  @@index([status])
+  @@index([campus])
+}
+
+model Attendance {
+  id         String           @id @default(cuid(2))
+  date       DateTime         @db.Date
+  status     AttendanceStatus
+  campus     SchoolCampus     @default(PRIMARY) // RED-1: added — backfill secondary attendance after migration
+  studentId  String
+  armId      String?
+  markedById String?
+  termId     String?
+  note       String?
+  createdAt  DateTime         @default(now())
+  markedBy   User?            @relation("AttendanceMarker", fields: [markedById], references: [id])
+  student    User             @relation("StudentAttendance", fields: [studentId], references: [id])
+  term       Term?            @relation(fields: [termId], references: [id])
+  arm        ClassArm?        @relation(fields: [armId], references: [id]) // YELLOW-2: added FK — clean orphaned armIds before migrating
+
+  @@unique([studentId, date])
+  @@index([studentId])
+  @@index([date])
+  @@index([termId])
+  @@index([armId])
+  @@index([markedById])
+  @@index([armId, date])       // YELLOW-2: bulk arm-level attendance marking
+  @@index([termId, studentId]) // YELLOW-2: term attendance report per student
+  @@index([campus])
+}
+
+model BehaviourRecord {
+  id              String            @id @default(cuid(2))
+  date            DateTime
+  category        String
+  severity        BehaviourSeverity
+  description     String
+  actionTaken     String?
+  status          BehaviourStatus   @default(OPEN)
+  formTeacherNote String?
+  principalNote   String?
+  campus          SchoolCampus      @default(PRIMARY) // RED-1: added
+  studentId       String
+  reporterId      String
+  termId          String?
+  sessionId       String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  reporter        User              @relation("ReporterBehaviour", fields: [reporterId], references: [id])
+  student         User              @relation("StudentBehaviour", fields: [studentId], references: [id])
+
+  @@index([studentId])
+  @@index([reporterId])
+  @@index([status])
+  @@index([termId])
+  @@index([sessionId])
+  @@index([campus])
+}
+
+model TeacherAppraisal {
+  id                String       @id @default(cuid(2))
+  teacherId         String
+  evaluatorId       String
+  termId            String?
+  sessionId         String?
+  campus            SchoolCampus @default(PRIMARY) // RED-1: added
+  punctuality       Int          @default(0)
+  lessonPlanning    Int          @default(0)
+  studentEngagement Int          @default(0)
+  professionalism   Int          @default(0)
+  comments          String?
+  status            String       @default("DRAFT")
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  evaluator         User         @relation("TeacherEvaluator", fields: [evaluatorId], references: [id])
+  teacher           User         @relation("TeacherAppraised", fields: [teacherId], references: [id])
+
+  @@index([teacherId])
+  @@index([evaluatorId])
+  @@index([status])
+  @@index([campus])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FINANCE
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FeeConfig {
+  id        String       @id @default(cuid(2))
+  category  FeeCategory  @default(TUITION)
+  amount    Float
+  campus    SchoolCampus @default(PRIMARY)
+  classId   String?
+  termId    String?
+  sessionId String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  class     Class?       @relation(fields: [classId], references: [id])
+  session   AcademicSession @relation(fields: [sessionId], references: [id])
+  term      Term?        @relation(fields: [termId], references: [id])
+  invoices  Invoice[]
+
+  @@unique([category, campus, classId, termId, sessionId])
+}
+
+// RED-2: Invoice model — represents what a student OWES for a given term.
+// The absence of this model was the core financial architecture gap.
+model Invoice {
+  id          String        @id @default(cuid(2))
+  studentId   String
+  termId      String
+  sessionId   String
+  campus      SchoolCampus
+  category    FeeCategory
+  feeConfigId String?
+  amount      Float
+  amountPaid  Float         @default(0)
+  dueDate     DateTime
+  status      InvoiceStatus @default(UNPAID)
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  student     User          @relation("StudentInvoices", fields: [studentId], references: [id])
+  term        Term          @relation(fields: [termId], references: [id])
+  session     AcademicSession @relation(fields: [sessionId], references: [id])
+  feeConfig   FeeConfig?    @relation(fields: [feeConfigId], references: [id])
+  allocations PaymentAllocation[]
+
+  @@index([studentId, termId])
+  @@index([studentId, status])
+  @@index([campus, status])
+  @@index([dueDate, status])
+  @@index([sessionId])
+}
+
+// RED-2: Links a Payment to one or more Invoices, enabling partial payment tracking.
+model PaymentAllocation {
+  id        String   @id @default(cuid(2))
+  invoiceId String
+  paymentId String
+  amount    Float
+  createdAt DateTime @default(now())
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+  payment   Payment  @relation(fields: [paymentId], references: [id])
+
+  @@unique([invoiceId, paymentId])
+  @@index([paymentId])
+}
+
+model Payment {
+  id          String        @id @default(cuid(2))
+  reference   String        @unique
+  amount      Float
+  status      PaymentStatus @default(PENDING) // RED-2: was String — audit existing data before migrating
+  category    FeeCategory   @default(TUITION)  // RED-2: was String @default("TUITION")
+  campus      SchoolCampus  @default(PRIMARY)   // RED-1: added
+  studentId   String
+  termId      String?
+  sessionId   String?
+  dueDate     DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  student     User          @relation(fields: [studentId], references: [id])
+  allocations PaymentAllocation[]
+
+  @@index([studentId])
+  @@index([termId, status])
+  @@index([sessionId, status])
+  @@index([status])
+  @@index([campus])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OPERATIONS & ADMIN
+// ─────────────────────────────────────────────────────────────────────────────
 
 model Request {
   id          String       @id @default(cuid(2))
@@ -173,13 +480,14 @@ model Request {
   description String
   status      String       @default("PENDING")
   isForwarded Boolean      @default(false)
+  campus      SchoolCampus @default(PRIMARY) // RED-1: added
   senderId    String
   receiverId  String?
-  createdAt   DateTime     @default(now())
+  studentId   String?
   category    String?
   fileUrl     String?
   feedback    String?
-  studentId   String?
+  createdAt   DateTime     @default(now())
   receiver    User?        @relation("Receiver", fields: [receiverId], references: [id])
   sender      User         @relation("Sender", fields: [senderId], references: [id])
   student     User?        @relation("StudentRequest", fields: [studentId], references: [id])
@@ -188,173 +496,123 @@ model Request {
   @@index([receiverId])
   @@index([studentId])
   @@index([category])
+  @@index([campus])
   @@index([createdAt])
 }
 
-model Subject {
-  id           String      @id @default(cuid(2))
-  name         String
-  teacherId    String
-  classId      String
-  departmentId String?
-  grades       Grade[]
-  class        Class       @relation(fields: [classId], references: [id])
-  department   Department? @relation(fields: [departmentId], references: [id])
-  teacher      User        @relation("TeacherToSubject", fields: [teacherId], references: [id])
-
-  @@index([classId])
-  @@index([teacherId])
-  @@index([departmentId])
-}
-
-model Grade {
-  id               String           @id @default(cuid(2))
-  firstCA          Float            @default(0)
-  secondCA         Float            @default(0)
-  thirdCA          Float            @default(0)
-  exam             Float            @default(0)
-  total            Float            @default(0)
-  formMasterRemark String?
-  studentId        String
-  subjectId        String
-  termId           String?
-  sessionId        String?
-  createdAt        DateTime         @default(now())
-  grade            String?
-  position         Int?
-  principalRemark  String?
-  returnReason     String?
-  status           ResultStatus     @default(DRAFT)
-  teacherComment   String?
-  updatedAt        DateTime         @updatedAt
-  fifthCA          Float            @default(0)
-  fourthCA         Float            @default(0)
-  session          AcademicSession? @relation(fields: [sessionId], references: [id])
-  student          User             @relation(fields: [studentId], references: [id])
-  subject          Subject          @relation(fields: [subjectId], references: [id])
-  term             Term?            @relation(fields: [termId], references: [id])
-  signatureId      String?          @unique
-  signature        DigitalSignature? @relation(fields: [signatureId], references: [id])
-  campus           SchoolCampus?    @default(PRIMARY)
-
-  @@unique([studentId, subjectId, termId])
-  @@index([studentId])
-  @@index([subjectId])
-  @@index([termId, status])
-  @@index([sessionId, status])
-  @@index([status])
-}
-
-model Attendance {
-  id         String           @id @default(cuid(2))
-  date       DateTime         @db.Date
-  status     AttendanceStatus
+model Complaint {
+  id         String              @id @default(cuid(2))
+  parentId   String
   studentId  String
-  armId      String?
-  createdAt  DateTime         @default(now())
-  markedById String?
-  note       String?
-  termId     String?
-  markedBy   User?            @relation("AttendanceMarker", fields: [markedById], references: [id])
-  student    User             @relation("StudentAttendance", fields: [studentId], references: [id])
-  term       Term?            @relation(fields: [termId], references: [id])
+  subject    String
+  message    String
+  status     ComplaintStatus     @default(PENDING)
+  targetRole ComplaintTargetRole
+  campus     SchoolCampus        @default(PRIMARY) // RED-1: added
+  resolvedBy String?
+  response   String?
+  createdAt  DateTime            @default(now())
+  parent     User                @relation("ComplaintParent", fields: [parentId], references: [id])
+  resolver   User?               @relation("ComplaintResolver", fields: [resolvedBy], references: [id])
+  student    User                @relation("ComplaintStudent", fields: [studentId], references: [id])
 
-  @@unique([studentId, date])
+  @@index([status])
+  @@index([targetRole])
+  @@index([parentId])
   @@index([studentId])
-  @@index([date])
-  @@index([termId])
-  @@index([armId])
-  @@index([markedById])
+  @@index([campus])
 }
 
-model Payment {
-  id        String    @id @default(cuid(2))
-  reference String    @unique
-  amount    Float
-  status    String
-  studentId String
-  termId    String?
-  sessionId String?
-  category  String    @default("TUITION")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @updatedAt
-  student   User      @relation(fields: [studentId], references: [id])
+model Task {
+  id          String       @id @default(cuid(2))
+  title       String
+  owner       String
+  campus      SchoolCampus @default(PRIMARY) // RED-1: added
+  dueDate     DateTime?
+  status      String       @default("ON_TRACK")
+  riskLevel   String       @default("LOW")
+  progress    Int          @default(0)
+  category    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  createdById String?
+  createdBy   User?        @relation("TaskCreator", fields: [createdById], references: [id])
 
-  @@index([studentId])
-  @@index([termId, status])
-  @@index([sessionId, status])
   @@index([status])
-  @@index([createdAt])
+  @@index([createdById])
+  @@index([campus])
+}
+
+model OperationalRisk {
+  id          String       @id @default(cuid(2))
+  title       String
+  description String
+  severity    RiskSeverity @default(LOW)
+  status      RiskStatus   @default(OPEN)
+  campus      SchoolCampus // RED-1: was String — clean data before migrating
+  createdBy   String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  creator     User         @relation("RiskCreator", fields: [createdBy], references: [id])
+
+  @@index([campus])
+  @@index([severity])
 }
 
 model AuditLog {
-  id        String    @id @default(cuid(2))
+  id        String       @id @default(cuid(2))
   action    String
   entity    String?
   entityId  String?
   detail    String?
   ipAddress String?
+  campus    SchoolCampus @default(PRIMARY) // RED-1: added
   actorId   String?
-  createdAt DateTime  @default(now())
+  createdAt DateTime     @default(now())
   expiresAt DateTime?
-  actor     User?     @relation(fields: [actorId], references: [id])
+  actor     User?        @relation(fields: [actorId], references: [id])
 
   @@index([actorId])
   @@index([action])
   @@index([entity])
-  @@index([createdAt])
-  @@index([createdAt], map: "idx_audit_created")
+  @@index([campus, createdAt], map: "idx_audit_campus_created")
+  @@index([createdAt],         map: "idx_audit_created")
 }
 
-model PasswordResetToken {
-  id        String    @id @default(cuid(2))
-  userId    String
-  tokenHash String    @unique
-  expiresAt DateTime
-  usedAt    DateTime?
-  createdAt DateTime  @default(now())
-  ipAddress String?
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@index([usedAt])
+model GlobalConfig {
+  id                     String  @id @default("SCHOOL_CONFIG")
+  schoolName             String  @default("Wajina International Schools")
+  timetableUrl           String?
+  recentEvents           String?
+  currentTermId          String?
+  currentSessionId       String?
+  admissionExamLogistics String?
 }
 
-model RefreshToken {
-  id          String   @id @default(cuid(2))
-  tokenHash   String   @unique
-  userId      String
-  expiresAt   DateTime
-  revoked     Boolean  @default(false)
-  replacedBy  String?
-  createdAt   DateTime @default(now())
-  createdByIp String?
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([tokenHash])
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMISSIONS
+// ─────────────────────────────────────────────────────────────────────────────
 
 model Admission {
-  id            String           @id @default(cuid(2))
-  applicantName String
-  campus        SchoolCampus
-  targetClass   String
-  type          AdmissionType    @default(NEW)
-  status        AdmissionStatus  @default(APPLIED)
-  parentName    String
-  parentPhone   String
-  parentEmail   String?
-  notes         String?
-  sessionId     String?
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  armId         String?
-  classId       String?
-  entranceScore Float?
-  isScholarshipEligible Boolean @default(false)
-  paymentRef           String?          @unique
-  session       AcademicSession? @relation(fields: [sessionId], references: [id])
+  id                    String          @id @default(cuid(2))
+  applicantName         String
+  campus                SchoolCampus
+  targetClass           String
+  type                  AdmissionType   @default(NEW)
+  status                AdmissionStatus @default(APPLIED)
+  parentName            String
+  parentPhone           String
+  parentEmail           String?
+  notes                 String?
+  sessionId             String?
+  armId                 String?
+  classId               String?
+  entranceScore         Float?
+  isScholarshipEligible Boolean         @default(false)
+  paymentRef            String?         @unique
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  session               AcademicSession? @relation(fields: [sessionId], references: [id])
 
   @@index([status])
   @@index([campus])
@@ -372,151 +630,73 @@ model AdmissionConfig {
   updatedAt        DateTime     @updatedAt
 }
 
-model Task {
-  id          String    @id @default(cuid(2))
+// ─────────────────────────────────────────────────────────────────────────────
+// DOCUMENTS & SIGNATURES
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Attestation {
+  id          String            @id @default(cuid(2))
+  studentId   String
+  issuerId    String
   title       String
-  owner       String
-  dueDate     DateTime?
-  status      String    @default("ON_TRACK")
-  riskLevel   String    @default("LOW")
-  progress    Int       @default(0)
-  category    String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  createdById String?
-  createdBy   User?     @relation("TaskCreator", fields: [createdById], references: [id])
-
-  @@index([status])
-  @@index([createdById])
-}
-
-model BehaviourRecord {
-  id              String            @id @default(cuid(2))
-  date            DateTime
-  category        String
-  severity        BehaviourSeverity
-  description     String
-  actionTaken     String?
-  status          BehaviourStatus   @default(OPEN)
-  formTeacherNote String?
-  principalNote   String?
-  studentId       String
-  reporterId      String
-  termId          String?
-  sessionId       String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  reporter        User              @relation("ReporterBehaviour", fields: [reporterId], references: [id])
-  student         User              @relation("StudentBehaviour", fields: [studentId], references: [id])
+  content     Json
+  status      DocumentStatus    @default(DRAFT)
+  campus      SchoolCampus
+  signatureId String?           @unique
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  student     User              @relation("StudentAttestation", fields: [studentId], references: [id])
+  issuer      User              @relation("IssuerAttestation", fields: [issuerId], references: [id])
+  signature   DigitalSignature? @relation(fields: [signatureId], references: [id])
 
   @@index([studentId])
-  @@index([reporterId])
-  @@index([status])
-  @@index([termId])
-  @@index([sessionId])
-}
-
-model GlobalConfig {
-  id                     String  @id @default("SCHOOL_CONFIG")
-  schoolName             String  @default("Wajina International Schools")
-  timetableUrl           String?
-  recentEvents           String?
-  currentTermId          String?
-  currentSessionId       String?
-  admissionExamLogistics String?
-}
-
-model FeeConfig {
-  id        String          @id @default(cuid(2))
-  category  String          @default("TUITION")
-  amount    Float
-  campus    SchoolCampus?
-  classId   String?
-  termId    String?
-  sessionId String
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  class     Class?          @relation(fields: [classId], references: [id])
-  session   AcademicSession @relation(fields: [sessionId], references: [id])
-  term      Term?           @relation(fields: [termId], references: [id])
-
-  @@unique([category, campus, classId, termId, sessionId])
-}
-
-model Complaint {
-  id         String              @id @default(cuid(2))
-  parentId   String
-  studentId  String
-  subject    String
-  message    String
-  status     ComplaintStatus     @default(PENDING)
-  targetRole ComplaintTargetRole
-  resolvedBy String?
-  createdAt  DateTime            @default(now())
-  response   String?
-  parent     User                @relation("ComplaintParent", fields: [parentId], references: [id])
-  resolver   User?               @relation("ComplaintResolver", fields: [resolvedBy], references: [id])
-  student    User                @relation("ComplaintStudent", fields: [studentId], references: [id])
-
-  @@index([status])
-  @@index([targetRole])
-  @@index([parentId])
-  @@index([studentId])
-}
-
-model OperationalRisk {
-  id          String       @id @default(cuid(2))
-  title       String
-  description String
-  severity    RiskSeverity @default(LOW)
-  status      RiskStatus   @default(OPEN)
-  campus      String
-  createdBy   String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  creator     User         @relation("RiskCreator", fields: [createdBy], references: [id])
-
   @@index([campus])
-  @@index([severity])
 }
 
-model TeacherAppraisal {
-  id                String   @id @default(cuid(2))
-  teacherId         String
-  evaluatorId       String
-  termId            String?
-  sessionId         String?
-  punctuality       Int      @default(0)
-  lessonPlanning    Int      @default(0)
-  studentEngagement Int      @default(0)
-  professionalism   Int      @default(0)
-  comments          String?
-  status            String   @default("DRAFT")
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  evaluator         User     @relation("TeacherEvaluator", fields: [evaluatorId], references: [id])
-  teacher           User     @relation("TeacherAppraised", fields: [teacherId], references: [id])
+model Testimonial {
+  id          String            @id @default(cuid(2))
+  studentId   String
+  issuerId    String
+  content     Json
+  status      DocumentStatus    @default(DRAFT)
+  campus      SchoolCampus
+  signatureId String?           @unique
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  student     User              @relation("StudentTestimonial", fields: [studentId], references: [id])
+  issuer      User              @relation("IssuerTestimonial", fields: [issuerId], references: [id])
+  signature   DigitalSignature? @relation(fields: [signatureId], references: [id])
 
-  @@index([teacherId])
-  @@index([evaluatorId])
-  @@index([status])
+  @@index([studentId])
+  @@index([campus])
 }
 
-enum AdmissionType {
-  NEW
-  TRANSFER
+model DigitalSignature {
+  id            String       @id @default(cuid(2))
+  entityId      String
+  entityType    String       // "RESULT" | "ATTESTATION" | "TESTIMONIAL"
+  signatureHash String
+  signatureData String?      @db.Text
+  campus        SchoolCampus @default(PRIMARY) // RED-1: added
+  signerId      String
+  signedAt      DateTime     @default(now())
+  signer        User         @relation(fields: [signerId], references: [id])
+  gradeRecord   Grade?
+  attestation   Attestation?
+  testimonial   Testimonial?
+
+  @@index([signerId])
+  @@index([entityId])
+  @@index([campus])
 }
 
-enum AdmissionStatus {
-  PENDING_FEE
-  APPLIED
-  EXAM_DETAILS_SENT
-  QUALIFIED
-  OFFERED
-  FEE_CONFIRMED
-  ENROLLED
-  REJECTED
-  SCHOLARSHIP_REVIEW
+// ─────────────────────────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum SchoolCampus {
+  PRIMARY
+  SECONDARY
 }
 
 enum Role {
@@ -537,15 +717,22 @@ enum Role {
   STUDENT
 }
 
-enum RequestLevel {
-  K1
-  K2
-  K3
+enum UserStatus {
+  ACTIVE
+  DISABLED
+  PENDING
 }
 
-enum AttendanceStatus {
-  PRESENT
-  ABSENT
+// RED-3: Guardian relationship types for Nigerian family structures
+enum GuardianType {
+  FATHER
+  MOTHER
+  GUARDIAN
+  UNCLE
+  AUNT
+  GRANDPARENT
+  SIBLING
+  OTHER
 }
 
 enum SessionStatus {
@@ -566,17 +753,6 @@ enum TermStatus {
   COMPLETED
 }
 
-enum SchoolCampus {
-  PRIMARY
-  SECONDARY
-}
-
-enum UserStatus {
-  ACTIVE
-  DISABLED
-  PENDING
-}
-
 enum ResultStatus {
   DRAFT
   SUBMITTED
@@ -590,6 +766,34 @@ enum DocumentStatus {
   DRAFT
   APPROVED
   ISSUED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+}
+
+enum RequestLevel {
+  K1
+  K2
+  K3
+}
+
+enum AdmissionType {
+  NEW
+  TRANSFER
+}
+
+enum AdmissionStatus {
+  PENDING_FEE
+  APPLIED
+  EXAM_DETAILS_SENT
+  QUALIFIED
+  OFFERED
+  FEE_CONFIRMED
+  ENROLLED
+  REJECTED
+  SCHOLARSHIP_REVIEW
 }
 
 enum BehaviourSeverity {
@@ -638,56 +842,29 @@ enum RiskStatus {
   RESOLVED
 }
 
-model Attestation {
-  id          String           @id @default(cuid(2))
-  studentId   String
-  issuerId    String
-  title       String
-  content     Json
-  status      DocumentStatus   @default(DRAFT)
-  campus      SchoolCampus
-  signatureId String?          @unique
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  student     User             @relation("StudentAttestation", fields: [studentId], references: [id])
-  issuer      User             @relation("IssuerAttestation", fields: [issuerId], references: [id])
-  signature   DigitalSignature? @relation(fields: [signatureId], references: [id])
-
-  @@index([studentId])
-  @@index([campus])
+// RED-2: Payment status enum replacing the raw String field
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  REFUNDED
 }
 
-model Testimonial {
-  id          String           @id @default(cuid(2))
-  studentId   String
-  issuerId    String
-  content     Json
-  status      DocumentStatus   @default(DRAFT)
-  campus      SchoolCampus
-  signatureId String?          @unique
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  student     User             @relation("StudentTestimonial", fields: [studentId], references: [id])
-  issuer      User             @relation("IssuerTestimonial", fields: [issuerId], references: [id])
-  signature   DigitalSignature? @relation(fields: [signatureId], references: [id])
-
-  @@index([studentId])
-  @@index([campus])
+// RED-2: Invoice status — tracks the debt lifecycle per student per term
+enum InvoiceStatus {
+  UNPAID
+  PARTIAL
+  PAID
+  OVERDUE
+  WAIVED
 }
 
-model DigitalSignature {
-  id               String      @id @default(cuid(2))
-  entityId         String
-  entityType       String      // "RESULT", "ATTESTATION", "TESTIMONIAL"
-  signatureHash    String      // Cryptographic hash of the record
-  signatureData    String?     @db.Text // Base64 manual signature drawing
-  signerId         String
-  signedAt         DateTime    @default(now())
-  signer           User        @relation(fields: [signerId], references: [id])
-  gradeRecord      Grade?
-  attestation      Attestation?
-  testimonial      Testimonial?
-
-  @@index([signerId])
-  @@index([entityId])
+// RED-2: Unified fee category used by FeeConfig, Invoice, and Payment
+enum FeeCategory {
+  TUITION
+  EXAM_FEE
+  PTA_LEVY
+  UNIFORM
+  TRANSPORT
+  OTHER
 }

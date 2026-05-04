@@ -12,7 +12,7 @@
     "db:generate": "prisma generate",
     "seed": "ts-node prisma/seed.ts",
     "test:visual": "npx @percy/cli exec -- playwright test tests/visual/",
-    "build:analyze": "cross-env ANALYZE=true next build --webpack"
+    "build:analyze": "cross-env ANALYZE=true next build --webpack && node scripts/move-bundle-reports.js"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.0",
