@@ -11,7 +11,8 @@
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "seed": "ts-node prisma/seed.ts",
-    "test:visual": "npx @percy/cli exec -- playwright test tests/visual/"
+    "test:visual": "npx @percy/cli exec -- playwright test tests/visual/",
+    "build:analyze": "cross-env ANALYZE=true next build --webpack"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.0",
@@ -47,6 +48,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.2.4",
     "@percy/cli": "^1.31.13",
     "@percy/playwright": "^1.1.0",
     "@playwright/test": "^1.59.1",
@@ -54,6 +56,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.5.0",
+    "cross-env": "^10.1.0",
     "postcss": "^8.5.10",
     "prisma": "^6.19.2",
     "svgo": "^4.0.1",

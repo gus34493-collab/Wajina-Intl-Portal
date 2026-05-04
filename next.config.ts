@@ -1,21 +1,26 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+  analyzerMode: "static",
+  openAnalyzer: false,
+});
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactStrictMode: true,
   poweredByHeader: false,
-  trailingSlash: true, // Optimizes for static hosting and legacy .html styles
-  
-  // Suppress specific warnings about deprecated middleware in non-standard environments
+  trailingSlash: true,
+
   logging: {
     fetches: {
       fullUrl: true,
     },
   },
-  // Experimental features for performance if using Next.js 15+
+
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);
