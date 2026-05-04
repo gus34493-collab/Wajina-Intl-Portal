@@ -10,7 +10,7 @@ const JWT_SECRET = new TextEncoder().encode(
 export async function GET(req: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_token")?.value;
+    const token = cookieStore.get("wajina_access")?.value;
 
     if (!token) {
       return NextResponse.json({ error: "No session" }, { status: 401 });
@@ -32,11 +32,15 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    if (!user || user.status === "DISABLED") {
-      return NextResponse.json({ error: "User unauthorized" }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 401 });
     }
 
-    return NextResponse.json(user);
+    if (user.status === "DISABLED") {
+      return NextResponse.json({ error: "Your account has been deactivated. Please contact HR." }, { status: 401 });
+    }
+
+    return NextResponse.json({ user });
     
   } catch (err: any) {
     return NextResponse.json({ error: "Invalid session" }, { status: 401 });

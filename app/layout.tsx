@@ -1,59 +1,114 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
+import type { Metadata, Viewport } from "next";
+import Script from "next/script";
+import { Plus_Jakarta_Sans, Fraunces } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-
-// Using Inter and Sora from Google Fonts for stability
-import { Inter, Sora, Outfit, Geist } from "next/font/google";
+import { AuthProvider } from "./components/AuthContext";
 import { cn } from "@/lib/utils";
+import TelemetryInit from "./components/TelemetryInit";
+import LegacyAtmosphere from "./components/landing/LegacyAtmosphere";
+import StructuredData from "./components/SEO/StructuredData";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-const inter = Inter({
+const fraunces = Fraunces({
   subsets: ["latin"],
-  variable: "--font-ibm-plex",
+  weight: ["300", "400", "500", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-fraunces",
 });
 
-const outfit = Outfit({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-outfit",
-});
-
-const sora = Sora({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-sora",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-plus-jakarta",
 });
 
 export const metadata: Metadata = {
-  title: "Wajina Intl Portal | Academic Governance",
-  description: "Secure, intelligence-driven management portal for Wajina International Schools. Empowering parents, teachers, and administrators with real-time academic insights.",
-  keywords: ["education management", "school portal", "academic results", "wajina schools"],
+  title: "Wajina Intl Schools | Excellence in Global Education",
+  description: "Experience world-class learning at Wajina International Schools. From Creche to Secondary, we offer a prestigious blend of British and Nigerian curriculums for the leaders of tomorrow.",
+  keywords: ["Wajina International Schools", "Private School Benue", "Best School Makurdi", "International School Nigeria", "British Curriculum Nigeria", "Wajina Academy Portal"],
+  manifest: "/manifest.json",
+  openGraph: {
+    title: "Wajina International Schools | Citadel of Excellence",
+    description: "Empowering students through academic rigor and holistic growth in a world-class environment.",
+    url: "https://wajina.edu.ng",
+    siteName: "Wajina Portal",
+    images: [
+      {
+        url: "/images/og-preview.png",
+        width: 1200,
+        height: 630,
+        alt: "Wajina International Schools Campus",
+      },
+    ],
+    locale: "en_NG",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Wajina International Schools",
+    description: "Shaping global leaders with academic excellence and character.",
+    images: ["/images/og-preview.png"],
+  },
 };
 
-export const viewport = {
-  themeColor: "#0F172A",
+export const viewport: Viewport = {
+  themeColor: "brand-primary",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="scroll-smooth no-scrollbar" data-scroll-behavior="smooth">
       <head>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossOrigin="anonymous" referrerPolicy="no-referrer" />
+        <link rel="apple-touch-icon" href="/images/Logo.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Wajina Portal" />
       </head>
       <body
-        className={`${inter.variable} ${outfit.variable} ${sora.variable} font-sans antialiased`}
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased selection:bg-brand-primary/30 selection:text-white",
+          plusJakartaSans.variable,
+          fraunces.variable,
+        )}
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
-          {childre
+          <StructuredData />
+          <AuthProvider>
+            <LegacyAtmosphere />
+            <TelemetryInit />
+            {children}
+          </AuthProvider>
+        </ThemeProvider>
+        <Script
+          id="sw-registration"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                  navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('[Wajina] SW registered:', registration.scope);
+                  }).catch(err => {
+                    console.log('[Wajina] SW registration failed:', err);
+                  });
+                });
+              }
+            `,
+          }}
+        />
+      </body>
+    </html>
+  );
+}
+

@@ -21,12 +21,21 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const selectedCampus = searchParams.get("campus");
+
     // 1. Session Discovery
     let session = await prisma.academicSession.findFirst({ where: { status: 'ACTIVE' } });
     if (!session) session = await prisma.academicSession.findFirst({ orderBy: { year: 'desc' } });
     
     if (!session) {
       return NextResponse.json({ totalStudents: 0, activeStudents: 0, totalCollected: 0, totalExpected: 0, sessionName: 'None' });
+    }
+
+    // 2. Base Filter
+    const studentFilter: any = { role: 'STUDENT' };
+    if (selectedCampus && selectedCampus !== 'ALL') {
+      studentFilter.campus = selectedCampus;
     }
 
     // 2. Active Stats (Simplified for RSC performance)
@@ -36,7 +45,7 @@ export async function GET(req: NextRequest) {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const students = await prisma.user.findMany({
-      where: { role: 'STUDENT' },
+      where: studentFilter,
       select: {
         id: true,
         createdAt: true,
@@ -75,7 +84,7 @@ export async function GET(req: NextRequest) {
     // 4. Expected Revenue
     const studentGroups = await prisma.user.groupBy({
       by: ['classId', 'campus'],
-      where: { role: 'STUDENT' }, 
+      where: studentFilter, 
       _count: { _all: true }
     });
 
