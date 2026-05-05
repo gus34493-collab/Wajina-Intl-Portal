@@ -1,4 +1,4 @@
-
+﻿
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
@@ -7,9 +7,8 @@ import { writeFile } from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "fallback-secret-for-development-only"
-);
+if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function POST(req: NextRequest) {
   try {

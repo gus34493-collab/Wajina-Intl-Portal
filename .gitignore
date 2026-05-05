@@ -4,3 +4,9 @@ node_modules
 
 /generated/prisma
 /generated
+
+# Auto-generated test & analysis artifacts
+playwright-report/
+test-results/
+.next/analyze/
+bundle-reports/
