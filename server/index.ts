@@ -251,9 +251,26 @@ app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
   res.status(status).json({ error: message });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Wajina Portal server running → http://localhost:${PORT}`);
   if (!isProd) {
     console.warn('[WARN] Running in development mode. Security headers are relaxed.');
   }
+});
+
+// Graceful shutdown — gives in-flight requests up to 10 s to complete
+// before DO App Platform kills the process during a deploy or restart
+process.on('SIGTERM', () => {
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(1), 10_000);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('[FATAL] Uncaught exception:', err);
+  process.exit(1); // Let DO restart the container rather than run in a broken state
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[FATAL] Unhandled rejection:', reason);
+  process.exit(1);
 });

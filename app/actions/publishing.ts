@@ -1,9 +1,9 @@
-"use client";
+"use server";
 
-import { useTransition } from "react";
 import prisma from "@/lib/prisma";
 import { sealInstitutionalRecord } from "@/lib/signature-api";
 import { withTenantContext } from "@/lib/prisma-extension";
+import { generateReportCards } from "@/lib/generate-report-cards";
 
 /**
  * PUBLISH ACADEMIC RESULTS
@@ -23,14 +23,11 @@ export async function signAndPublishResults({
   user: { id: string; role: string; campus: string };
   signatureData: string;
 }) {
-  // 1. Authorization & Role-Check
   if (!['PRINCIPAL', 'HEAD_TEACHER', 'DIRECTOR'].includes(user.role)) {
     throw new Error("Unauthorized: Only academic leadership can sign and publish results.");
   }
 
-  // 2. Execute with Tenant Context (RLS Injection)
-  return await withTenantContext(prisma, user, async () => {
-    // A. Fetch all grades for this Arm/Term
+  const sealResult = await withTenantContext(prisma, user, async () => {
     const grades = await prisma.grade.findMany({
       where: {
         termId,
@@ -44,12 +41,7 @@ export async function signAndPublishResults({
       throw new Error("No results found to publish for this arm.");
     }
 
-    // B. Reconcile and Seal
-    // We create a hash of the entire batch summary OR sign individual records.
-    // For Wajina, we seal each individual grade record to allow granular verification.
-    
     const results = await Promise.all(grades.map(async (grade) => {
-      // Generate the Cryptographic Seal
       const seal = await sealInstitutionalRecord({
         entityId: grade.id,
         entityType: 'RESULT',
@@ -64,7 +56,6 @@ export async function signAndPublishResults({
         manualSignatureData: signatureData
       });
 
-      // Update Grade Status and link Seal
       return prisma.grade.update({
         where: { id: grade.id },
         data: {
@@ -74,10 +65,28 @@ export async function signAndPublishResults({
       });
     }));
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       count: results.length,
       timestamp: new Date().toISOString()
     };
   });
+
+  // PDF generation is best-effort — the cryptographic seal above is the
+  // authoritative record. If PDF upload fails, the grades remain ISSUED and
+  // a re-publish will regenerate the PDFs via the upsert.
+  try {
+    await generateReportCards({
+      armId,
+      termId,
+      sessionId,
+      publisherId: user.id,
+      campus: user.campus,
+      signatureData,
+    });
+  } catch (err) {
+    console.error("[ReportCards] PDF generation failed — grades remain sealed:", err);
+  }
+
+  return sealResult;
 }

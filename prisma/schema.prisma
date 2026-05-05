@@ -79,6 +79,8 @@ model User {
   issuedTestimonials    Testimonial[]      @relation("IssuerTestimonial")
   studentTestimonials   Testimonial[]      @relation("StudentTestimonial")
   signatures            DigitalSignature[]
+  reportCardsAsStudent  ReportCard[]       @relation("StudentReportCards")
+  publishedReportCards  ReportCard[]       @relation("PublisherReportCards")
 
   @@index([role])
   @@index([status])
@@ -156,6 +158,7 @@ model AcademicSession {
   admissions    Admission[]
   feeConfigs    FeeConfig[]
   grades        Grade[]
+  reportCards   ReportCard[]
   terms         Term[]
   invoices      Invoice[]
 }
@@ -173,6 +176,7 @@ model Term {
   attendances Attendance[]
   feeConfigs  FeeConfig[]
   grades      Grade[]
+  reportCards ReportCard[]
   invoices    Invoice[]
   session     AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
@@ -691,6 +695,34 @@ model DigitalSignature {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// REPORT CARDS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ReportCard {
+  id            String           @id @default(cuid(2))
+  studentId     String
+  termId        String
+  sessionId     String
+  campus        SchoolCampus
+  spacesKey     String           // DO Spaces object key — used to mint pre-signed download URLs
+  snapshotJson  Json             // frozen grade snapshot at time of sealing (source of truth if PDF is re-generated)
+  publishedById String
+  publishedAt   DateTime         @default(now())
+  status        ReportCardStatus @default(SEALED)
+
+  student     User            @relation("StudentReportCards", fields: [studentId], references: [id])
+  term        Term            @relation(fields: [termId], references: [id])
+  session     AcademicSession @relation(fields: [sessionId], references: [id])
+  publishedBy User            @relation("PublisherReportCards", fields: [publishedById], references: [id])
+
+  @@unique([studentId, termId, sessionId])
+  @@index([studentId])
+  @@index([termId, sessionId])
+  @@index([campus])
+  @@index([publishedById])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // ENUMS
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -766,6 +798,11 @@ enum DocumentStatus {
   DRAFT
   APPROVED
   ISSUED
+}
+
+enum ReportCardStatus {
+  SEALED
+  REVOKED
 }
 
 enum AttendanceStatus {
