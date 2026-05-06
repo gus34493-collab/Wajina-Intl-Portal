@@ -1,57 +1,81 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
-
-if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+import { getAuthUser, unauthorized, badRequest, serverError } from "@/lib/api-auth";
 
 export async function GET(req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_access")?.value || cookieStore.get("wajina_token")?.value;
-
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const userRole = payload.role as string;
-    const userId = payload.id as string;
-    const userCampus = payload.campus as string;
-
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
     const level = searchParams.get("level");
-    const selectedCampus = searchParams.get("campus");
+    const skip = parseInt(searchParams.get("skip") ?? "0");
+    const take = Math.min(parseInt(searchParams.get("take") ?? "100"), 200);
 
+    const role = user.role as string;
     let where: any = {};
     if (status) where.status = status.toUpperCase();
     if (level) where.level = level.toUpperCase();
-    
-    // Campus/Role Scope: Non-directors only see their campus or things specifically sent to them
-    if (userRole === 'DIRECTOR') {
-      if (selectedCampus && selectedCampus !== 'ALL') {
-        where.sender = { campus: selectedCampus as any };
-      }
-    } else if (userCampus) {
+
+    if (role === "DIRECTOR") {
+      const campus = searchParams.get("campus");
+      if (campus && campus !== "ALL") where.sender = { campus: campus as any };
+    } else {
       where.OR = [
-        { sender: { campus: userCampus as any } },
-        { receiverId: userId }
+        { sender: { campus: user.campus as any } },
+        { receiverId: user.id },
       ];
     }
 
-    const requests = await prisma.request.findMany({
-      where,
-      include: {
-        sender: { select: { name: true, role: true, campus: true } },
+    const [requests, total] = await Promise.all([
+      prisma.request.findMany({
+        where,
+        include: { sender: { select: { id: true, name: true, role: true, campus: true } } },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take,
+      }),
+      prisma.request.count({ where }),
+    ]);
+
+    return NextResponse.json({ requests, total });
+  } catch (err) {
+    console.error("[requests GET]", err);
+    return serverError();
+  }
+}
+
+export async function POST(req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+
+  try {
+    const { title, description, level, category, receiverId, studentId } = await req.json();
+    if (!title?.trim() || !description?.trim() || !level) {
+      return badRequest("title, description, and level are required.");
+    }
+
+    const validLevels = ["K1", "K2", "K3"];
+    if (!validLevels.includes(level)) return badRequest(`level must be one of: ${validLevels.join(", ")}`);
+
+    const request = await prisma.request.create({
+      data: {
+        title: title.trim(),
+        description: description.trim(),
+        level,
+        category: category ?? null,
+        receiverId: receiverId ?? null,
+        studentId: studentId ?? null,
+        senderId: user.id,
+        campus: user.campus as any,
+        status: "PENDING",
       },
-      orderBy: { createdAt: 'desc' },
-      take: 100,
     });
 
-    return NextResponse.json({ requests });
-    
-  } catch (err: any) {
-    console.error("[API Requests] Failure:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(request, { status: 201 });
+  } catch (err) {
+    console.error("[requests POST]", err);
+    return serverError();
   }
 }

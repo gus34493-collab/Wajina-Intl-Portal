@@ -1,51 +1,51 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
-import { withTenantContext } from "@/lib/prisma-extension";
+import { getAuthUser, unauthorized, forbidden, serverError } from "@/lib/api-auth";
 
-if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const ALLOWED = [
+  "DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER",
+  "VP_ADMIN", "VP_ACADEMICS", "HR", "ADMIN_STAFF", "FORM_TEACHER", "TEACHER",
+];
 
 export async function GET(req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+  if (!ALLOWED.includes(user.role as string)) return forbidden();
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_token")?.value;
-
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const userRole = payload.role as string;
-    const userCampus = payload.campus as string;
-
     const { searchParams } = new URL(req.url);
-    const query = searchParams.get("query") || "";
-    const campus = userRole === 'DIRECTOR' ? searchParams.get("campus") : userCampus;
-    const status = searchParams.get("status") || "ACTIVE";
+    const query = searchParams.get("query") ?? "";
+    const status = searchParams.get("status") ?? "ACTIVE";
+    const classId = searchParams.get("classId");
+    const armId = searchParams.get("armId");
+    const role = user.role as string;
+    const campus = role === "DIRECTOR" ? searchParams.get("campus") : (user.campus as string);
 
-    return await withTenantContext(prisma, { campus, role: userRole }, async () => {
-      const students = await prisma.user.findMany({
-        where: {
-          role: 'STUDENT',
-          status: status as any,
+    const students = await prisma.user.findMany({
+      where: {
+        role: "STUDENT",
+        status: status as any,
+        ...(campus && campus !== "ALL" && { campus: campus as any }),
+        ...(classId && { classId }),
+        ...(armId && { armId }),
+        ...(query && {
           OR: [
-            { name: { contains: query, mode: 'insensitive' } },
-            { email: { contains: query, mode: 'insensitive' } }
-          ]
-        },
-        take: 50,
-        orderBy: { name: 'asc' },
-        include: {
-          enrolledClass: { select: { name: true } },
-          enrolledArm: { select: { fullName: true } }
-        }
-      });
-
-      return NextResponse.json({ students });
+            { name: { contains: query, mode: "insensitive" } },
+            { email: { contains: query, mode: "insensitive" } },
+          ],
+        }),
+      },
+      take: 50,
+      orderBy: { name: "asc" },
+      include: {
+        enrolledClass: { select: { name: true } },
+        enrolledArm: { select: { fullName: true } },
+      },
     });
-    
-  } catch (err: any) {
-    console.error("[API Student Search] Failure:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+
+    return NextResponse.json({ students });
+  } catch (err) {
+    console.error("[students GET]", err);
+    return serverError();
   }
 }

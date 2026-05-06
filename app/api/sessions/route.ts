@@ -1,33 +1,22 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
+import { getAuthUser, unauthorized, forbidden, serverError } from "@/lib/api-auth";
 
-if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const MANAGEMENT = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "VP_ADMIN", "VP_ACADEMICS"];
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+  if (!MANAGEMENT.includes(user.role as string)) return forbidden();
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_token")?.value;
-
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const userRole = payload.role as string;
-    
-    // Scoped to Management
-    const isMgmt = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN"].includes(userRole);
-    if (!isMgmt) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-
     const sessions = await prisma.academicSession.findMany({
-      orderBy: { startDate: 'desc' },
-      include: { terms: { orderBy: { startDate: 'asc' } } }
+      orderBy: { startDate: "desc" },
+      include: { terms: { orderBy: { startDate: "asc" } } },
     });
-
     return NextResponse.json({ sessions });
-    
-  } catch (err: any) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (err) {
+    console.error("[sessions GET]", err);
+    return serverError();
   }
 }

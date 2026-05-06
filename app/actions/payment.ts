@@ -125,7 +125,7 @@ export async function verifyTransaction(transactionId: string) {
       const payment = await prisma.payment.update({
         where: { reference: tx_ref },
         data: {
-          status: "PAID",
+          status: "CONFIRMED",
           updatedAt: new Date(),
         },
       });

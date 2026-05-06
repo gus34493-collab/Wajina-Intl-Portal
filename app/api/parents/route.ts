@@ -1,42 +1,37 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
-import { withTenantContext } from "@/lib/prisma-extension";
+import { getAuthUser, unauthorized, forbidden, serverError } from "@/lib/api-auth";
 
-if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const ALLOWED = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "HR", "ADMIN_STAFF"];
 
 export async function GET(req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+  if (!ALLOWED.includes(user.role as string)) return forbidden();
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_token")?.value;
-
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const userRole = payload.role as string;
-    const userCampus = payload.campus as string;
-
     const { searchParams } = new URL(req.url);
-    const campus = userRole === 'DIRECTOR' ? searchParams.get("campus") : userCampus;
+    const search = searchParams.get("search") ?? "";
+    const role = user.role as string;
+    const campus = role === "DIRECTOR" ? searchParams.get("campus") : (user.campus as string);
 
-    return await withTenantContext(prisma, { campus, role: userRole }, async () => {
-      const parents = await prisma.user.findMany({
-        where: {
-          role: 'PARENT'
-        },
-        take: 50,
-        orderBy: { name: 'asc' },
-        include: {
-          attendance: { take: 1, orderBy: { createdAt: 'desc' } } // Placeholder relationship check
-        }
-      });
-
-      return NextResponse.json({ parents });
+    const parents = await prisma.user.findMany({
+      where: {
+        role: "PARENT",
+        ...(campus && campus !== "ALL" && { campus: campus as any }),
+        ...(search && { name: { contains: search, mode: "insensitive" } }),
+      },
+      take: 50,
+      orderBy: { name: "asc" },
+      select: {
+        id: true, name: true, email: true, phone: true, campus: true, status: true,
+        children: { select: { student: { select: { id: true, name: true, enrolledArm: { select: { fullName: true } } } } } },
+      },
     });
-    
-  } catch (err: any) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+
+    return NextResponse.json({ parents });
+  } catch (err) {
+    console.error("[parents GET]", err);
+    return serverError();
   }
 }

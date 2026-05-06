@@ -1,45 +1,49 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
+import { getAuthUser, unauthorized, forbidden, serverError } from "@/lib/api-auth";
 
-if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const ALLOWED = ["DIRECTOR", "PRINCIPAL", "BURSAR", "ACCOUNTS_OFFICER"];
 
 export async function GET(req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+  if (!ALLOWED.includes(user.role as string)) return forbidden();
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_token")?.value;
+    const role = user.role as string;
+    const campus = role === "DIRECTOR"
+      ? new URL(req.url).searchParams.get("campus")
+      : (user.campus as string);
 
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    let session = await prisma.academicSession.findFirst({ where: { status: "ACTIVE" } });
+    if (!session) session = await prisma.academicSession.findFirst({ orderBy: { year: "desc" } });
+    if (!session) return NextResponse.json({ summary: { paid: 0, total: 0, outstanding: 0 }, campus: campus ?? "ALL" });
 
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const userRole = payload.role as string;
-    const userCampus = payload.campus as string;
+    const studentFilter: any = { role: "STUDENT", status: "ACTIVE" };
+    if (campus && campus !== "ALL") studentFilter.campus = campus as any;
 
-    const allowedRoles = ["DIRECTOR", "PRINCIPAL", "BURSAR", "ACCOUNTS_OFFICER"];
-    if (!allowedRoles.includes(userRole)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const [collected, feeConfigs, studentGroups] = await Promise.all([
+      prisma.payment.aggregate({
+        where: { sessionId: session.id, status: "CONFIRMED", category: "TUITION", student: studentFilter },
+        _sum: { amount: true },
+      }),
+      prisma.feeConfig.findMany({ where: { sessionId: session.id, category: "TUITION" } }),
+      prisma.user.groupBy({ by: ["classId", "campus"], where: studentFilter, _count: { _all: true } }),
+    ]);
+
+    let total = 0;
+    for (const group of studentGroups) {
+      const config =
+        feeConfigs.find((c) => c.classId === group.classId) ||
+        feeConfigs.find((c) => c.campus === (group.campus as any) && !c.classId) ||
+        feeConfigs.find((c) => !c.campus && !c.classId);
+      if (config) total += Number(config.amount) * group._count._all;
     }
 
-    const { searchParams } = new URL(req.url);
-    const campus = userRole === 'DIRECTOR' ? searchParams.get("campus") : userCampus;
-
-    // Fixed mock metrics for legacy parity or actual Prisma aggregation
-    // In a real scenario, this would aggregate invoices/payments
-    const summary = {
-      paid: 45250000,
-      total: 58000000,
-      outstanding: 12750000
-    };
-
-    return NextResponse.json({ 
-       summary,
-       campus: campus || 'ALL'
-    });
-    
-  } catch (err: any) {
-    console.error("[API Finance Stats] Failure:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    const paid = Number((collected._sum as any).amount) || 0;
+    return NextResponse.json({ summary: { paid, total, outstanding: total - paid }, campus: campus ?? "ALL" });
+  } catch (err) {
+    console.error("[finance/stats GET]", err);
+    return serverError();
   }
 }

@@ -89,28 +89,83 @@ export function calculateScore(data: any, config: any) {
 }
 
 export function generateReports(average: number) {
-  if (average >= 75) return { 
-    teacher: "An excellent result. Keep up the high standard.", 
-    principal: "Excellent performance." 
+  if (average >= 75) return {
+    teacher: "An excellent result. Keep up the high standard.",
+    principal: "Excellent performance."
   };
-  if (average >= 65) return { 
-    teacher: "A very good performance. You can do even better.", 
-    principal: "Very good result." 
+  if (average >= 65) return {
+    teacher: "A very good performance. You can do even better.",
+    principal: "Very good result."
   };
-  if (average >= 55) return { 
-    teacher: "Good result. Maintain this momentum.", 
-    principal: "Good performance." 
+  if (average >= 55) return {
+    teacher: "Good result. Maintain this momentum.",
+    principal: "Good performance."
   };
-  if (average >= 50) return { 
-    teacher: "Average performance. More effort is needed.", 
-    principal: "Average result." 
+  if (average >= 50) return {
+    teacher: "Average performance. More effort is needed.",
+    principal: "Average result."
   };
-  if (average >= 40) return { 
-    teacher: "Fair result. Focus more on your weak areas.", 
-    principal: "Fair performance." 
+  if (average >= 40) return {
+    teacher: "Fair result. Focus more on your weak areas.",
+    principal: "Fair performance."
   };
-  return { 
-    teacher: "Poor result. You need to focus more on your studies.", 
-    principal: "Poor performance." 
+  return {
+    teacher: "Poor result. You need to focus more on your studies.",
+    principal: "Poor performance."
   };
+}
+
+export async function canViewResults(studentId: string, termId?: string): Promise<boolean> {
+  let targetTermId = termId;
+
+  if (!targetTermId) {
+    const currentTerm = await prisma.term.findFirst({ where: { isCurrent: true }, select: { id: true } });
+    if (!currentTerm) return false;
+    targetTermId = currentTerm.id;
+  }
+
+  const student: any = await prisma.user.findUnique({
+    where: { id: studentId },
+    select: {
+      campus: true, classId: true,
+      enrolledArm: { select: { classId: true, class: { select: { campus: true } } } },
+      enrolledClass: { select: { campus: true } },
+    },
+  });
+  if (!student) return false;
+
+  const effectiveClassId = student.enrolledArm?.classId ?? student.classId ?? null;
+  const effectiveCampus = student.enrolledArm?.class?.campus ?? student.enrolledClass?.campus ?? student.campus ?? null;
+
+  const configs = await prisma.feeConfig.findMany({
+    where: {
+      termId: targetTermId,
+      category: "TUITION",
+      OR: [
+        ...(effectiveClassId ? [{ classId: effectiveClassId }] : []),
+        ...(effectiveCampus ? [{ campus: effectiveCampus, classId: null }] : []),
+        { campus: null, classId: null },
+      ],
+    },
+  });
+  if (configs.length === 0) return true;
+
+  const feeConfig =
+    (effectiveClassId ? configs.find((c: any) => c.classId === effectiveClassId) : null) ||
+    (effectiveCampus ? configs.find((c: any) => c.campus === effectiveCampus && !c.classId) : null) ||
+    configs.find((c: any) => !c.campus && !c.classId);
+
+  if (!feeConfig || Number(feeConfig.amount) <= 0) return true;
+
+  const payments = await prisma.payment.findMany({
+    where: { studentId, termId: targetTermId, category: "TUITION", status: "CONFIRMED" },
+    select: { amount: true },
+  });
+  const totalPaid = payments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+  return totalPaid >= Number(feeConfig.amount);
+}
+
+export function calculateAnnualMean(termResults: number[]): number {
+  const sum = (termResults || []).reduce((acc, val) => acc + (val || 0), 0);
+  return Math.round((sum / 3) * 100) / 100;
 }

@@ -1,51 +1,88 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
+import { getAuthUser, hasRole, unauthorized, forbidden, serverError } from "@/lib/api-auth";
+import { canViewResults } from "@/lib/academic-engine";
 
-if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+export async function GET(_req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+  if (!hasRole(user, "PARENT")) return forbidden();
 
-export async function GET(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_token")?.value;
+    const links = await prisma.studentParent.findMany({
+      where: { parentId: user.id },
+      select: {
+        student: {
+          select: {
+            id: true,
+            name: true,
+            campus: true,
+            enrolledArm: { select: { fullName: true, class: { select: { name: true } } } },
+            enrolledClass: { select: { name: true } },
+            payments: { orderBy: { id: "desc" }, take: 1, select: { status: true, amount: true } },
+          },
+        },
+      },
+    });
+    const wards = links.map((l) => l.student);
 
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!wards.length) return NextResponse.json({ wards: [] });
 
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const userId = payload.userId as string;
-
-    // Fetch Parent with Wards (using existing Prisma schema relations)
-    const parent = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        wards: {
-          include: {
-            enrolledClass: true,
-          }
-        }
-      }
+    const currentTerm = await prisma.term.findFirst({
+      where: { isCurrent: true },
+      select: { id: true, name: true, session: { select: { name: true } } },
     });
 
-    if (!parent) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const summaries = await Promise.all(
+      wards.map(async (ward) => {
+        const [present, totalAtt, grades, behaviourCount] = await Promise.all([
+          prisma.attendance.count({
+            where: { studentId: ward.id, status: "PRESENT", ...(currentTerm && { termId: currentTerm.id }) },
+          }),
+          prisma.attendance.count({
+            where: { studentId: ward.id, ...(currentTerm && { termId: currentTerm.id }) },
+          }),
+          prisma.grade.findMany({
+            where: { studentId: ward.id, status: "PRINCIPAL_APPROVED", ...(currentTerm && { termId: currentTerm.id }) },
+            select: { total: true },
+          }),
+          prisma.behaviourRecord.count({
+            where: { studentId: ward.id, status: { in: ["OPEN", "IN_REVIEW"] } },
+          }),
+        ]);
 
-    // Format the response to match the legacy dashboard's expectation
-    // Note: We'll calculate simple stats here or on the frontend
-    const wards = parent.wards.map(w => ({
-      id: w.id,
-      name: w.name,
-      campus: w.campus?.toUpperCase() || "PRIMARY",
-      class: { name: w.enrolledClass?.name || "N/A" },
-      avgGrade: (Math.random() * 2 + 3), // Placeholder until results logic is ported
-      attendanceRate: 98, // Placeholder
-      hasPaid: true, // Placeholder
-    }));
+        const attendanceRate = totalAtt > 0 ? Math.round((present / totalAtt) * 100) : null;
+        const averageGrade = grades.length > 0
+          ? Math.round((grades.reduce((a, g) => a + g.total, 0) / grades.length) * 10) / 10
+          : null;
 
-    return NextResponse.json({ wards });
-    
-  } catch (err: any) {
-    console.error("[API Parent Dashboard] Failure:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        const latestPayment = ward.payments[0] ?? null;
+        const isRestricted = !(await canViewResults(ward.id, currentTerm?.id));
+
+        return {
+          id: ward.id,
+          name: ward.name,
+          campus: ward.campus,
+          class: ward.enrolledClass?.name ?? ward.enrolledArm?.class?.name ?? null,
+          arm: ward.enrolledArm?.fullName ?? null,
+          attendance: { present, total: totalAtt, rate: attendanceRate },
+          averageGrade,
+          gradeCount: grades.length,
+          openBehaviourCount: behaviourCount,
+          payment: latestPayment ? { status: latestPayment.status, amount: latestPayment.amount } : null,
+          isRestricted,
+        };
+      })
+    );
+
+    return NextResponse.json({
+      wards: summaries,
+      currentTerm: currentTerm
+        ? { id: currentTerm.id, name: currentTerm.name, session: (currentTerm as any).session?.name }
+        : null,
+    });
+  } catch (err) {
+    console.error("[parent/dashboard GET]", err);
+    return serverError();
   }
 }

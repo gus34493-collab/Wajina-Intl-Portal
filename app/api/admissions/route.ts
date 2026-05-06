@@ -1,66 +1,97 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
-import { withTenantContext } from "@/lib/prisma-extension";
+import { getAuthUser, unauthorized, forbidden, badRequest, serverError, getIP } from "@/lib/api-auth";
 
-if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const MANAGEMENT = [
+  "DIRECTOR", "PRINCIPAL", "ADMIN_STAFF", "HEAD_TEACHER", "ASST_HEAD_TEACHER",
+  "VP_ADMIN", "VP_ACADEMICS", "BURSAR", "HR",
+];
+const ADMISSION_OFFICERS = ["DIRECTOR", "PRINCIPAL", "ADMIN_STAFF", "HEAD_TEACHER", "VP_ADMIN"];
 
 export async function GET(req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+  if (!MANAGEMENT.includes(user.role as string)) return forbidden();
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_token")?.value;
-
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const userRole = payload.role as string;
-    const userCampus = payload.campus as string;
-
-    const allowedRoles = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "HR"];
-    if (!allowedRoles.includes(userRole)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
     const { searchParams } = new URL(req.url);
+    const role = user.role as string;
     const status = searchParams.get("status");
-    const campus = userRole === 'DIRECTOR' ? searchParams.get("campus") : userCampus;
-
-    const skip = parseInt(searchParams.get("page") || "1") - 1;
-    const limit = parseInt(searchParams.get("limit") || "100");
+    const type = searchParams.get("type");
+    const sessionId = searchParams.get("sessionId");
+    const campusFilter = role === "DIRECTOR" ? searchParams.get("campus") : (user.campus as string);
+    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
+    const limit = Math.min(parseInt(searchParams.get("limit") ?? "100"), 200);
+    const skip = (page - 1) * limit;
 
     const where: any = {};
     if (status) where.status = status.toUpperCase();
+    if (type) where.type = type.toUpperCase();
+    if (sessionId) where.sessionId = sessionId;
+    if (campusFilter && campusFilter !== "ALL") where.campus = campusFilter.toUpperCase() as any;
 
-    // Inject Multi-Tenant Scoping
-    return await withTenantContext(prisma, { campus, role: userRole }, async (tx) => {
-      const [admissions, total] = await Promise.all([
-        tx.admission.findMany({
-          where, // RLS handles campus isolation automatically inside withTenantContext
-          orderBy: { createdAt: 'desc' },
-          skip: skip * limit,
-          take: limit,
-          include: { session: { select: { name: true } } },
-        }),
-        tx.admission.count({ where }),
-      ]);
+    const [admissions, total] = await Promise.all([
+      prisma.admission.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+        include: { session: { select: { name: true } } },
+      }),
+      prisma.admission.count({ where }),
+    ]);
 
-      return NextResponse.json({ admissions, total });
-    });
-
-  } catch (err: any) {
-    console.error("[API Admissions List] Failure:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ admissions, total });
+  } catch (err) {
+    console.error("[admissions GET]", err);
+    return serverError();
   }
 }
 
 export async function POST(req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+  if (!ADMISSION_OFFICERS.includes(user.role as string)) return forbidden();
+
   try {
-    // Replicating POST logic from admissions.ts
-    // ... but focusing on GET/Stats/Dashboard for now.
-    return NextResponse.json({ error: "Not implemented" }, { status: 501 });
+    const { applicantName, campus, targetClass, type, parentName, parentPhone, parentEmail, notes, sessionId } = await req.json();
+    if (!applicantName || !campus || !targetClass || !parentName || !parentPhone) {
+      return badRequest("applicantName, campus, targetClass, parentName, and parentPhone are required.");
+    }
+
+    let targetSessionId = sessionId ?? null;
+    if (!targetSessionId) {
+      const current = await prisma.academicSession.findFirst({ where: { status: "ACTIVE" }, select: { id: true } });
+      targetSessionId = current?.id ?? null;
+    }
+
+    const admission = await prisma.$transaction(async (tx) => {
+      const created = await tx.admission.create({
+        data: {
+          applicantName: applicantName.trim().slice(0, 150),
+          campus: campus.toUpperCase() as any,
+          targetClass: targetClass.trim().slice(0, 50),
+          type: ((type ?? "NEW").toUpperCase()) as any,
+          parentName: parentName.trim().slice(0, 150),
+          parentPhone: parentPhone.trim().slice(0, 30),
+          parentEmail: parentEmail?.trim().slice(0, 150) ?? null,
+          notes: notes?.trim().slice(0, 500) ?? null,
+          sessionId: targetSessionId,
+          status: "APPLIED",
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          actorId: user.id, action: "ADMISSION_CREATED", entity: "Admission",
+          entityId: created.id, detail: `Applicant: ${applicantName}`, ipAddress: getIP(req),
+        },
+      });
+      return created;
+    });
+
+    return NextResponse.json({ admission }, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+    console.error("[admissions POST]", err);
+    return serverError();
   }
 }

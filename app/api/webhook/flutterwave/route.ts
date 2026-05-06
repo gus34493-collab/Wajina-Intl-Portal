@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
         where: { reference: tx_ref }
       });
 
-      if (existingPayment && existingPayment.status === "PAID") {
+      if (existingPayment && existingPayment.status === "CONFIRMED") {
         console.log("[Webhook] Payment already processed:", tx_ref);
         return NextResponse.json({ status: "already_processed" });
       }

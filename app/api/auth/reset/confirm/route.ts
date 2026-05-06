@@ -1,46 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import crypto from "crypto";
-import { hashPassword } from "@/lib/auth";
+import bcrypt from "bcryptjs";
+import { badRequest, serverError, getIP } from "@/lib/api-auth";
+import { audit } from "@/lib/audit";
+
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
 export async function POST(req: NextRequest) {
   try {
     const { token, newPassword } = await req.json();
+    if (!token || !newPassword) return badRequest("Token and new password are required.");
 
-    if (!token || !newPassword) {
-      return NextResponse.json({ error: "Token and new password are required" }, { status: 400 });
+    if (newPassword.length < 8 || !PASSWORD_REGEX.test(newPassword)) {
+      return badRequest("Password must be at least 8 characters and contain uppercase, lowercase, number, and special character.");
     }
 
-    // 1. Hash the incoming token to match what's in DB
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash } });
 
-    // 2. Find and verify token
-    const tokenRecord = await prisma.passwordResetToken.findUnique({
-      where: { tokenHash },
-    });
-
-    if (!tokenRecord || tokenRecord.usedAt || tokenRecord.expiresAt < new Date()) {
-      return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });
+    if (!record || record.usedAt || record.expiresAt < new Date()) {
+      return NextResponse.json({ error: "This reset link is invalid or has expired. Please request a new one." }, { status: 400 });
     }
 
-    // 3. Update Password
-    const hashedPassword = await hashPassword(newPassword);
+    const hashed = await bcrypt.hash(newPassword, 12);
 
     await prisma.$transaction([
       prisma.user.update({
-        where: { id: tokenRecord.userId },
-        data: { password: hashedPassword },
+        where: { id: record.userId },
+        data: { password: hashed, tokenVersion: { increment: 1 }, failedLoginAttempts: 0, lockedUntil: null },
       }),
-      prisma.passwordResetToken.update({
-        where: { id: tokenRecord.id },
-        data: { usedAt: new Date() },
-      }),
+      prisma.passwordResetToken.update({ where: { tokenHash }, data: { usedAt: new Date() } }),
     ]);
 
-    return NextResponse.json({ success: true, message: "Password updated successfully" });
-
-  } catch (err: any) {
-    console.error("Reset confirm error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    audit(record.userId, "PASSWORD_RESET", "User", record.userId, null, getIP(req));
+    return NextResponse.json({ message: "Password reset successfully. You can now log in with your new password." });
+  } catch (err) {
+    console.error("[auth/reset/confirm POST]", err);
+    return serverError();
   }
 }

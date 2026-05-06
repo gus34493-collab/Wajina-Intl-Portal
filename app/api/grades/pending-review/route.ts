@@ -1,67 +1,65 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
+import { getAuthUser, unauthorized, forbidden, serverError } from "@/lib/api-auth";
 
-if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const MANAGEMENT = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "VP_ADMIN", "VP_ACADEMICS"];
 
 export async function GET(req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+
+  const role = user.role as string;
+  const isManagement = MANAGEMENT.includes(role);
+  const isFormTeacher = role === "FORM_TEACHER";
+
+  if (!isManagement && !isFormTeacher) return forbidden();
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_token")?.value;
-
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const userRole = payload.role as string;
-    const userCampus = payload.campus as string;
-
-    const isManagement = ['DIRECTOR', 'PRINCIPAL', 'HEAD_TEACHER', 'ASST_HEAD_TEACHER', 'VP_ADMIN', 'VP_ACADEMICS'].includes(userRole);
-    
-    if (!isManagement) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
     const { searchParams } = new URL(req.url);
-    const overrideFormMaster = searchParams.get("overrideFormMaster") === "true";
-    const campus = userRole === 'DIRECTOR' ? searchParams.get("campus") : userCampus;
+    const skip = parseInt(searchParams.get("skip") ?? "0");
+    const take = Math.min(parseInt(searchParams.get("take") ?? "50"), 100);
 
     let where: any = {};
-    
-    if (overrideFormMaster) {
-      where.status = { in: ['SUBMITTED', 'FORM_APPROVED'] };
-    } else {
-      where.status = 'FORM_APPROVED';
-    }
 
-    if (campus && campus !== "ALL") {
-      where.student = { campus: campus as any };
+    if (isFormTeacher) {
+      // Form teachers see SUBMITTED grades for arms they manage
+      const arms = await prisma.classArm.findMany({ where: { teacherId: user.id }, select: { id: true } });
+      where.status = "SUBMITTED";
+      where.student = { armId: { in: arms.map((a) => a.id) } };
+    } else {
+      const campus = role === "DIRECTOR" ? searchParams.get("campus") : (user.campus as string);
+      const showAll = searchParams.get("showAll") === "true";
+      where.status = showAll ? { in: ["SUBMITTED", "FORM_APPROVED"] } : "FORM_APPROVED";
+      if (campus && campus !== "ALL") {
+        where.student = { campus: campus as any };
+      }
     }
 
     const [grades, total, pendingCount] = await Promise.all([
       prisma.grade.findMany({
         where,
-        take: 50,
-        orderBy: { updatedAt: 'asc' },
-        include: {
-          student: { select: { name: true, enrolledArm: { select: { fullName: true } } } },
-          subject: { select: { name: true } }
-        }
+        skip,
+        take,
+        orderBy: { updatedAt: "asc" },
+        select: {
+          id: true, total: true, grade: true, status: true, returnReason: true, updatedAt: true,
+          student: { select: { id: true, name: true, enrolledArm: { select: { fullName: true } } } },
+          subject: { select: { id: true, name: true } },
+          term: { select: { id: true, name: true } },
+        },
       }),
       prisma.grade.count({ where }),
-      prisma.grade.count({ 
-        where: { 
-          status: { in: ['SUBMITTED', 'FORM_APPROVED'] },
-          ...(campus && campus !== "ALL" && { student: { campus: campus as any } })
-        } 
-      })
+      prisma.grade.count({
+        where: {
+          status: { in: ["SUBMITTED", "FORM_APPROVED"] },
+          ...(where.student && { student: where.student }),
+        },
+      }),
     ]);
 
     return NextResponse.json({ grades, total, pendingCount });
-    
-  } catch (err: any) {
-    console.error("[API Grades Pending Review] Failure:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (err) {
+    console.error("[grades/pending-review GET]", err);
+    return serverError();
   }
 }

@@ -1,46 +1,40 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
-import { withTenantContext } from "@/lib/prisma-extension";
+import { getAuthUser, unauthorized, forbidden, serverError } from "@/lib/api-auth";
 
-if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const MANAGEMENT = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "VP_ADMIN", "VP_ACADEMICS", "HR", "ADMIN_STAFF"];
 
 export async function GET(req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+  if (!MANAGEMENT.includes(user.role as string)) return forbidden();
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_token")?.value;
-
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const userRole = payload.role as string;
-    const userCampus = payload.campus as string;
-
     const { searchParams } = new URL(req.url);
-    const type = searchParams.get("type") || "TESTIMONIAL";
-    const campus = userRole === 'DIRECTOR' ? searchParams.get("campus") : userCampus;
+    const type = searchParams.get("type") ?? "TESTIMONIAL";
+    const role = user.role as string;
+    const campus = role === "DIRECTOR" ? searchParams.get("campus") : (user.campus as string);
+    const campusFilter = campus && campus !== "ALL" ? { student: { campus: campus as any } } : {};
 
-    return await withTenantContext(prisma, { campus, role: userRole }, async () => {
-       if (type === "ATTESTATION") {
-         const records = await prisma.attestation.findMany({
-            take: 50,
-            orderBy: { createdAt: 'desc' },
-            include: { student: { select: { name: true, enrolledClass: { select: { name: true } } } } }
-         });
-         return NextResponse.json({ records });
-       } else {
-         const records = await prisma.testimonial.findMany({
-            take: 50,
-            orderBy: { createdAt: 'desc' },
-            include: { student: { select: { name: true, enrolledClass: { select: { name: true } } } } }
-         });
-         return NextResponse.json({ records });
-       }
+    if (type === "ATTESTATION") {
+      const records = await prisma.attestation.findMany({
+        take: 50,
+        orderBy: { createdAt: "desc" },
+        where: campusFilter,
+        include: { student: { select: { name: true, enrolledClass: { select: { name: true } } } } },
+      });
+      return NextResponse.json({ records });
+    }
+
+    const records = await prisma.testimonial.findMany({
+      take: 50,
+      orderBy: { createdAt: "desc" },
+      where: campusFilter,
+      include: { student: { select: { name: true, enrolledClass: { select: { name: true } } } } },
     });
-    
-  } catch (err: any) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ records });
+  } catch (err) {
+    console.error("[certificates GET]", err);
+    return serverError();
   }
 }

@@ -1,131 +1,66 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
+import { getAuthUser, unauthorized, forbidden, badRequest, serverError } from "@/lib/api-auth";
 
-if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const READ_ROLES = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "HR"];
+const WRITE_ROLES = ["DIRECTOR", "PRINCIPAL", "HR", "VP_ADMIN"];
 
 export async function GET(req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+  if (!READ_ROLES.includes(user.role as string)) return forbidden();
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_access")?.value || cookieStore.get("wajina_token")?.value;
+    const role = user.role as string;
+    const campus = role === "DIRECTOR"
+      ? new URL(req.url).searchParams.get("campus")
+      : (user.campus as string);
 
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const userRole = payload.role as string;
-    const userCampus = payload.campus as string;
-
-    const allowedRoles = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "HR"];
-    if (!allowedRoles.includes(userRole)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const { searchParams } = new URL(req.url);
-    const campus = userRole === 'DIRECTOR' ? searchParams.get("campus") : userCampus;
+    const campusWhere = campus && campus !== "ALL" ? { campus: campus as any } : {};
 
     const [activeStaff, pendingOnboarding, staffList] = await Promise.all([
-      prisma.user.count({
-        where: {
-          role: { notIn: ['STUDENT', 'PARENT'] },
-          status: 'ACTIVE',
-          ...(campus && campus !== "ALL" && { campus: campus as any })
-        }
-      }),
-      prisma.user.count({
-        where: {
-          role: { notIn: ['STUDENT', 'PARENT'] },
-          status: 'PENDING',
-          ...(campus && campus !== "ALL" && { campus: campus as any })
-        }
-      }),
+      prisma.user.count({ where: { role: { notIn: ["STUDENT", "PARENT"] }, status: "ACTIVE", ...campusWhere } }),
+      prisma.user.count({ where: { role: { notIn: ["STUDENT", "PARENT"] }, status: "PENDING", ...campusWhere } }),
       prisma.user.findMany({
-        where: {
-          role: { in: ['TEACHER', 'FORM_TEACHER', 'HOD', 'PRINCIPAL', 'HR', 'VP_ADMIN', 'BURSAR', 'DEAN', 'ACCOUNTS_OFFICER'] as any },
-          ...(campus && campus !== "ALL" && { campus: campus as any })
-        },
+        where: { role: { in: ["TEACHER", "FORM_TEACHER", "HOD", "PRINCIPAL", "HR", "VP_ADMIN", "BURSAR", "ACCOUNTS_OFFICER", "DEAN_STUDENTS"] as any }, ...campusWhere },
         select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          campus: true,
-          status: true,
-          appraisalsReceived: {
-            orderBy: { createdAt: 'desc' },
-            take: 1
-          }
+          id: true, name: true, email: true, role: true, campus: true, status: true,
+          appraisalsReceived: { orderBy: { createdAt: "desc" as const }, take: 1 },
         },
-        orderBy: { name: 'asc' }
-      })
+        orderBy: { name: "asc" },
+      }),
     ]);
 
-    return NextResponse.json({ 
-      summary: { activeStaff, pendingOnboarding },
-      staff: staffList,
-      campus: campus || 'ALL' 
-    });
-    
-  } catch (err: any) {
-    console.error("[API HR Data] Failure:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ summary: { activeStaff, pendingOnboarding }, staff: staffList, campus: campus ?? "ALL" });
+  } catch (err) {
+    console.error("[hr GET]", err);
+    return serverError();
   }
 }
 
 export async function POST(req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+  if (!WRITE_ROLES.includes(user.role as string)) return forbidden();
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_access")?.value || cookieStore.get("wajina_token")?.value;
+    const { name, email, role: newRole, campus } = await req.json();
+    if (!name || !email || !newRole) return badRequest("name, email, and role are required.");
 
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const userRole = payload.role as string;
-
-    const allowedRoles = ["DIRECTOR", "PRINCIPAL", "HR", "VP_ADMIN"];
-    if (!allowedRoles.includes(userRole)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const body = await req.json();
-    const { name, email, role, campus } = body;
-
-    if (!name || !email || !role) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
-
-    // Check existing
     const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      return NextResponse.json({ error: "User already exists" }, { status: 409 });
-    }
+    if (existing) return NextResponse.json({ error: "User already exists." }, { status: 409 });
 
-    // Provision with a long random password - user will reset via email logic
-    const path = require('path');
-    const bcrypt = require('bcryptjs');
     const tempPassword = Math.random().toString(36).slice(-12) + "!";
-    const hashedPassword = await bcrypt.hash(tempPassword, 12);
+    const hashed = await bcrypt.hash(tempPassword, 12);
 
     const newUser = await prisma.user.create({
-      data: {
-        name,
-        email,
-        role: role as any,
-        campus: campus as any,
-        password: hashedPassword,
-        status: 'PENDING'
-      }
+      data: { name, email, role: newRole as any, campus: (campus ?? user.campus) as any, password: hashed, status: "PENDING" },
     });
 
-    return NextResponse.json({ 
-      user: { id: newUser.id, name: newUser.name, email: newUser.email },
-      temporaryPassword: tempPassword // In prod, this would only be in the email
-    });
-
-  } catch (err: any) {
-    console.error("[API HR Provisioning] Failure:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ user: { id: newUser.id, name: newUser.name, email: newUser.email }, temporaryPassword: tempPassword }, { status: 201 });
+  } catch (err) {
+    console.error("[hr POST]", err);
+    return serverError();
   }
 }
-

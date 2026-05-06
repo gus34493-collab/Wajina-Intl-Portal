@@ -1,57 +1,89 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
 import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
+import { getAuthUser, unauthorized, forbidden, notFound, serverError, getIP } from "@/lib/api-auth";
 
-if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const MANAGEMENT = [
+  "DIRECTOR", "PRINCIPAL", "ADMIN_STAFF", "HEAD_TEACHER", "ASST_HEAD_TEACHER",
+  "VP_ADMIN", "VP_ACADEMICS", "BURSAR", "HR", "DEAN_STUDENTS",
+];
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const user = await getAuthUser();
+  if (!user) return unauthorized();
+  if (!MANAGEMENT.includes(user.role as string)) return forbidden();
+
+  const { id } = await params;
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("wajina_token")?.value || cookieStore.get("wajina_access")?.value;
+    const existing = await prisma.admission.findUnique({ where: { id } });
+    if (!existing) return notFound("Admission not found.");
 
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const role = user.role as string;
+    if (role !== "DIRECTOR" && existing.campus !== (user.campus as any)) return forbidden();
 
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const userRole = payload.role as string;
-    const userCampus = payload.campus as string;
-
-    const allowedRoles = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "HR", "DEAN_STUDENTS", "BURSAR"];
-    if (!allowedRoles.includes(userRole)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const { id } = await params;
     const body = await req.json();
+    const { status, notes, entranceScore, classId, armId } = body;
 
-    const currentAdmission = await prisma.admission.findUnique({ where: { id } });
-    if (!currentAdmission) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const result = await prisma.$transaction(async (tx) => {
+      let finalStatus = status;
+      const score = entranceScore !== undefined ? parseFloat(entranceScore) : null;
 
-    // Multi-tenant isolation for non-Director roles
-    if (userRole !== "DIRECTOR" && currentAdmission.campus !== userCampus) {
-      return NextResponse.json({ error: "Forbidden - Campus Mismatch" }, { status: 403 });
-    }
+      if (score !== null) {
+        if (score >= 90) finalStatus = "SCHOLARSHIP_REVIEW";
+        else if (score >= 50) finalStatus = "OFFERED";
+        else finalStatus = "REJECTED";
+      }
 
-    const dataToUpdate: any = {};
-    if (body.entranceScore !== undefined) {
-      dataToUpdate.entranceScore = parseFloat(body.entranceScore);
-    }
-    if (body.status !== undefined) {
-      dataToUpdate.status = body.status;
-    }
-    if (body.isScholarshipEligible !== undefined) {
-      dataToUpdate.isScholarshipEligible = body.isScholarshipEligible;
-    }
+      // Notify management on auto-offer
+      if (finalStatus === "OFFERED" && existing.status !== "OFFERED") {
+        const notifyRoles = ["DIRECTOR"];
+        if (["JUNIOR_SECONDARY", "SENIOR_SECONDARY"].includes(existing.campus as string)) notifyRoles.push("PRINCIPAL");
+        if (existing.campus === "PRIMARY") notifyRoles.push("HEAD_TEACHER");
 
-    const updated = await prisma.admission.update({
-      where: { id },
-      data: dataToUpdate
+        const receivers = await tx.user.findMany({
+          where: { role: { in: notifyRoles as any }, OR: [{ role: "DIRECTOR" }, { campus: existing.campus }] },
+          select: { id: true },
+        });
+
+        if (receivers.length > 0) {
+          await tx.request.createMany({
+            data: receivers.map((r) => ({
+              title: `Auto-Offer Issued: ${existing.applicantName}`,
+              description: `Applicant scored ${entranceScore}%. System has automatically issued an admission offer.`,
+              level: "K3",
+              status: "PENDING",
+              senderId: user.id,
+              receiverId: r.id,
+              campus: existing.campus,
+            })),
+          });
+        }
+      }
+
+      const updated = await tx.admission.update({
+        where: { id },
+        data: {
+          ...(finalStatus && { status: finalStatus.toUpperCase() as any }),
+          ...(notes !== undefined && { notes: notes?.trim().slice(0, 500) ?? null }),
+          ...(entranceScore !== undefined && { entranceScore: parseFloat(entranceScore) }),
+          ...(classId && { classId }),
+          ...(armId && { armId }),
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          actorId: user.id, action: "ADMISSION_UPDATED", entity: "Admission",
+          entityId: id, detail: `Status: ${finalStatus ?? existing.status}`, ipAddress: getIP(req),
+        },
+      });
+
+      return updated;
     });
 
-    return NextResponse.json({ success: true, admission: updated });
-  } catch (err: any) {
-    console.error("[API Admission Update PATCH] Failure:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ admission: result });
+  } catch (err) {
+    console.error("[admissions/[id] PATCH]", err);
+    return serverError();
   }
 }
