@@ -1,7 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 
 const prismaClientSingleton = () => {
-  return new PrismaClient();
+  return new PrismaClient({
+    log: process.env.NODE_ENV === 'development'
+      ? [{ level: 'query', emit: 'event' }, { level: 'warn', emit: 'stdout' }]
+      : [{ level: 'warn', emit: 'stdout' }],
+  });
 };
 
 declare global {

@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { ShieldAlert, X } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { useAuth } from "./AuthContext";
@@ -18,6 +20,7 @@ export default function DashboardShell({
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
 
   useEffect(() => {
     // Only redirect if we are strictly NOT on the portal page and auth has finished loading
@@ -77,6 +80,37 @@ export default function DashboardShell({
                   onUserUpdate={updateUser}
                   onMobileMenuToggle={() => setIsMobileOpen(!isMobileOpen)}
                 />
+                {/* Temp-password banner */}
+                {user?.mustChangePassword && !bannerDismissed && (() => {
+                  const expiresAt = user.passwordExpiresAt ? new Date(user.passwordExpiresAt) : null;
+                  const daysLeft = expiresAt
+                    ? Math.max(0, Math.ceil((expiresAt.getTime() - Date.now()) / 86400000))
+                    : null;
+                  const urgent = daysLeft !== null && daysLeft <= 1;
+                  return (
+                    <div className={`rounded-2xl border px-5 py-3.5 flex items-center justify-between gap-4 -mt-2 ${urgent ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"}`}>
+                      <div className="flex items-center gap-3">
+                        <ShieldAlert className={`w-4 h-4 shrink-0 ${urgent ? "text-red-500" : "text-amber-600"}`} />
+                        <p className={`text-xs font-semibold ${urgent ? "text-red-800" : "text-amber-800"}`}>
+                          {urgent
+                            ? <><strong>Your temporary password expires today.</strong> Change it now or your account will be locked. </>
+                            : <>You're signed in with a <strong>temporary password</strong>{daysLeft !== null ? ` — ${daysLeft} day${daysLeft !== 1 ? "s" : ""} remaining` : ""}. </>
+                          }
+                          <Link href="/portal/setup" className="underline underline-offset-2 font-black hover:opacity-80">
+                            Set a permanent password →
+                          </Link>
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setBannerDismissed(true)}
+                        className={`shrink-0 ${urgent ? "text-red-400 hover:text-red-600" : "text-amber-500 hover:text-amber-700"}`}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  );
+                })()}
+
                 <div className="flex-1 pb-20 md:pb-10">
                   {children}
                 </div>

@@ -4,7 +4,7 @@ import { getAuthUser, unauthorized, forbidden, notFound, serverError, getIP } fr
 
 const MANAGEMENT = [
   "DIRECTOR", "PRINCIPAL", "ADMIN_STAFF", "HEAD_TEACHER", "ASST_HEAD_TEACHER",
-  "VP_ADMIN", "VP_ACADEMICS", "BURSAR", "HR", "DEAN_STUDENTS",
+  "VP_ADMIN", "VP_ACADEMICS", "BURSAR", "HR", "DEAN",
 ];
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

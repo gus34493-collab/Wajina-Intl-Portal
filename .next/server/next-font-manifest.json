@@ -1,89 +1,254 @@
 {
   "app": {
     "[project]/OneDrive/Desktop/Wajina intl portal/app/_not-found/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/academic-performance/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/academics/[slug]/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/accounts-officer-dashboard/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/admissions-dashboard/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/bursar-dashboard/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/bursar-primary-dashboard/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/bursar-secondary-dashboard/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/dean-dashboard/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/director-academics/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/director-audit-logs/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/director-dashboard/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/director-finances/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/director-operations/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/expense-approval/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/fee-compliance/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/fee-configuration/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/form-teacher-dashboard/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/future/[slug]/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/gradebook/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/head-teacher-dashboard/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/hod-dashboard/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/hr-dashboard/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/issue-expense/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/offline/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/operations-hub/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/our-story/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/parent-dashboard/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/parent-relations-dashboard/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/parent-risk-families/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/portal/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/portal/payment/success/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/principal-dashboard/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/pupil-records/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/results-approval/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/results/[id]/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/retention-analysis/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/review-grades/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/school-config/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/school-structure/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/session-planner/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/staff-directory/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/staff-onboarding/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/student-dashboard/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/student-previous-results/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/student-results-detail/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ],
     "[project]/OneDrive/Desktop/Wajina intl portal/app/teacher-dashboard/page": [
-      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
-      "static/media/1b99372b3eaef0c8-s.p.0gx2haw2tmll8.woff2",
-      "static/media/6bd983bd58a87a3d-s.p.0h108oidc_0fm.woff2"
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/teacher-submissions-review/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
+    ],
+    "[project]/OneDrive/Desktop/Wajina intl portal/app/testimonials/page": [
+      "static/media/3c7c6164b2587822-s.p.0duriy8536ewt.woff2",
+      "static/media/03bda585a99c6450-s.p.0zzh68k1~whtc.woff2",
+      "static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2"
     ]
   },
   "appUsingSizeAdjust": true,

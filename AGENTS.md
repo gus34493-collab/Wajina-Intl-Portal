@@ -41,3 +41,23 @@ This project is indexed by GitNexus as **Wajina-Intl-Portal** (3316 symbols, 470
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+---
+
+# Installed Skill Libraries
+
+This project has **11 skill libraries** in `.agents/skills/`. Consult relevant SKILL.md files before performing matching tasks.
+
+| Library | Path | Key Capabilities |
+|---------|------|-------------------|
+| Superpowers | `.agents/skills/superpowers/` | Brainstorming, planning, TDD, debugging, code review, parallel agents |
+| Everything Claude Code | `.agents/skills/everything-claude-code/` | 182 skills — frontend, backend, security, testing, DevOps, MCP |
+| wshobson/agents | `.agents/skills/wshobson-agents/` | 80 plugins, 153 skills — full-stack coverage |
+| Karpathy Guidelines | `.agents/skills/karpathy-skills/` | Behavioral rules: simplicity, surgical changes, goal-driven execution |
+| GitNexus | `.agents/skills/gitnexus/` | Code intelligence, impact analysis, refactoring |
+| Anthropic Skills | `.agents/skills/anthropic-skills/` | Brand, canvas, theme factory, MCP builder, webapp testing |
+| UI/UX Pro Max | `.agents/skills/ui-ux-pro-max/` | Brand, design system, slides |
+| TDD Guard | `.agents/skills/tdd-guard/` | Enforces test-first development via file operation hooks |
+| Claude Subconscious | `.agents/skills/claude-subconscious/` | Persistent memory via Letta |
+| Supabase Postgres | `.claude/skills/supabase-postgres-best-practices` | Postgres optimization |
+| Awesome Claude Code | `.agents/skills/awesome-claude-code/` | Curated resource index |

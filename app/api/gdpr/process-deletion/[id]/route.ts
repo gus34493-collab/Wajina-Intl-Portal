@@ -23,17 +23,26 @@ export async function POST(
     if (!target) return notFound("User not found.");
     if (target.id === user.id) return badRequest("You cannot delete your own account.");
 
-    await prisma.user.update({
-      where: { id: target.id },
-      data: {
-        email: `deleted_${target.id}@deleted.local`,
-        name: "Deleted User",
-        phone: null,
-        profilePhoto: null,
-        status: "DISABLED",
-        deletionRequestedAt: null,
-      },
-    });
+    await prisma.$transaction([
+      // Revoke all active refresh tokens so no existing session can be rotated
+      prisma.refreshToken.updateMany({
+        where: { userId: target.id, revoked: false },
+        data: { revoked: true },
+      }),
+      // Anonymise PII fields — pushSubscription contains a Web Push endpoint + keys
+      prisma.user.update({
+        where: { id: target.id },
+        data: {
+          email: `deleted_${target.id}@deleted.local`,
+          name: "Deleted User",
+          phone: null,
+          profilePhoto: null,
+          pushSubscription: null,
+          status: "DISABLED",
+          deletionRequestedAt: null,
+        },
+      }),
+    ]);
 
     audit(user.id, "USER_ANONYMISED", "User", target.id, `GDPR erasure processed for ${target.name}`, getIP(req));
     return NextResponse.json({ message: `User "${target.name}" has been anonymised and disabled.` });

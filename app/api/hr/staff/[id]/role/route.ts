@@ -18,6 +18,16 @@ export async function PATCH(
     const { role } = await req.json();
     if (!role) return badRequest("Role is required.");
 
+    const VALID_ROLES = [
+      "DIRECTOR", "PRINCIPAL", "VP_ADMIN", "VP_ACADEMICS", "HOD",
+      "HEAD_TEACHER", "ASST_HEAD_TEACHER", "HR", "DEAN", "BURSAR",
+      "ACCOUNTS_OFFICER", "FORM_TEACHER", "TEACHER", "PARENT", "STUDENT",
+    ];
+    if (!VALID_ROLES.includes(role)) return badRequest("Invalid role.");
+
+    // Only DIRECTOR can assign DIRECTOR
+    if (role === "DIRECTOR" && user.role !== "DIRECTOR") return forbidden("Only a Director can assign the Director role.");
+
     const target = await prisma.user.findUnique({ where: { id } });
     if (!target) return notFound("Staff not found.");
 

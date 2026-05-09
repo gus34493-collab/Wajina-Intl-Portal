@@ -1,7 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { getAuthUser, unauthorized, forbidden, badRequest, serverError } from "@/lib/api-auth";
+import { sendStaffCredentials } from "@/lib/email";
+
+function generateTempPassword(): string {
+  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lower = "abcdefghjkmnpqrstuvwxyz";
+  const digits = "23456789";
+  const special = "!@#$%";
+  const all = upper + lower + digits + special;
+  const bytes = crypto.randomBytes(16);
+  const pw: string[] = [
+    upper[bytes[0] % upper.length],
+    lower[bytes[1] % lower.length],
+    digits[bytes[2] % digits.length],
+    special[bytes[3] % special.length],
+    ...Array.from({ length: 8 }, (_, i) => all[bytes[i + 4] % all.length]),
+  ];
+  for (let i = pw.length - 1; i > 0; i--) {
+    const j = bytes[i] % (i + 1);
+    [pw[i], pw[j]] = [pw[j], pw[i]];
+  }
+  return pw.join("");
+}
 
 const READ_ROLES = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "HR"];
 const WRITE_ROLES = ["DIRECTOR", "PRINCIPAL", "HR", "VP_ADMIN"];
@@ -23,7 +46,7 @@ export async function GET(req: NextRequest) {
       prisma.user.count({ where: { role: { notIn: ["STUDENT", "PARENT"] }, status: "ACTIVE", ...campusWhere } }),
       prisma.user.count({ where: { role: { notIn: ["STUDENT", "PARENT"] }, status: "PENDING", ...campusWhere } }),
       prisma.user.findMany({
-        where: { role: { in: ["TEACHER", "FORM_TEACHER", "HOD", "PRINCIPAL", "HR", "VP_ADMIN", "BURSAR", "ACCOUNTS_OFFICER", "DEAN_STUDENTS"] as any }, ...campusWhere },
+        where: { role: { in: ["TEACHER", "FORM_TEACHER", "HOD", "PRINCIPAL", "HR", "VP_ADMIN", "BURSAR", "ACCOUNTS_OFFICER", "DEAN"] as any }, ...campusWhere },
         select: {
           id: true, name: true, email: true, role: true, campus: true, status: true,
           appraisalsReceived: { orderBy: { createdAt: "desc" as const }, take: 1 },
@@ -48,17 +71,37 @@ export async function POST(req: NextRequest) {
     const { name, email, role: newRole, campus } = await req.json();
     if (!name || !email || !newRole) return badRequest("name, email, and role are required.");
 
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const normEmail = email.toLowerCase().trim();
+    const existing = await prisma.user.findUnique({ where: { email: normEmail } });
     if (existing) return NextResponse.json({ error: "User already exists." }, { status: 409 });
 
-    const tempPassword = Math.random().toString(36).slice(-12) + "!";
+    const tempPassword = generateTempPassword();
     const hashed = await bcrypt.hash(tempPassword, 12);
+    const passwordExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    const newUser = await prisma.user.create({
-      data: { name, email, role: newRole as any, campus: (campus ?? user.campus) as any, password: hashed, status: "PENDING" },
-    });
+    const newUser = await (prisma.user.create as any)({
+      data: {
+        name: name.trim(),
+        email: normEmail,
+        role: newRole as any,
+        campus: (campus ?? user.campus) as any,
+        password: hashed,
+        status: "ACTIVE",
+        mustChangePassword: true,
+        passwordExpiresAt,
+      },
+      select: { id: true, name: true, email: true, role: true, campus: true },
+    }) as { id: string; name: string; email: string; role: string; campus: string };
 
-    return NextResponse.json({ user: { id: newUser.id, name: newUser.name, email: newUser.email }, temporaryPassword: tempPassword }, { status: 201 });
+    sendStaffCredentials({
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      campus: newUser.campus,
+      tempPassword,
+    }).catch(err => console.error("[hr POST] email failed:", err));
+
+    return NextResponse.json({ user: { id: newUser.id, name: newUser.name, email: newUser.email }, message: "Account created and credentials emailed." }, { status: 201 });
   } catch (err) {
     console.error("[hr POST]", err);
     return serverError();

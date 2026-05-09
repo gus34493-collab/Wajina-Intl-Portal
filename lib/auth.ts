@@ -3,9 +3,8 @@ import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import prisma from './prisma';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'fallback-secret-for-development-only'
-);
+if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET environment variable is required');
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 const ACCESS_TOKEN_EXPIRY = '2h';
 const REFRESH_TOKEN_EXPIRY = '7d';
@@ -117,20 +116,27 @@ export async function destroySession() {
   const refreshToken = cookieStore.get('wajina_refresh')?.value;
 
   if (refreshToken) {
-    // We don't hash here to find, we must find by userId or just clear cookies
-    // For a cleaner logout, we would verify the refreshToken and then revoke it in DB
     const verified = await verifyToken(refreshToken);
     if (verified) {
-       await prisma.refreshToken.updateMany({
-         where: { userId: verified.payload.userId as string, revoked: false },
-         data: { revoked: true }
-       });
+      const userId = verified.payload.userId as string;
+      // Revoke only the specific token being surrendered — not all sessions for the user.
+      // This preserves concurrent sessions (e.g. phone + laptop) on normal logout.
+      const stored = await prisma.refreshToken.findMany({
+        where: { userId, revoked: false },
+        select: { id: true, tokenHash: true },
+      });
+      for (const t of stored) {
+        if (await bcrypt.compare(refreshToken, t.tokenHash)) {
+          await prisma.refreshToken.update({ where: { id: t.id }, data: { revoked: true } });
+          break;
+        }
+      }
     }
   }
 
   cookieStore.delete('wajina_access');
   cookieStore.delete('wajina_refresh');
-  cookieStore.delete('wajina_token'); // Clean up old token if exists
+  cookieStore.delete('wajina_token');
 }
 
 /**

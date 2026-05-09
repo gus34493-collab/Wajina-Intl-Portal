@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       where.targetRole = user.role;
       if (user.campus) where.student = { campus: user.campus as any };
     } else {
-      where.targetRole = { in: ["ADMIN", "VP_ADMIN", "PRINCIPAL", "HEAD_TEACHER", "VP_ACADEMICS", "DEAN_STUDENTS"] };
+      where.targetRole = { in: ["ADMIN", "VP_ADMIN", "PRINCIPAL", "HEAD_TEACHER", "VP_ACADEMICS", "DEAN"] };
       if (user.campus) where.student = { campus: user.campus as any };
     }
 

@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(npm run *)",
+      "Bash(node -e \"require\\('./src/db'\\); require\\('./src/indexer'\\); require\\('./src/council/roles'\\); require\\('./src/council/interviewer'\\); require\\('./src/council/assembler'\\); require\\('./src/council/orchestrator'\\); console.log\\('All modules load OK'\\)\")",
+      "Bash(node server.js)",
+      "Bash(curl -s http://localhost:3737/api/config)",
+      "Bash(node test.js)",
+      "Bash(node -e \"const db=require\\('./src/db'\\); console.log\\(JSON.stringify\\(db.getConfig\\(\\), null, 2\\)\\)\")",
+      "WebSearch",
+      "WebFetch(domain:unsplash.com)",
+      "WebFetch(domain:www.edusko.com)",
+      "WebFetch(domain:www.glassdoor.com)",
+      "WebFetch(domain:www.facebook.com)",
+      "WebFetch(domain:www.instagram.com)",
+      "Bash(npx gitnexus *)",
+      "Bash(gh run *)",
+      "Bash(npx wait-on *)",
+      "Bash(npx playwright *)",
+      "Bash(npx prisma *)"
+    ]
+  },
+  "enableAllProjectMcpServers": true
+}

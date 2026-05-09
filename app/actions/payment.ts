@@ -108,30 +108,44 @@ export async function verifyTransaction(transactionId: string) {
     const data = await response.json();
 
     if (data.status === "success" && data.data.status === "successful") {
-      const { tx_ref, amount, id: flwId } = data.data;
+      const { tx_ref, amount: paidAmount } = data.data;
 
-      // If it's an admissions payment, update ONLY the Admission record
       if (tx_ref.startsWith("WJ-ADM-")) {
-         await prisma.admission.update({
-           where: { paymentRef: tx_ref },
-           data: { status: "APPLIED" }
-         });
-         
-         revalidatePath("/admissions-dashboard");
+        await prisma.admission.update({
+          where: { paymentRef: tx_ref },
+          data: { status: "APPLIED" },
+        });
+        revalidatePath("/admissions-dashboard");
         return { success: true, payment: null, type: "ADMISSION" };
       }
 
-      // Otherwise, it's a standard student fee. Update our Payment record
-      const payment = await prisma.payment.update({
-        where: { reference: tx_ref },
-        data: {
-          status: "CONFIRMED",
-          updatedAt: new Date(),
-        },
+      // Fetch the local record to verify the amount Flutterwave reports matches what we expect.
+      // A manipulated checkout could report a lower amount — never trust FLW amount alone.
+      const localPayment = await prisma.payment.findUnique({ where: { reference: tx_ref } });
+      if (!localPayment) {
+        console.error(`[FLW] Unknown tx_ref: ${tx_ref}`);
+        return { success: false, message: "Unknown payment reference." };
+      }
+
+      if (paidAmount < localPayment.amount) {
+        console.error(`[FLW] Amount mismatch for ${tx_ref}: expected ${localPayment.amount}, got ${paidAmount}`);
+        return { success: false, message: "Payment amount is insufficient." };
+      }
+
+      // Atomic idempotent write — updateMany only matches PENDING rows.
+      // Concurrent webhook retries both run this; whichever sees count=0 is a no-op.
+      const claimed = await prisma.payment.updateMany({
+        where: { reference: tx_ref, status: "PENDING" },
+        data: { status: "CONFIRMED", updatedAt: new Date() },
       });
 
+      if (claimed.count === 0) {
+        // Already confirmed by a prior call — safe to return success
+        return { success: true, payment: localPayment, type: "STUDENT_FEE" };
+      }
+
       revalidatePath("/parent-dashboard");
-      return { success: true, payment, type: "STUDENT_FEE" };
+      return { success: true, payment: { ...localPayment, status: "CONFIRMED" as const }, type: "STUDENT_FEE" };
     }
 
     return { success: false, message: "Payment verification failed or incomplete." };

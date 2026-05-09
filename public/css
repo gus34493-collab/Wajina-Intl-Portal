@@ -1,0 +1,191 @@
+/**
+ * Wajina Onion Design System (Harmonized)
+ * Aligned with Wajina International Schools Landing Page Branding.
+ */
+
+:root {
+	/* Lemon Flavor Brand Palette */
+	--brand-gunmetal: #20373B;
+	--brand-moonstone: #519CAB;
+	--brand-saffron: #FFC64F;
+	--brand-lightblue: #C3E7F1;
+	--brand-bg: #F9FAFB;
+	--white: #FFFFFF;
+	
+	/* Functional Semantic Mapping */
+	--text-primary: var(--brand-gunmetal);
+	--text-secondary: #4B5563;
+	--text-muted: #9CA3AF;
+	--border-color: rgba(0, 0, 0, 0.05);
+	
+	--radius-xl: 24px;
+	--radius-lg: 20px;
+	--radius-md: 12px;
+	--radius-sm: 8px;
+
+	--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+	--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+	--shadow-soft: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+}
+
+/* MIDNIGHT COMMAND: Dark Mode Overrides */
+.dark-theme, [data-theme="dark"] {
+	--brand-bg: #0D1617;
+	--white: #162426;
+	--text-primary: #F3F4F6;
+	--text-secondary: #9CA3AF;
+	--text-muted: #6B7280;
+	--border-color: rgba(255, 255, 255, 0.08);
+	--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+}
+
+/* Base Level Polish */
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+	margin: 0;
+	font-family: 'IBM Plex Sans', sans-serif;
+	background-color: var(--brand-bg);
+	color: var(--text-primary);
+	min-height: 100vh;
+	overflow-x: hidden;
+}
+
+h1, h2, h3, h4 { font-family: 'Sora', sans-serif; color: var(--brand-gunmetal); font-weight: 700; }
+
+.stack { display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* GLASSMORPHISM 2.0 & CARD POLISH */
+.glass, .card {
+	background: var(--white);
+	border: 1px solid var(--border-color);
+	box-shadow: var(--shadow-sm);
+	border-radius: var(--radius-lg);
+	padding: 1.5rem;
+	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-premium {
+    background: rgba(var(--white-rgb, 255, 255, 255), 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--shadow-soft);
+}
+
+.card:hover {
+	box-shadow: var(--shadow-md);
+	transform: translateY(-4px);
+}
+
+.press-effect:active {
+    transform: scale(0.97) !important;
+}
+
+/* SKELETON LOADERS */
+.skeleton {
+    background: linear-gradient(
+        90deg, 
+        rgba(0,0,0,0.06) 25%, 
+        rgba(0,0,0,0.1) 50%, 
+        rgba(0,0,0,0.06) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite linear;
+    border-radius: var(--radius-md);
+}
+
+.dark-theme .skeleton {
+    background: linear-gradient(
+        90deg, 
+        rgba(255,255,255,0.03) 25%, 
+        rgba(255,255,255,0.08) 50%, 
+        rgba(255,255,255,0.03) 75%
+    );
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Dashboard Layout Structure (Oppo Responsive) */
+.dashboard-layout {
+	display: grid;
+	grid-template-columns: 280px 1fr;
+	min-height: 100vh;
+}
+
+wajina-sidebar {
+	background: var(--white);
+	border-right: 1px solid rgba(0, 0, 0, 0.05);
+	height: 100vh;
+	position: sticky;
+	top: 0;
+	z-index: 100;
+}
+
+.main-content {
+	padding: 2.5rem;
+	background: var(--brand-bg);
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+/* Sidebar Toggle Logic (Mobile) */
+@media (max-width: 1024px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+    }
+    wajina-sidebar {
+        position: fixed;
+        left: -280px;
+        transition: left 0.3s ease;
+    }
+    .sidebar-open wajina-sidebar {
+        left: 0;
+    }
+}
+
+.top-bar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding-bottom: 2rem;
+}
+
+/* GRID UTILITIES */
+.grid-3-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.grid-2-col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+
+@media (max-width: 1200px) {
+	.grid-3-col { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+	.grid-3-col, .grid-2-col { grid-template-columns: 1fr; }
+	.main-content { padding: 1.5rem; }
+}
+
+/* ATOMIC UTILITIES */
+.p-4 { padding: 1.5rem !important; }
+.m-0 { margin: 0 !important; }
+.mt-4 { margin-top: 1.5rem !important; }
+.mb-4 { margin-bottom: 1.5rem !important; }
+.d-flex { display: flex !important; }
+.flex-column { flex-direction: column !important; }
+.justify-between { justify-content: space-between !important; }
+.items-center { align-items: center !important; }
+.gap-4 { gap: 1.5rem !important; }
+.w-full { width: 100% !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.small { font-size: 0.875rem !important; }
+.fw-bold { font-weight: 700 !important; }

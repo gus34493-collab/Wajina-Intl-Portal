@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human Capital Command | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+    </style>
+    <script src="/js/components/wajina-toast.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Human Capital Command"></wajina-header>
+            
+            <div class="top-row">
+                <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Staff & Student Lifecycle</h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Managing institutional human capital and campus-level preparation logs.</p>
+            </div>
+
+            <!-- Oppo Stats Strip -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Campus Staff</h3>
+                        <i class="fa-solid fa-users-gear" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="staffCount" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">--</div>
+                        <div style="font-size: 0.7rem; color: var(--brand-emerald-light); font-weight: 700;">All roles active</div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Campus Students</h3>
+                        <i class="fa-solid fa-user-graduate" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="studentCount" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">--</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">Enrolled this session</div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; background: var(--brand-gunmetal); color: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: rgba(255,255,255,0.7);">Admission Offers</h3>
+                        <i class="fa-solid fa-envelope-open-text" style="color: var(--brand-saffron); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="offerCount" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">--</div>
+                        <div style="font-size: 0.7rem; color: var(--brand-saffron); font-weight: 700;">Awaiting tuition confirmation</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oppo Grid -->
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem;">
+                <!-- Recent Offers (Preparation Feed) -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h3 style="font-size: 1.1rem;">Preparation List: Recent Offers</h3>
+                        <button class="glass" style="font-size: 0.7rem; padding: 0.4rem 0.8rem; font-weight: 800; color: var(--brand-moonstone);">GENERATE REPORT</button>
+                    </div>
+                    <div id="offersFeed" style="display: flex; flex-direction: column; gap: 1rem;">
+                         <div style="text-align: center; color: var(--text-muted); padding: 2rem; font-size: 0.85rem;">Scanning enrollment trends...</div>
+                    </div>
+                </div>
+
+                <!-- Staff Activity Feed -->
+                <div class="card">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 2rem;">Staff Event Audit</h3>
+                    <div id="staffAuditFeed" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                         <div style="text-align: center; color: var(--text-muted); padding: 2rem; font-size: 0.85rem;">Syncing heartbeat...</div>
+                    </div>
+                    <button class="glass" style="width: 100%; margin-top: 2rem; padding: 1rem; color: var(--text-muted); font-weight: 700;">View Full History</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/pages/hr-dashboard.js" defer></script>
+</body>
+</body>
+</html>
+
+

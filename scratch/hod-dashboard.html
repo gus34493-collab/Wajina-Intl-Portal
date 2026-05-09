@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Departmental Command | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+
+    <script>
+        // RBAC: Departmental Command Dashboard
+        window.REQUIRED_ROLES = ['DIRECTOR', 'PRINCIPAL', 'HOD'];
+        window.REQUIRED_CAMPUS = 'SECONDARY'; 
+    </script>
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+    </style>
+    <script src="/js/components/wajina-toast.js"></script>
+    <script src="/js/config/navigation.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Departmental Command"></wajina-header>
+            
+            <div class="top-row">
+                <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Academic Excellence Command</h1>
+                <p id="subText" style="font-size: 0.85rem; color: var(--text-secondary);">Monitoring departmental subject performance and high-achiever recognition.</p>
+            </div>
+
+            <!-- Oppo Stats Strip -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2.5rem;">
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Submissions Pending</h3>
+                        <i class="fa-solid fa-file-pen" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="pendingCount" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">--</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">Subjects in your unit</div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; background: var(--brand-gunmetal); color: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: rgba(255,255,255,0.7);">Elite Performers (80%+)</h3>
+                        <i class="fa-solid fa-trophy-star" style="color: var(--brand-saffron); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="eliteCount" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">--</div>
+                        <div style="font-size: 0.7rem; opacity: 0.6;">Recognition alerts active</div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Dept. Average</h3>
+                        <i class="fa-solid fa-chart-mixed" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="deptAverage" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">--%</div>
+                        <div style="font-size: 0.7rem; color: var(--brand-emerald-light); font-weight: 700;">Target: 75%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oppo Grid -->
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem;">
+                <!-- High Achievers -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h3 style="font-size: 1.1rem;">Departmental High Achievers</h3>
+                        <button class="glass" style="font-size: 0.7rem; padding: 0.4rem 0.8rem; color: var(--brand-moonstone); font-weight: 700;">View Hall of Fame</button>
+                    </div>
+                    <div id="achieverFeed" style="display: flex; flex-direction: column; gap: 1rem;">
+                        <p style="text-align: center; color: var(--text-muted); padding: 2rem; font-size: 0.85rem;">Syncing performance logs...</p>
+                    </div>
+                </div>
+
+                <!-- Decision Requests -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h3 style="font-size: 1.1rem;">Academic Task Queue</h3>
+                    </div>
+                    <div id="reqFeed" style="display: flex; flex-direction: column; gap: 1.2rem;">
+                        <p style="text-align: center; color: var(--text-muted); padding: 2rem; font-size: 0.85rem;">Loading unit tasks...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/pages/hod-dashboard.js" defer></script>
+</body>
+</html>

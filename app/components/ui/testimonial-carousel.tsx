@@ -41,10 +41,10 @@ export default function TestimonialCarousel({
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, scale: 0.985 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.012 }}
+          transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           {/* Desktop: image left, card right overlapping; Mobile: stacked */}
           <div className="flex flex-col lg:flex-row lg:items-center">
@@ -68,7 +68,7 @@ export default function TestimonialCarousel({
 
               <div
                 className="relative aspect-square overflow-hidden"
-                style={{ border: "1px solid rgba(255,255,255,0.05)" }}
+                style={{ border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16 }}
               >
                 <Image
                   src={current.imageUrl}
@@ -103,6 +103,8 @@ export default function TestimonialCarousel({
               style={{
                 background: "var(--color-cinematic-cream)",
                 border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: 16,
+                boxShadow: "inset 1px 1px 0 rgba(255,255,255,0.10), inset -1px -1px 0 rgba(0,0,0,0.15), 0 24px 60px rgba(0,0,0,0.35)",
               }}
             >
               {/* Opening quote mark */}

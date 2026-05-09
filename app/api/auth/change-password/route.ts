@@ -28,9 +28,14 @@ export async function POST(req: NextRequest) {
     if (!valid) return NextResponse.json({ error: "Current password is incorrect." }, { status: 401 });
 
     const hashed = await bcrypt.hash(newPassword, 12);
-    await prisma.user.update({
+    await (prisma.user.update as any)({
       where: { id: user.id },
-      data: { password: hashed, tokenVersion: { increment: 1 } },
+      data: {
+        password: hashed,
+        tokenVersion: { increment: 1 },
+        mustChangePassword: false,
+        passwordExpiresAt: null,
+      },
     });
 
     await destroySession();

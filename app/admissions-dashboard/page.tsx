@@ -18,7 +18,8 @@ import {
    Award,
    Settings2,
    Loader2,
-   X
+   X,
+   UserCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,6 +28,7 @@ import { sendExamDetails } from "@/app/actions/admissions";
 export default function AdmissionsDashboard() {
    const [stats, setStats] = useState<any>(null);
    const [candidates, setCandidates] = useState<any[]>([]);
+   const [qualifiedCandidates, setQualifiedCandidates] = useState<any[]>([]);
    const [scholarshipCandidates, setScholarshipCandidates] = useState<any[]>([]);
    const [config, setConfig] = useState<any>(null);
    const [loading, setLoading] = useState(true);
@@ -34,23 +36,27 @@ export default function AdmissionsDashboard() {
    const [savingScore, setSavingScore] = useState<string | null>(null);
    const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
    const [sendingEmail, setSendingEmail] = useState(false);
+   const [offeringAdmission, setOfferingAdmission] = useState<string | null>(null);
 
    useEffect(() => {
       async function fetchData() {
          try {
-            const [sRes, cRes, confRes, scholRes] = await Promise.all([
+            const [sRes, cRes, confRes, scholRes, qualRes] = await Promise.all([
                fetch("/api/admissions/stats"),
                fetch("/api/admissions?status=APPLIED"),
                fetch("/api/admissions/config"),
-               fetch("/api/admissions?status=SCHOLARSHIP_REVIEW")
+               fetch("/api/admissions?status=SCHOLARSHIP_REVIEW"),
+               fetch("/api/admissions?status=QUALIFIED"),
             ]);
             const sData = await sRes.json();
             const cData = await cRes.json();
             const confData = await confRes.json();
             const scholData = await scholRes.json();
+            const qualData = await qualRes.json();
 
             setStats(sData);
             setCandidates(cData.admissions || []);
+            setQualifiedCandidates(qualData.admissions || []);
             setScholarshipCandidates(scholData.admissions || []);
             setConfig(Array.isArray(confData) ? confData[0] : confData);
          } catch (err) {
@@ -117,6 +123,26 @@ export default function AdmissionsDashboard() {
          toast.error("Network error saving score");
       } finally {
          setSavingScore(null);
+      }
+   };
+
+   const handleOfferAdmission = async (id: string) => {
+      if (!id) return;
+      setOfferingAdmission(id);
+      try {
+         const res = await fetch(`/api/admissions/${id}/enroll`, { method: "POST" });
+         const data = await res.json();
+         if (res.ok) {
+            toast.success("Admission offered — portal accounts created and email sent.");
+            setQualifiedCandidates(prev => prev.filter(c => c.id !== id));
+            setScholarshipCandidates(prev => prev.filter(c => c.id !== id));
+         } else {
+            toast.error(data.error || "Failed to issue admission offer.");
+         }
+      } catch {
+         toast.error("Network error — please try again.");
+      } finally {
+         setOfferingAdmission(null);
       }
    };
 
@@ -234,6 +260,70 @@ export default function AdmissionsDashboard() {
                         </table>
                      </div>
                   </div>
+
+                  {/* Qualified Candidates — Awaiting Offer */}
+                  {(qualifiedCandidates.length > 0 || scholarshipCandidates.length > 0) && (
+                     <div className="card p-0 overflow-hidden shadow-2xl border-none">
+                        <div className="p-8 border-b border-brand-primary/8 flex justify-between items-center bg-white">
+                           <div>
+                              <h3 className="text-sm font-black text-brand-primary uppercase tracking-widest">Admission Offers Queue</h3>
+                              <p className="text-token-micro font-bold text-brand-accent uppercase mt-1">Ready to be offered a place</p>
+                           </div>
+                           <div className="bg-brand-accent/10 rounded-xl px-3 py-1 text-token-micro font-black text-brand-accent">
+                              {qualifiedCandidates.length + scholarshipCandidates.length} READY
+                           </div>
+                        </div>
+                        <div className="overflow-x-auto">
+                           <table className="w-full text-left">
+                              <thead className="bg-brand-blush text-token-micro font-black uppercase tracking-[0.15em] text-brand-tertiary">
+                                 <tr>
+                                    <th className="px-8 py-4">Applicant</th>
+                                    <th className="px-8 py-4">Parent Email</th>
+                                    <th className="px-8 py-4 text-center">Score</th>
+                                    <th className="px-8 py-4 text-center">Track</th>
+                                    <th className="px-8 py-4"></th>
+                                 </tr>
+                              </thead>
+                              <tbody className="divide-y divide-black/5 text-sm">
+                                 {[...scholarshipCandidates, ...qualifiedCandidates].map((c: any) => (
+                                    <tr key={c.id} className="group hover:bg-brand-blush/50 transition-colors">
+                                       <td className="px-8 py-5">
+                                          <p className="font-black text-brand-primary leading-none">{c.applicantName}</p>
+                                          <p className="text-token-micro font-bold text-brand-tertiary mt-1 uppercase tracking-widest">{c.targetClass} · {c.campus}</p>
+                                       </td>
+                                       <td className="px-8 py-5">
+                                          <p className="text-xs font-bold text-brand-primary/70">{c.parentEmail || <span className="text-brand-error italic">Missing</span>}</p>
+                                       </td>
+                                       <td className="px-8 py-5 text-center">
+                                          <span className="font-display font-black text-brand-primary">{c.entranceScore ?? "—"}%</span>
+                                       </td>
+                                       <td className="px-8 py-5 text-center">
+                                          {c.status === "SCHOLARSHIP_REVIEW" ? (
+                                             <span className="text-token-micro font-black uppercase bg-amber-50 text-amber-600 border border-amber-200 px-2 py-1 rounded-md">Scholarship</span>
+                                          ) : (
+                                             <span className="text-token-micro font-black uppercase bg-brand-secondary/10 text-brand-primary/60 border border-brand-primary/10 px-2 py-1 rounded-md">Standard</span>
+                                          )}
+                                       </td>
+                                       <td className="px-8 py-5 text-right">
+                                          <button
+                                             onClick={() => handleOfferAdmission(c.id)}
+                                             disabled={offeringAdmission === c.id || !c.parentEmail}
+                                             title={!c.parentEmail ? "Parent email missing — update application first" : "Issue admission offer and create portal access"}
+                                             className="flex items-center gap-2 bg-brand-primary text-white px-4 py-2 rounded-xl font-black text-token-micro uppercase tracking-widest hover:bg-brand-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                          >
+                                             {offeringAdmission === c.id
+                                                ? <Loader2 size={14} className="animate-spin" />
+                                                : <UserCheck size={14} />}
+                                             {offeringAdmission === c.id ? "Sending..." : "Offer Admission"}
+                                          </button>
+                                       </td>
+                                    </tr>
+                                 ))}
+                              </tbody>
+                           </table>
+                        </div>
+                     </div>
+                  )}
                </div>
 
                {/* Action Center (Right 1/3) */}
@@ -311,14 +401,12 @@ export default function AdmissionsDashboard() {
                                  </div>
                                  <div className="flex gap-2 mt-4">
                                     <button
-                                       onClick={async () => {
-                                          await fetch(`/api/admissions/${c.id}`, { method: "PATCH", body: JSON.stringify({ status: "OFFERED" }) });
-                                          setScholarshipCandidates(prev => prev.filter(sc => sc.id !== c.id));
-                                          toast.success("Scholarship Approved & Admission Offered");
-                                       }}
-                                       className="flex-1 bg-[brand-secondary] text-brand-primary font-black text-token-micro uppercase tracking-widest py-2 rounded-lg hover:opacity-90"
+                                       onClick={() => handleOfferAdmission(c.id)}
+                                       disabled={offeringAdmission === c.id}
+                                       className="flex-1 bg-brand-primary text-white font-black text-token-micro uppercase tracking-widest py-2 rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-1"
                                     >
-                                       Approve
+                                       {offeringAdmission === c.id ? <Loader2 size={12} className="animate-spin" /> : null}
+                                       {offeringAdmission === c.id ? "Sending..." : "Approve & Offer"}
                                     </button>
                                     <button
                                        onClick={async () => {

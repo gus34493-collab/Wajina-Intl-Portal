@@ -44,33 +44,31 @@ export default function Footer({ minimal: _ = false }: { minimal?: boolean }) {
             </p>
           </div>
 
-          {/* Pathways */}
+          {/* Academic Stages */}
           <div className="space-y-6">
             <h4
               className="text-token-micro font-black uppercase tracking-[0.4em]"
               style={{ color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans)" }}
             >
-              Pathways
+              Academic Stages
             </h4>
             <nav className="flex flex-col gap-3">
               {[
-                "Early Years",
-                "Primary School",
-                "Junior Secondary",
-                "Senior Secondary",
-                "Enrichment Hub",
-              ].map((link) => (
+                { label: "Early Years", href: "#wajina-path" },
+                { label: "Primary School", href: "#wajina-path" },
+                { label: "Junior Secondary", href: "#wajina-path" },
+                { label: "Senior Secondary", href: "#wajina-path" },
+                { label: "Enrichment Hub", href: "#pillars" },
+              ].map(({ label, href }) => (
                 <a
-                  key={link}
-                  href="#pathways"
+                  key={label}
+                  href={href}
                   className="text-xs font-bold uppercase tracking-widest transition-colors duration-200"
                   style={{ color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-sans)" }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-cinematic-moss)")}
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "rgba(255,255,255,0.22)")
-                  }
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.22)")}
                 >
-                  {link}
+                  {label}
                 </a>
               ))}
             </nav>
@@ -86,23 +84,21 @@ export default function Footer({ minimal: _ = false }: { minimal?: boolean }) {
             </h4>
             <nav className="flex flex-col gap-3">
               {[
-                "About Us",
-                "Board of Governors",
-                "Academic Staff",
-                "News & Events",
-                "Admissions",
-              ].map((link) => (
+                { label: "About Us", href: "#citadel" },
+                { label: "Our Patriarch", href: "#patriarch" },
+                { label: "Our Faculty", href: "#faculty" },
+                { label: "Voices", href: "#voices" },
+                { label: "Admissions", href: "#admissions" },
+              ].map(({ label, href }) => (
                 <a
-                  key={link}
-                  href="#"
+                  key={label}
+                  href={href}
                   className="text-xs font-bold uppercase tracking-widest transition-colors duration-200"
                   style={{ color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-sans)" }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-cinematic-moss)")}
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "rgba(255,255,255,0.22)")
-                  }
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.22)")}
                 >
-                  {link}
+                  {label}
                 </a>
               ))}
             </nav>

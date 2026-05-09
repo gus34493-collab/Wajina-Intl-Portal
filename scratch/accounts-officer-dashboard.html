@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts Hub | Wajina Intl Portal</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/config/navigation.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <script src="/js/components/wajina-toast.js"></script>
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: var(--brand-bg); }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+
+        <main class="main-content">
+            <wajina-header title="Financial Hub"></wajina-header>
+
+            <div class="top-row">
+                <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Treasury Operations</h1>
+                <p id="subText" style="font-size: 0.85rem; color: var(--text-secondary);">Managing institutional liquidity, payment integrity, and expense governance.</p>
+            </div>
+
+            <!-- Stats Strip -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Total Collected</h3>
+                        <i class="fa-solid fa-vault" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="kpiTotalCollected" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">Géª --</div>
+                        <div id="kpiTotalSub" style="font-size: 0.7rem; color: var(--text-muted);">Syncing...</div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Portal Payments</h3>
+                        <i class="fa-solid fa-globe" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="kpiPortal" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">Géª --</div>
+                        <div id="kpiPortalSub" style="font-size: 0.7rem; color: var(--text-muted);">-- trans</div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Part Balances</h3>
+                        <i class="fa-solid fa-clock-rotate-left" style="color: var(--brand-saffron); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="kpiPartBalance" style="font-size: 1.8rem; font-weight: 800; color: var(--brand-saffron);">Géª --</div>
+                        <div id="kpiPartSub" style="font-size: 0.7rem; color: var(--text-muted);">-- students</div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Pending Expenses</h3>
+                        <i class="fa-solid fa-file-invoice-dollar" style="color: var(--text-primary); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="kpiExpense" style="font-size: 1.8rem; font-weight: 800;">Géª --</div>
+                        <div id="kpiExpenseSub" style="font-size: 0.7rem; color: var(--text-muted);">-- awaiting</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 1.5rem;">
+                <!-- Income Ledger -->
+                <div class="card" style="display: flex; flex-direction: column; min-height: 500px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h3 style="font-size: 0.95rem;">Income Ledger</h3>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button class="glass" data-action="openLogPaymentModal" style="padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 700; color: var(--brand-moonstone);">Log Payment +</button>
+                            <button class="glass" data-action="exportCsv" style="padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 700;">Export CSV</button>
+                        </div>
+                    </div>
+                    <div style="flex: 1; overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(0,0,0,0.03); color: var(--text-muted);">
+                                    <th style="padding: 1rem 0.5rem;">Date</th>
+                                    <th style="padding: 1rem 0.5rem;">Student</th>
+                                    <th style="padding: 1rem 0.5rem;">Amount</th>
+                                    <th style="padding: 1rem 0.5rem;">Channel</th>
+                                    <th style="padding: 1rem 0.5rem;">Status</th>
+                                    <th style="padding: 1rem 0.5rem; text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledgerTableBody">
+                                <tr><td colspan="6" style="padding: 3rem; text-align: center; color: var(--text-muted);">Syncing ledger database...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <!-- Expense Queue -->
+                    <div class="card" style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                             <h3 style="font-size: 0.9rem;">Expense Queue</h3>
+                             <button class="glass" data-action="openExpenseModal" style="padding: 0.4rem 0.8rem; font-size: 0.7rem; font-weight: 700;">New Request</button>
+                        </div>
+                        <div id="expenseList" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                            <div style="text-align: center; color: var(--text-muted); padding: 2rem;">Scanning requests...</div>
+                        </div>
+                    </div>
+
+                    <!-- Part Payment Tracker -->
+                    <div class="card" style="display: flex; flex-direction: column;">
+                        <h3 style="font-size: 0.9rem; margin-bottom: 1.5rem;">Part-Payment Tracker</h3>
+                        <div id="partPaymentList" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                            <div style="text-align: center; color: var(--text-muted); padding: 2rem;">Calculating balances...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="logPaymentModal" class="glass-scrim" style="display:none; position:fixed; inset:0; z-index:2000; align-items:center; justify-content:center; background: rgba(0,0,0,0.5);">
+        <div class="card" style="width: 600px; max-width: 90vw; padding: 2.5rem;">
+            <h2 style="margin-bottom: 0.5rem;">Log Payment Entry</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 2rem;">Manually record offline payments or bank transfers.</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <input id="lpStudentName" placeholder="Student Name" class="glass" style="padding: 0.8rem;">
+                <input id="lpStudentClass" placeholder="Class (e.g. JSS 1)" class="glass" style="padding: 0.8rem;">
+                <select id="lpChannel" class="glass" style="padding: 0.8rem;">
+                    <option value="bank">Bank Transfer</option>
+                    <option value="cash">Cash Payment</option>
+                    <option value="portal">Portal Handshake</option>
+                </select>
+                <input id="lpAmount" type="number" placeholder="Amount (Géª)" class="glass" style="padding: 0.8rem;">
+                <input id="lpDate" type="date" class="glass" style="padding: 0.8rem;">
+                <input id="lpReference" placeholder="Ref/Receipt #" class="glass" style="padding: 0.8rem;">
+            </div>
+            <textarea id="lpNotes" placeholder="Additional notes..." class="glass" style="width: 100%; height: 100px; margin-top: 1.25rem; padding: 0.8rem;"></textarea>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                <button data-action="closeModal" data-modal-id="logPaymentModal" class="glass" style="padding: 0.75rem 1.5rem; font-weight: 700;">Cancel</button>
+                <button id="confirmLogPaymentBtn" class="glass" style="padding: 0.75rem 2rem; font-weight: 700; background: var(--brand-gunmetal); color: white;">Save Entry</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/pages/accounts-officer.js" defer></script>
+</body>
+</html>

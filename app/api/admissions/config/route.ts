@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getAuthUser, unauthorized, forbidden, serverError } from "@/lib/api-auth";
 
@@ -21,7 +21,7 @@ export async function PATCH(req: NextRequest) {
   if (!user) return unauthorized();
 
   const role = user.role as string;
-  const ALLOWED = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "DEAN_STUDENTS"];
+  const ALLOWED = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "DEAN"];
   if (!ALLOWED.includes(role)) return forbidden();
 
   try {

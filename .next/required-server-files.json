@@ -307,10 +307,24 @@
     "htmlLimitedBots": "[\\w-]+-Google|Google-[\\w-]+|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight",
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.ts",
+    "serverExternalPackages": [
+      "@react-pdf/renderer",
+      "canvas"
+    ],
     "turbopack": {
       "root": "C:\\Users\\strad"
     },
-    "distDirRoot": ".next"
+    "distDirRoot": ".next",
+    "_originalRewrites": {
+      "beforeFiles": [],
+      "afterFiles": [
+        {
+          "source": "/api/:path*",
+          "destination": "http://localhost:3001/api/:path*"
+        }
+      ],
+      "fallback": []
+    }
   },
   "appDir": "C:\\Users\\strad\\OneDrive\\Desktop\\Wajina intl portal",
   "relativeAppDir": "OneDrive\\Desktop\\Wajina intl portal",

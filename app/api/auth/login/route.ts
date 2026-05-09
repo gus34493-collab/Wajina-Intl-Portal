@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
         id: true, email: true, name: true, role: true, status: true,
         campus: true, password: true, profilePhoto: true,
         failedLoginAttempts: true, lockedUntil: true, tokenVersion: true,
+        mustChangePassword: true, passwordExpiresAt: true,
       },
     });
 
@@ -44,16 +45,32 @@ export async function POST(req: NextRequest) {
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
-      const newAttempts = (user.failedLoginAttempts || 0) + 1;
+      // Atomic increment — concurrent login attempts cannot race past MAX_ATTEMPTS
+      const updated = await prisma.user.update({
+        where: { id: user.id },
+        data: { failedLoginAttempts: { increment: 1 } },
+        select: { failedLoginAttempts: true },
+      });
+      const newAttempts = updated.failedLoginAttempts;
       if (newAttempts >= MAX_ATTEMPTS) {
         const lockedUntil = new Date(Date.now() + LOCKOUT_MS);
-        await prisma.user.update({ where: { id: user.id }, data: { failedLoginAttempts: newAttempts, lockedUntil } });
+        await prisma.user.update({ where: { id: user.id }, data: { lockedUntil } });
         audit(user.id, "ACCOUNT_LOCKED", "User", user.id, `Locked after ${newAttempts} attempts`, getIP(req));
         return NextResponse.json({ error: "Account locked after too many failed attempts. Try again in 30 minutes.", locked: true }, { status: 429 });
       }
-      await prisma.user.update({ where: { id: user.id }, data: { failedLoginAttempts: newAttempts } });
       audit(user.id, "LOGIN_FAILED", "User", user.id, `Wrong password (attempt ${newAttempts}/${MAX_ATTEMPTS})`, getIP(req));
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+    }
+
+    // Temp password expired — lock the account and redirect to school office
+    const passwordExpiresAt = (user as any).passwordExpiresAt as Date | null;
+    if (passwordExpiresAt && passwordExpiresAt < new Date()) {
+      await prisma.user.update({ where: { id: user.id }, data: { status: "DISABLED" } });
+      audit(user.id, "PASSWORD_EXPIRED", "User", user.id, "Account disabled — temp password expired", getIP(req));
+      return NextResponse.json(
+        { error: "Your temporary password has expired. Please contact the school office to regain access." },
+        { status: 403 }
+      );
     }
 
     await prisma.user.update({ where: { id: user.id }, data: { failedLoginAttempts: 0, lockedUntil: null } });
@@ -63,6 +80,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       id: user.id, email: user.email, name: user.name,
       role: user.role, campus: user.campus, profilePhoto: user.profilePhoto,
+      mustChangePassword: (user as any).mustChangePassword ?? false,
     });
   } catch (err) {
     console.error("[auth/login POST]", err);

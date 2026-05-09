@@ -1,200 +1,308 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  Baby,
-  BookOpen,
-  Beaker,
-  Globe,
-  Music,
-  Swords,
-  Heart,
-  Brain,
-  Medal,
-} from "lucide-react";
+import { Heart, Shield, Scale, Users, Brain, Medal, Globe, type LucideIcon } from "lucide-react";
 
-const PILLARS = [
+const VISION =
+  "To inspire excellence, cultivate character, and empower engagement locally and globally — to form men and women of conscience, compassion, competence, commitment and character.";
+
+const MISSION =
+  "Wajina International Schools' staff, parents, and community are dedicated to the intellectual, personal, social and physical growth of every pupil. Our highly qualified staff recognise the value of professional development in order to rigorously challenge students. Our teaching practices are both reflective and responsive to the needs of our students. Through diversified experiences, our pupils discover their potential, achieve readiness for higher education and careers, and succeed in a secured and serene environment.";
+
+type Pillar = { num: string; title: string; icon: LucideIcon; color: string; desc: string };
+
+const PILLARS: Pillar[] = [
   {
-    num: "01",
-    title: "Play-Based Early Years",
-    subtitle: "Creche · Nursery · Reception",
-    desc: "Where learning begins with wonder. Our youngest learners explore language, numeracy, and social skills through structured play, phonics, and sensory discovery in a warm, nurturing environment.",
-    icon: Baby,
-    accent: "var(--color-cinematic-moss)",
+    num: "01", title: "Fear of God", icon: Heart, color: "#6AB547",
+    desc: "Every lesson, every interaction rests on this foundation. We raise children who understand that true character begins with reverence — and that wisdom starts here, nowhere else.",
   },
   {
-    num: "02",
-    title: "Primary Foundation",
-    subtitle: "Literacy · Numeracy · Basic Science",
-    desc: "A rigorous primary curriculum grounded in the Nigerian NERDC framework — phonics-led reading, mental mathematics, social studies, and hands-on basic science that builds confident, curious learners.",
-    icon: BookOpen,
-    accent: "var(--color-cinematic-tang)",
+    num: "02", title: "Responsibility", icon: Shield, color: "#E67737",
+    desc: "We hold students accountable to their work, their words, and their community. Ownership is taught from day one, and it never leaves.",
   },
   {
-    num: "03",
-    title: "Dual Secondary Curriculum",
-    subtitle: "WAEC + Cambridge IGCSE",
-    desc: "At secondary level, students pursue the Nigerian WAEC syllabus alongside the internationally recognised Cambridge IGCSE — earning dual certification and doubling their global opportunities.",
-    icon: Globe,
-    accent: "var(--color-cinematic-moss)",
+    num: "03", title: "Integrity", icon: Scale, color: "#6AB547",
+    desc: "At Wajina, how you win matters as much as winning. We build students who do the right thing even when no one is watching.",
   },
   {
-    num: "04",
-    title: "STEM & Innovation",
-    subtitle: "Coding · Robotics · Lab Sciences",
-    desc: "From primary science fairs to secondary robotics workshops and structured coding programmes, students learn to think computationally and solve real-world problems at every stage.",
-    icon: Beaker,
-    accent: "var(--color-cinematic-tang)",
+    num: "04", title: "True Friendship", icon: Users, color: "#E67737",
+    desc: "The bonds formed here last a lifetime. We cultivate genuine care, loyalty, and community — built one relationship at a time.",
   },
   {
-    num: "05",
-    title: "Faith & Character",
-    subtitle: "Rooted in the Fear of God",
-    desc: "Morning devotions, Bible studies, and values-driven assemblies anchor every child's day. We raise children who lead with conscience before ambition — from nursery through graduation.",
-    icon: Heart,
-    accent: "var(--color-cinematic-moss)",
+    num: "05", title: "Critical Thinking", icon: Brain, color: "#6AB547",
+    desc: "We don't raise students who memorise answers. Every child learns to inquire, connect, and reason independently — from primary through graduation.",
   },
   {
-    num: "06",
-    title: "Creative & Performing Arts",
-    subtitle: "Music · Drama · Fine Art",
-    desc: "Primary pupils discover rhythm and colour through art classes and recitals. Secondary students take the stage in inter-house drama festivals, instrumental training, and exhibitions.",
-    icon: Music,
-    accent: "var(--color-cinematic-tang)",
+    num: "06", title: "Leadership", icon: Medal, color: "#E67737",
+    desc: "From class monitor to prefect council, every student discovers their voice. We believe every child has the capacity — and the responsibility — to lead.",
   },
   {
-    num: "07",
-    title: "Leadership Formation",
-    subtitle: "Class Monitors to Model UN",
-    desc: "Leadership starts in primary with class monitors and reading buddies, then scales through prefect councils, debating societies, and Model UN at secondary — forging decisive, empathetic leaders.",
-    icon: Medal,
-    accent: "var(--color-cinematic-moss)",
-  },
-  {
-    num: "08",
-    title: "Sports & Physical Wellness",
-    subtitle: "Primary Sports Day to Inter-School Athletics",
-    desc: "From egg-and-spoon races in primary to competitive football, basketball, and swimming at secondary — physical education builds resilience, teamwork, and discipline across all ages.",
-    icon: Swords,
-    accent: "var(--color-cinematic-tang)",
-  },
-  {
-    num: "09",
-    title: "Critical Thinking",
-    subtitle: "Beyond Rote Learning",
-    desc: "Our teachers don't just deliver content. From guided questioning in primary classrooms to Socratic seminars in secondary, every child learns to inquire, connect, and reason independently.",
-    icon: Brain,
-    accent: "var(--color-cinematic-moss)",
+    num: "07", title: "Open Mindedness", icon: Globe, color: "#6AB547",
+    desc: "A Wajina student listens before they speak and grows through every perspective they encounter. Curiosity about the world is not optional here — it is expected.",
   },
 ];
 
+// Inverted pyramid: 3 across → 2 across (narrowed) → 2 across (narrowed further)
+// w-full collapses to single-column on mobile; md:w-2/3 / md:w-1/2 apply the pyramid on desktop
+const ROWS: { pillars: Pillar[]; cls: string }[] = [
+  { pillars: PILLARS.slice(0, 3), cls: "grid grid-cols-1 md:grid-cols-3 w-full" },
+  { pillars: PILLARS.slice(3, 5), cls: "grid grid-cols-1 md:grid-cols-2 w-full md:w-2/3" },
+  { pillars: PILLARS.slice(5, 7), cls: "grid grid-cols-1 md:grid-cols-2 w-full md:w-1/2" },
+];
+
+function PillarCard({ pillar, delay }: { pillar: Pillar; delay: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay, duration: 0.42, ease: [0.25, 0.1, 0.25, 1] }}
+      style={{
+        position: "relative",
+        padding: "2.5rem 2.25rem 2.75rem",
+        background: "var(--color-cinematic-surface, rgba(255,255,255,0.03))",
+        borderTop: `2px solid ${pillar.color}`,
+        overflow: "hidden",
+        minHeight: 220,
+      }}
+    >
+      {/* Ghost number — anchored bottom-right, feels carved into the card */}
+      <span
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          bottom: "0.5rem",
+          right: "1.25rem",
+          fontFamily: "var(--font-display)",
+          fontStyle: "italic",
+          fontWeight: 900,
+          fontSize: "5.5rem",
+          color: pillar.color,
+          opacity: 0.07,
+          lineHeight: 1,
+          userSelect: "none",
+          pointerEvents: "none",
+        }}
+      >
+        {pillar.num}
+      </span>
+
+      <div style={{ color: pillar.color, marginBottom: "1.5rem" }}>
+        <pillar.icon size={22} strokeWidth={1.5} />
+      </div>
+
+      <h3
+        style={{
+          margin: "0 0 0.75rem",
+          fontFamily: "var(--font-display)",
+          fontWeight: 900,
+          fontSize: "clamp(1rem, 1.4vw, 1.3rem)",
+          textTransform: "uppercase",
+          letterSpacing: "-0.01em",
+          color: "var(--color-cinematic-bone)",
+          lineHeight: 1.1,
+        }}
+      >
+        {pillar.title}
+      </h3>
+
+      <div style={{ width: "1.75rem", height: 1, background: pillar.color, opacity: 0.4, marginBottom: "0.85rem" }} />
+
+      <p
+        style={{
+          margin: 0,
+          fontSize: "clamp(0.68rem, 0.9vw, 0.76rem)",
+          color: "var(--color-cinematic-dim)",
+          lineHeight: 1.88,
+        }}
+      >
+        {pillar.desc}
+      </p>
+    </motion.div>
+  );
+}
+
 export default function Features() {
   return (
-    <section id="pillars" className="py-32 px-6" style={{ background: "var(--color-cinematic-surface)" }}>
-      <div className="max-w-7xl mx-auto space-y-20">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex flex-col md:flex-row md:items-end md:justify-between gap-8"
+    <section
+      id="pillars"
+      style={{ background: "var(--color-cinematic-ink)", position: "relative", overflow: "hidden" }}
+    >
+
+      {/* ── VISION — full-width proclamation, apex of the pyramid ───────────── */}
+      <div
+        style={{
+          padding: "9rem 6% 8rem",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          position: "relative",
+          textAlign: "center",
+        }}
+      >
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            top: "1rem",
+            left: "3%",
+            fontFamily: "var(--font-display)",
+            fontStyle: "italic",
+            fontWeight: 900,
+            fontSize: "clamp(8rem, 16vw, 15rem)",
+            color: "rgba(106,181,71,0.045)",
+            lineHeight: 1,
+            userSelect: "none",
+            pointerEvents: "none",
+          }}
         >
-          <div className="space-y-4 max-w-xl">
-            <h2
-              className="leading-[0.9] tracking-tight"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(2.5rem, 5.5vw, 4.5rem)",
-                fontWeight: 300,
-                fontStyle: "italic",
-                color: "var(--color-cinematic-bone)",
-              }}
-            >
-              What we teach.
-              <br />
-              <span style={{ color: "var(--color-cinematic-moss)" }}>How we shape.</span>
-            </h2>
-            <p
-              className="text-sm leading-relaxed max-w-md"
-              style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}
-            >
-              From play-based discovery in our creche to dual-certified examinations
-              at senior secondary — nine pillars that define the Wajina experience
-              across every stage of your child&apos;s journey.
-            </p>
-          </div>
-          <span
-            className="text-token-micro font-black uppercase tracking-widest tabular-nums shrink-0"
-            style={{ color: "var(--color-cinematic-dim-2)", fontFamily: "var(--font-sans)" }}
+          &#x201C;
+        </div>
+
+        <div style={{ maxWidth: 880, margin: "0 auto", position: "relative", zIndex: 1 }}>
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              display: "block",
+              fontSize: "0.5rem",
+              fontWeight: 900,
+              textTransform: "uppercase",
+              letterSpacing: "0.55em",
+              color: "var(--color-cinematic-moss)",
+              marginBottom: "2.5rem",
+            }}
           >
-            {String(PILLARS.length).padStart(2, "0")} Pillars
+            Vision Statement
+          </motion.span>
+
+          <motion.p
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            style={{
+              margin: 0,
+              fontFamily: "var(--font-display)",
+              fontStyle: "italic",
+              fontWeight: 300,
+              fontSize: "clamp(1.55rem, 3vw, 2.6rem)",
+              color: "var(--color-cinematic-bone)",
+              lineHeight: 1.52,
+            }}
+          >
+            {VISION}
+          </motion.p>
+        </div>
+      </div>
+
+      {/* ── PILLAR PYRAMID ─────────────────────────────────────────────────────
+           Row 1 (100%):  [01][02][03]
+           Row 2  (67%):    [04][05]
+           Row 3  (50%):      [06][07]
+           Mission tip:        [●]
+      ────────────────────────────────────────────────────────────────────────── */}
+      <div
+        style={{
+          padding: "5rem 6% 0",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        {/* Section label */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "baseline",
+            justifyContent: "space-between",
+            marginBottom: "3rem",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "0.5rem",
+              fontWeight: 900,
+              textTransform: "uppercase",
+              letterSpacing: "0.5em",
+              color: "var(--color-cinematic-dim-2)",
+            }}
+          >
+            Core Values
+          </span>
+          <span
+            style={{
+              fontFamily: "var(--font-display)",
+              fontStyle: "italic",
+              fontSize: "clamp(0.85rem, 1.6vw, 1.3rem)",
+              fontWeight: 300,
+              color: "rgba(255,255,255,0.07)",
+            }}
+          >
+            07 Pillars
           </span>
         </motion.div>
 
-        {/* Grid */}
-        <div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px"
-          style={{ background: "rgba(255,255,255,0.03)" }}
-        >
-          {PILLARS.map((pillar, index) => (
-            <motion.div
-              key={pillar.num}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.06 }}
-              className="group p-10 space-y-6 transition-all duration-300 cursor-default"
-              style={{ background: "var(--color-cinematic-surface)" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "var(--color-cinematic-surface-2)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "var(--color-cinematic-surface)")
-              }
-            >
-              <div className="flex items-start justify-between">
-                <span
-                  className="font-black leading-none select-none"
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontStyle: "italic",
-                    fontSize: "3.5rem",
-                    color: "rgba(255,255,255,0.04)",
-                  }}
-                >
-                  {pillar.num}
-                </span>
-                <div
-                  className="w-10 h-10 flex items-center justify-center"
-                  style={{ background: "rgba(255,255,255,0.03)", color: pillar.accent }}
-                >
-                  <pillar.icon size={20} strokeWidth={1.5} />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h3
-                  className="text-token-caption font-black uppercase tracking-[0.3em] transition-colors duration-300"
-                  style={{ color: "var(--color-cinematic-bone)", fontFamily: "var(--font-sans)" }}
-                >
-                  {pillar.title}
-                </h3>
-                <p
-                  className="text-token-micro font-bold uppercase tracking-[0.25em]"
-                  style={{ color: pillar.accent, fontFamily: "var(--font-sans)" }}
-                >
-                  {pillar.subtitle}
-                </p>
-                <p
-                  className="text-sm leading-relaxed pt-1"
-                  style={{ color: "var(--color-cinematic-dim)", fontFamily: "var(--font-sans)" }}
-                >
-                  {pillar.desc}
-                </p>
-              </div>
-            </motion.div>
+        {/* Pyramid rows — 1px gap between cards acts as the grid line */}
+        <div className="w-full flex flex-col items-center" style={{ gap: "1px", background: "rgba(255,255,255,0.04)" }}>
+          {ROWS.map(({ pillars, cls }, ri) => (
+            <div key={ri} className={`${cls} gap-px`} style={{ background: "rgba(255,255,255,0.04)" }}>
+              {pillars.map((pillar, pi) => (
+                <PillarCard
+                  key={pillar.num}
+                  pillar={pillar}
+                  delay={(ri * 3 + pi) * 0.065}
+                />
+              ))}
+            </div>
           ))}
         </div>
       </div>
+
+      {/* ── MISSION — focused tip of the pyramid ───────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        style={{
+          padding: "5.5rem 6% 9rem",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "1.75rem",
+          textAlign: "center",
+        }}
+      >
+        <span
+          style={{
+            fontSize: "0.5rem",
+            fontWeight: 900,
+            textTransform: "uppercase",
+            letterSpacing: "0.5em",
+            color: "var(--color-cinematic-tang)",
+          }}
+        >
+          Mission Statement
+        </span>
+
+        <div style={{ width: "2.5rem", height: 1, background: "var(--color-cinematic-tang)", opacity: 0.5 }} />
+
+        <p
+          style={{
+            margin: 0,
+            maxWidth: 500,
+            fontSize: "clamp(0.76rem, 1.1vw, 0.84rem)",
+            color: "var(--color-cinematic-dim)",
+            lineHeight: 1.95,
+          }}
+        >
+          {MISSION}
+        </p>
+      </motion.div>
+
     </section>
   );
 }

@@ -13,7 +13,7 @@ import { audit } from "@/lib/audit";
 
 const OPS_LEADERS = [
   "DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN",
-  "VP_ACADEMICS", "ASST_HEAD_TEACHER", "DEAN_STUDENTS",
+  "VP_ACADEMICS", "ASST_HEAD_TEACHER", "DEAN",
 ] as const;
 
 const ANY_STAFF = [

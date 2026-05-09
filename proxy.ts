@@ -26,7 +26,7 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
 
   // Departmental
   "/hod-dashboard": ["DIRECTOR", "PRINCIPAL", "HOD"],
-  "/dean-dashboard": ["DIRECTOR", "PRINCIPAL", "DEAN_STUDENTS"],
+  "/dean-dashboard": ["DIRECTOR", "PRINCIPAL", "DEAN"],
 
   // Finance
   "/bursar-primary-dashboard": ["DIRECTOR", "BURSAR"],
@@ -40,8 +40,8 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
 
   // Academic
   "/teacher-dashboard": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "TEACHER", "FORM_TEACHER"],
-  "/gradebook": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "TEACHER", "FORM_TEACHER", "DEAN_STUDENTS"],
-  "/review-grades": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HOD", "DEAN_STUDENTS"],
+  "/gradebook": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "TEACHER", "FORM_TEACHER", "DEAN"],
+  "/review-grades": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HOD", "DEAN"],
   "/academic-performance": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ACADEMICS", "VP_ADMIN", "HOD"],
   "/teacher-submissions-review": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
   "/results-approval": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "VP_ADMIN", "ACCOUNTS_OFFICER"],
@@ -54,7 +54,7 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
   "/admissions-dashboard": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "BURSAR", "REGISTRAR"],
   "/staff-directory": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "VP_ADMIN", "HR", "HOD", "HEAD_TEACHER"],
   "/staff-onboarding": ["DIRECTOR", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
-  "/pupil-records": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "HR", "HOD", "DEAN_STUDENTS"],
+  "/pupil-records": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "HR", "HOD", "DEAN"],
   "/session-planner": ["DIRECTOR", "PRINCIPAL", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
   "/testimonials": ["DIRECTOR", "PRINCIPAL", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
 };

@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import crypto from "crypto";
 import prisma from "@/lib/prisma";
+import { uploadToSpaces, createPresignedDownloadUrl } from "@/lib/spaces";
 import { getAuthUser, unauthorized, badRequest, serverError, getIP } from "@/lib/api-auth";
 import { audit } from "@/lib/audit";
 
-const UPLOAD_DIR = path.join(process.cwd(), "uploads", "submissions");
+const ALLOWED_MIME = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "image/jpeg",
+  "image/png",
+]);
+
+const ALLOWED_EXT = new Set([".pdf", ".doc", ".docx", ".xls", ".xlsx", ".jpg", ".jpeg", ".png"]);
 
 export async function POST(req: NextRequest) {
   const user = await getAuthUser();
@@ -25,12 +35,21 @@ export async function POST(req: NextRequest) {
     const validLevels = ["K1", "K2", "K3"];
     if (!validLevels.includes(level)) return badRequest(`level must be one of: ${validLevels.join(", ")}`);
 
+    // MIME and extension whitelist — prevents HTML/script upload via this endpoint
+    const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+    if (!ALLOWED_MIME.has(file.type) || !ALLOWED_EXT.has(ext)) {
+      return badRequest("File type not allowed. Accepted: PDF, Word, Excel, JPEG, PNG.");
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+    const key = `submissions/${user.id}/${Date.now()}-${crypto.randomUUID()}${ext}`;
 
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    await writeFile(path.join(UPLOAD_DIR, safeName), buffer);
+    await uploadToSpaces(key, buffer, file.type);
+
+    // Presigned URL valid for 1 year — serves as the download link stored on the record.
+    // A proper /api/requests/[id]/download route should regenerate this on demand.
+    const fileUrl = await createPresignedDownloadUrl(key, file.name, 60 * 60 * 24 * 365);
 
     const request = await prisma.request.create({
       data: {
@@ -38,7 +57,7 @@ export async function POST(req: NextRequest) {
         title: title.trim().slice(0, 200),
         description: description.trim().slice(0, 2000),
         category,
-        fileUrl: `/uploads/submissions/${safeName}`,
+        fileUrl,
         status: "PENDING",
         senderId: user.id,
         campus: user.campus as any,

@@ -1,0 +1,25 @@
+{
+  "version": 1.1,
+  "atDirectives": [
+    {
+      "name": "@theme",
+      "description": "Defines the design tokens for the Tailwind CSS v4 theme."
+    },
+    {
+      "name": "@apply",
+      "description": "Inline Tailwind CSS utility classes into your CSS."
+    },
+    {
+      "name": "@import \"tailwindcss\"",
+      "description": "Imports the Tailwind CSS v4 framework."
+    },
+    {
+      "name": "@layer base",
+      "description": "Defines base styles (e.g. typography, body bg)."
+    },
+    {
+      "name": "@layer components",
+      "description": "Defines reusable component classes."
+    }
+  ]
+}

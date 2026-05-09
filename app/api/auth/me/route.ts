@@ -7,16 +7,18 @@ export async function GET(_req: NextRequest) {
   if (!user) return unauthorized();
 
   try {
-    const record = await prisma.user.findUnique({
+    const record = await (prisma.user.findUnique as any)({
       where: { id: user.id },
       select: {
         id: true, email: true, name: true, role: true, status: true,
         phone: true, profilePhoto: true, consentGiven: true, consentDate: true, campus: true,
+        mustChangePassword: true,
+        passwordExpiresAt: true,
         enrolledArm: { select: { id: true, fullName: true, class: { select: { name: true, campus: true } } } },
       },
     });
     if (!record) return notFound("User not found.");
-    return NextResponse.json(record);
+    return NextResponse.json({ user: record });
   } catch (err) {
     console.error("[auth/me GET]", err);
     return serverError();

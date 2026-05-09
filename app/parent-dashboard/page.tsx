@@ -64,7 +64,7 @@ function ParentDashboardContent() {
     ? (wards.reduce((acc, w) => acc + (w.attendanceRate || 0), 0) / wards.length).toFixed(1)
     : "0";
   
-  const pendingFeesCount = wards.filter(w => !w.hasPaid).length;
+  const pendingFeesCount = wards.filter(w => !w.payment || w.payment.status !== "CONFIRMED").length;
   const isSecondary = wards.some(w => w.campus === "SECONDARY");
 
   return (
@@ -272,18 +272,22 @@ function WardCard({ ward, index, onPaymentClick }: { ward: any, index: number, o
            {ward.campus} Campus
          </span>
          <span className="px-3 py-1 rounded-full text-token-micro font-black uppercase tracking-widest bg-brand-primary/5 text-brand-primary">
-            {ward.class.name}
+            {ward.class ?? "Pre-enrollment"}
          </span>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-8">
         <div className="p-4 bg-white/50 rounded-2xl border border-brand-primary/5 shadow-inner">
           <p className="text-token-micro font-black text-brand-primary/30 uppercase tracking-[0.2em]">Academic GPA</p>
-          <p className="text-lg font-black text-brand-primary mt-1">{ward.avgGrade.toFixed(2)}</p>
+          <p className="text-lg font-black text-brand-primary mt-1">
+            {ward.averageGrade != null ? ward.averageGrade.toFixed(2) : "—"}
+          </p>
         </div>
         <div className="p-4 bg-white/50 rounded-2xl border border-brand-primary/5 shadow-inner">
           <p className="text-token-micro font-black text-brand-primary/30 uppercase tracking-[0.2em]">Attendance</p>
-          <p className="text-lg font-black text-brand-primary mt-1">{ward.attendanceRate}%</p>
+          <p className="text-lg font-black text-brand-primary mt-1">
+            {ward.attendance?.rate != null ? `${ward.attendance.rate}%` : "—"}
+          </p>
         </div>
       </div>
 

@@ -185,15 +185,19 @@ export const getRetentionAnalysis = async (campus?: string) => {
         where: { role: "STUDENT", status: "ACTIVE" },
         select: {
           id: true,
-          attendance: { where: { termId: latestTerm.id } },
-          payments: { where: { termId: latestTerm.id, category: "TUITION", status: "CONFIRMED" } },
+          _count: {
+            select: {
+              attendance: { where: { termId: latestTerm.id } },
+              payments: { where: { termId: latestTerm.id, category: "TUITION", status: "CONFIRMED" } },
+            },
+          },
         },
       },
     },
   });
 
   return classes.map((c) => {
-    const stats = c.students.map((s) => ({ hasGoodAttendance: s.attendance.length > 5, hasPaidFees: s.payments.length > 0 }));
+    const stats = c.students.map((s) => ({ hasGoodAttendance: s._count.attendance > 5, hasPaidFees: s._count.payments > 0 }));
     const att = stats.length > 0 ? (stats.filter((s) => s.hasGoodAttendance).length / stats.length) * 100 : 0;
     const fee = stats.length > 0 ? (stats.filter((s) => s.hasPaidFees).length / stats.length) * 100 : 0;
     return { className: c.name, campus: c.campus, studentCount: c.students.length, attendanceCompliance: Math.round(att), feeCompliance: Math.round(fee), retentionScore: Math.round((att + fee) / 2) };
@@ -206,7 +210,7 @@ export const getDetailedAcademicStats = async (campus?: string) => {
 
   const subjects = await prisma.subject.findMany({
     where: { ...(campus && { class: { campus: campus as any } }) },
-    include: { grades: { where: { termId: latestTerm.id } } },
+    include: { grades: { where: { termId: latestTerm.id }, select: { status: true } } },
   });
 
   if (subjects.length === 0) return { submissionRate: 0, overdueCount: 0 };
@@ -220,7 +224,7 @@ export const getAcademicAlerts = async (campus?: string) => {
 
   const subjects = await prisma.subject.findMany({
     where: { ...(campus && { class: { campus: campus as any } }) },
-    include: { class: { select: { campus: true } }, teacher: { select: { name: true } }, grades: { where: { termId: latestTerm.id } } },
+    include: { class: { select: { campus: true } }, teacher: { select: { name: true } }, grades: { where: { termId: latestTerm.id }, select: { status: true } } },
   });
 
   return subjects

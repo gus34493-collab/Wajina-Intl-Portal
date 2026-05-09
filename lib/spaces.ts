@@ -28,6 +28,14 @@ export async function uploadToSpaces(
   );
 }
 
+// Derives the public CDN URL for an object in a public-read bucket folder.
+// DO Spaces URL format: https://{bucket}.{region}.digitaloceanspaces.com/{key}
+export function getPublicUrl(key: string): string {
+  const endpoint = process.env.DO_SPACES_ENDPOINT!; // e.g. https://fra1.digitaloceanspaces.com
+  const bucket = process.env.DO_SPACES_BUCKET!;
+  return endpoint.replace('https://', `https://${bucket}.`) + '/' + key;
+}
+
 export async function createPresignedDownloadUrl(
   key: string,
   filename: string,

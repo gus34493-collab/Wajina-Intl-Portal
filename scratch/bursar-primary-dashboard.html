@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bursary Primary Hub | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/config/navigation.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .kpi-card-bursar {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1.5px solid rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .kpi-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--brand-gunmetal);
+        }
+
+        .control-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1.5px solid rgba(0,0,0,0.03);
+        }
+
+        .control-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .request-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+        .request-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--brand-moonstone);
+        }
+    </style>
+    <script src="/js/components/wajina-toast.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Primary Campus Bursary Operations"></wajina-header>
+            
+            <div class="top-row">
+                <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Bursary <span>Operations</span></h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Strategic financial oversight and structural transaction monitoring for Primary Education.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem;">
+                <div class="kpi-card-bursar">
+                    <div class="kpi-label">Current Term Collection</div>
+                    <div class="kpi-value" id="termCollection">Géª --</div>
+                </div>
+                <div class="kpi-card-bursar">
+                    <div class="kpi-label">Institutional Arrears</div>
+                    <div class="kpi-value" id="overdueDebt" style="color: #e74c3c;">Géª --</div>
+                </div>
+                <div class="kpi-card-bursar">
+                    <div class="kpi-label">Cycle Realization Rate</div>
+                    <div class="kpi-value" id="paymentRate" style="color: var(--brand-moonstone);">0%</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; margin-top: 2rem;">
+                <div class="control-panel">
+                    <h3 style="font-weight: 800; font-size: 1rem; color: var(--brand-gunmetal); margin-bottom: 2rem;">Governance & Controls</h3>
+                    
+                    <div class="control-item">
+                        <div style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); margin-bottom: 1rem;">COLLECTION PROTOCOL STATUS</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.7rem; font-weight: 800; padding: 0.3rem 0.75rem; border-radius: 4px; background: rgba(44, 194, 135, 0.1); color: #2ecc71;">REGISTRATION OPEN</span>
+                            <button class="glass" disabled style="font-size: 0.65rem; font-weight: 800; padding: 0.4rem 1rem; opacity: 0.5;">DEACTIVATE CYCLE</button>
+                        </div>
+                    </div>
+
+                    <div class="control-item">
+                        <div style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); margin-bottom: 1rem;">FINANCIAL ARCHITECTURE</div>
+                        <button class="glass" style="background: var(--brand-gunmetal); color: white; border: none; font-weight: 800; width: 100%; padding: 0.85rem; font-size: 0.7rem;">OPTIMIZE FEE SCHEDULES</button>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 2.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h3 style="font-weight: 800; font-size: 1.1rem; color: var(--brand-gunmetal); margin: 0;">Petitioner Access Queue</h3>
+                        <span style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted);">PRIMARY CAMPUS</span>
+                    </div>
+                    
+                    <div id="requestsBody">
+                        <div style="text-align: center; padding: 6rem 2rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-hourglass-empty fa-3x" style="opacity: 0.1; margin-bottom: 2rem;"></i>
+                            <p style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Zero Pending Parent Communications.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/pages/bursar-primary-dashboard.js" defer></script>
+</body>
+</body>
+</html>
+
+
+
+

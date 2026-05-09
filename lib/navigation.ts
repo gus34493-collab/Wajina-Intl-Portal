@@ -29,7 +29,7 @@ export function getDefaultRoute(role: string): string {
     HEAD_TEACHER: '/head-teacher-dashboard',
     ASST_HEAD_TEACHER: '/head-teacher-dashboard',
     HOD: '/hod-dashboard',
-    DEAN_STUDENTS: '/dean-dashboard',
+    DEAN: '/dean-dashboard',
     TEACHER: '/teacher-dashboard',
     FORM_TEACHER: '/teacher-dashboard',
     BURSAR: '/bursar-primary-dashboard',
@@ -140,7 +140,7 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
       },
     ],
   },
-  DEAN_STUDENTS: {
+  DEAN: {
     title: "Dean Student Affairs",
     sections: [
       {

@@ -1,4 +1,17 @@
 {
-  "node": {},
+  "node": {
+    "40040ef84e6017505229158ee1fb408f3aabc1f1a5": {
+      "workers": {
+        "app/admissions-dashboard/page": {
+          "moduleId": 79022,
+          "async": false,
+          "exportedName": "sendExamDetails",
+          "filename": "OneDrive/Desktop/Wajina intl portal/app/actions/admissions.ts"
+        }
+      },
+      "exportedName": "sendExamDetails",
+      "filename": "OneDrive/Desktop/Wajina intl portal/app/actions/admissions.ts"
+    }
+  },
   "edge": {}
 }

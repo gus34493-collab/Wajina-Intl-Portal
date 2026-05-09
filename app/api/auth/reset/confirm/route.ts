@@ -17,21 +17,30 @@ export async function POST(req: NextRequest) {
     }
 
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-    const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash } });
 
-    if (!record || record.usedAt || record.expiresAt < new Date()) {
+    // Atomic claim: marks the token used in a single write, preventing two concurrent
+    // requests from both passing the "not yet used" check (TOCTOU race).
+    const claimed = await prisma.passwordResetToken.updateMany({
+      where: { tokenHash, usedAt: null, expiresAt: { gt: new Date() } },
+      data: { usedAt: new Date() },
+    });
+
+    if (claimed.count === 0) {
       return NextResponse.json({ error: "This reset link is invalid or has expired. Please request a new one." }, { status: 400 });
     }
 
+    const record = await prisma.passwordResetToken.findUnique({
+      where: { tokenHash },
+      select: { userId: true },
+    });
+    if (!record) return NextResponse.json({ error: "Reset token not found." }, { status: 400 });
+
     const hashed = await bcrypt.hash(newPassword, 12);
 
-    await prisma.$transaction([
-      prisma.user.update({
-        where: { id: record.userId },
-        data: { password: hashed, tokenVersion: { increment: 1 }, failedLoginAttempts: 0, lockedUntil: null },
-      }),
-      prisma.passwordResetToken.update({ where: { tokenHash }, data: { usedAt: new Date() } }),
-    ]);
+    await prisma.user.update({
+      where: { id: record.userId },
+      data: { password: hashed, tokenVersion: { increment: 1 }, failedLoginAttempts: 0, lockedUntil: null },
+    });
 
     audit(record.userId, "PASSWORD_RESET", "User", record.userId, null, getIP(req));
     return NextResponse.json({ message: "Password reset successfully. You can now log in with your new password." });

@@ -46,6 +46,7 @@ const TESTIMONIALS: Testimonial[] = [
 export default function TestimonialsCarousel() {
   return (
     <section
+      id="voices"
       className="py-32 px-6 overflow-hidden"
       style={{ background: "var(--color-cinematic-ink)" }}
     >

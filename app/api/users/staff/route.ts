@@ -5,7 +5,7 @@ import { getAuthUser, unauthorized, forbidden, serverError } from "@/lib/api-aut
 const ALLOWED = ["DIRECTOR", "HR", "PRINCIPAL", "VP_ADMIN"];
 const STAFF_ROLES = [
   "DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "VP_ADMIN", "HOD",
-  "HEAD_TEACHER", "ASST_HEAD_TEACHER", "DEAN_STUDENTS",
+  "HEAD_TEACHER", "ASST_HEAD_TEACHER", "DEAN",
   "BURSAR", "ACCOUNTS_OFFICER", "HR", "ADMIN_STAFF", "FORM_TEACHER", "TEACHER",
 ];
 

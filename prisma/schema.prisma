@@ -37,6 +37,8 @@ model User {
   joinedAt              DateTime?          @default(now())
   salary                Float?             @default(0)
   pushSubscription      Json?
+  mustChangePassword    Boolean   @default(false)
+  passwordExpiresAt     DateTime?
 
   // Relations — academic
   attendancesMarked     Attendance[]       @relation("AttendanceMarker")
@@ -161,6 +163,8 @@ model AcademicSession {
   reportCards   ReportCard[]
   terms         Term[]
   invoices      Invoice[]
+
+  @@index([status])
 }
 
 model Term {
@@ -181,6 +185,8 @@ model Term {
   session     AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@unique([sessionId, name])
+  @@index([status])
+  @@index([isCurrent])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -88,9 +88,9 @@ export default function Navbar() {
         {/* Nav links */}
         <div className="hidden md:flex items-center gap-8">
           {[
-            { label: "Our Pillars", id: "pillars" },
-            { label: "The Citadel", id: "citadel" },
-            { label: "Pathways", id: "pathways" },
+            { label: "The School", id: "citadel" },
+            { label: "Our Path", id: "wajina-path" },
+            { label: "Our People", id: "faculty" },
             { label: "Admissions", id: "admissions" },
           ].map((link) => (
             <button
@@ -155,9 +155,9 @@ export default function Navbar() {
           >
             <div className="flex flex-col">
               {[
-                { label: "Our Pillars", id: "pillars" },
-                { label: "The Citadel", id: "citadel" },
-                { label: "Pathways", id: "pathways" },
+                { label: "The School", id: "citadel" },
+                { label: "Our Path", id: "wajina-path" },
+                { label: "Our People", id: "faculty" },
                 { label: "Admissions", id: "admissions" },
               ].map((link) => (
                 <button

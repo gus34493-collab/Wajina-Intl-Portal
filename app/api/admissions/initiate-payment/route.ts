@@ -29,10 +29,12 @@ export async function POST(req: NextRequest) {
       console.error("[Admissions Payment] Database lookup failed:", dbErr);
     }
 
-    // Fallback to 25000 if not configured
     const expectedFee = config?.entranceFee || 25000;
 
-    if (parseFloat(amount) < expectedFee) {
+    // Explicit NaN/negative guard — parseFloat("abc") is NaN and NaN < expectedFee is false,
+    // which would bypass the check entirely without this explicit validation.
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount < expectedFee) {
       return NextResponse.json({ error: `Invalid fee amount. Expected ₦${expectedFee}` }, { status: 400 });
     }
 

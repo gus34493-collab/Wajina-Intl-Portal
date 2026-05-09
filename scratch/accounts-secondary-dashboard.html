@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secondary Accounts Hub | Wajina Intl</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        window.REQUIRED_ROLES = ['DIRECTOR', 'ACCOUNTS_OFFICER'];
+        window.REQUIRED_CAMPUS = 'SECONDARY';
+    </script>
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/config/navigation.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+
+        .stat-card-finance {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1.5px solid rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .finance-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .finance-value {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--brand-gunmetal);
+        }
+
+        .finance-trend {
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            background: #f8f9fa;
+            width: fit-content;
+            margin-top: 1rem;
+        }
+
+        .plans-table th {
+            padding: 1.25rem 1.5rem;
+            background: #f8f9fa;
+            text-align: left;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 2px solid rgba(0,0,0,0.03);
+        }
+
+        .plans-table td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.02);
+            font-size: 0.85rem;
+        }
+
+        .note-card {
+            background: #f8f9fa;
+            padding: 1.25rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--brand-moonstone);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+    </style>
+    <script src="/js/components/wajina-toast.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Secondary Campus Financial Governance"></wajina-header>
+            
+            <div class="top-row">
+                <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Accounts Hub <span>Secondary</span></h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Strategic fee-cycle oversight and debt-management protocols for the Secondary Campus.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem;">
+                <div class="stat-card-finance">
+                    <div class="finance-label">Operational Liability (Expected)</div>
+                    <div class="finance-value" id="totalExpected">Géª --</div>
+                    <div class="finance-trend">ACTIVE CYCLE TARGET</div>
+                </div>
+                <div class="stat-card-finance">
+                    <div class="finance-label">Realized Inflow (Collected)</div>
+                    <div class="finance-value" id="totalCollected" style="color: #2ecc71;">Géª --</div>
+                    <div id="collectionRate" class="finance-trend">0.0% OF TARGET SECURED</div>
+                </div>
+                <div class="stat-card-finance">
+                    <div class="finance-label">Arrears & Outstanding</div>
+                    <div class="finance-value" id="totalDebt" style="color: #e74c3c;">Géª --</div>
+                    <div id="overdueBadge" class="finance-trend">DEBT RISK RATIO: PENDING</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 380px; gap: 2rem; margin-top: 2rem;">
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div style="padding: 1.5rem 2rem; border-bottom: 1px solid rgba(0,0,0,0.03);">
+                        <h3 style="font-weight: 800; font-size: 1.1rem; color: var(--brand-gunmetal); margin: 0;">Installment Registry & Debt Profile</h3>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="plans-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th>Petitioner / Family Unit</th>
+                                    <th>Assigned Liability</th>
+                                    <th>Realized Total</th>
+                                    <th style="text-align: right;">Protocol Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="plansBody">
+                                <tr><td colspan="4" style="padding: 5rem; text-align: center; color: var(--text-muted); font-weight: 700;">Synchronizing Payment Architectures...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 2rem;">
+                    <h3 style="font-weight: 800; font-size: 1rem; color: var(--brand-gunmetal); margin-bottom: 1.5rem;">Collection Intelligence</h3>
+                    <div id="notesList">
+                        <div style="text-align: center; padding: 4rem 1rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-note-sticky fa-2x" style="opacity: 0.1; margin-bottom: 1.5rem;"></i>
+                            <p style="font-size: 0.75rem; font-weight: 700;">NO RECENT COLLECTION SIGNALS RECORDED.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const apiFetch = window.Wajina.apiFetch;
+
+        async function loadStats() {
+            try {
+                const d = await apiFetch('/api/finance/stats?campus=SECONDARY');
+                document.getElementById('totalExpected').textContent = 'Géª ' + d.summary.total.toLocaleString();
+                document.getElementById('totalCollected').textContent = 'Géª ' + (d.summary.paid || 0).toLocaleString();
+                const rate = d.summary.total > 0 ? ((d.summary.paid / d.summary.total) * 100).toFixed(1) : '0.0';
+                document.getElementById('collectionRate').textContent = `${rate}% OF TARGET SECURED`;
+                
+                const debt = d.summary.total - (d.summary.paid || 0);
+                document.getElementById('totalDebt').textContent = 'Géª ' + debt.toLocaleString();
+                
+                const ratio = d.summary.total > 0 ? ((debt / d.summary.total) * 100).toFixed(1) : '0.0';
+                document.getElementById('overdueBadge').textContent = `DEBT RISK RATIO: ${ratio}%`;
+            } catch (err) {
+                window.Wajina.Telemetry.log('ERROR', 'FINANCE_SECONDARY', 'Stat synchronization failure');
+            }
+        }
+
+        async function init(e) {
+            await loadStats();
+        }
+
+        window.addEventListener('authReady', init);
+
+        document.addEventListener('click', e => {
+            if (e.target.closest('[data-action="toggleSidebar"]')) document.getElementById('dashboardLayout').classList.toggle('sidebar-open');
+        });
+    </script>
+</body>
+</html>
+
+
+
+

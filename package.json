@@ -5,9 +5,7 @@
   "scripts": {
     "build": "next build",
     "start": "next start",
-    "start:server": "tsx server/index.ts",
     "dev": "next dev",
-    "dev:server": "tsx watch server/index.ts",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
@@ -45,6 +43,7 @@
     "react-dom": "^19.2.4",
     "resend": "^6.12.2",
     "shadcn": "^4.3.0",
+    "sharp": "^0.34.5",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
     "tailwindcss-animate": "^1.0.7",

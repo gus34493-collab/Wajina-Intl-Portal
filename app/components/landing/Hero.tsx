@@ -278,8 +278,8 @@ export default function Hero() {
                   style={{ width: "100%", height: "100%", position: "relative" }}
                 >
                   <Image
-                    src="/images/happy-kids-class.png"
-                    alt="Happy students in a Wajina International Schools classroom"
+                    src="/images/hero-main.jpg"
+                    alt="Wajina International Schools student"
                     fill
                     className="object-cover"
                     priority
@@ -323,8 +323,8 @@ export default function Hero() {
                   }}
                 >
                   <Image
-                    src="/images/early-years.png"
-                    alt="Young learners in the Wajina earlier years programme"
+                    src="/images/Gemini_Generated_Image_cvjn9ocvjn9ocvjn.png"
+                    alt="Early years learners at Wajina International Schools"
                     fill
                     className="object-cover"
                     style={{ borderRadius: "50%" }}
@@ -332,25 +332,6 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* Small label tag */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: IMAGE_DELAY + 0.5, ease: EASE }}
-                className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap"
-                style={{
-                  background: "var(--color-cinematic-surface-2)",
-                  border: "1px solid rgba(106,181,71,0.2)",
-                  padding: "4px 10px",
-                }}
-              >
-                <span
-                  className="text-token-micro md:text-token-micro font-black uppercase tracking-[0.3em]"
-                  style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}
-                >
-                  Early Years
-                </span>
-              </motion.div>
             </motion.div>
           </div>
         </div>

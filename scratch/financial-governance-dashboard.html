@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Governance | Director Portal</title>
+    <link rel="stylesheet" href="/css/onion-core.css">
+    <link rel="stylesheet" href="/vendors/font-awesome/all.min.css">
+    <link href="/vendors/google-fonts/fonts.css" rel="stylesheet">
+
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/dom-utils.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/vendors/chartjs/chart.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--brand-bg);
+        }
+    </style>
+    <script src="/js/components/wajina-toast.js"></script>
+    <script src="/js/config/navigation.js"></script>
+    <script src="/js/components/wajina-sidebar.js"></script>
+    <script src="/js/components/wajina-header.js"></script>
+</head>
+<body data-onion-stage="pulse">
+    <div class="dashboard-layout" id="dashboardLayout">
+        <wajina-sidebar></wajina-sidebar>
+        
+        <main class="main-content">
+            <wajina-header title="Financial Governance"></wajina-header>
+            
+            <div class="top-row">
+                <h1 id="welcomeUser" style="font-size: 1.85rem; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Institutional Cashflow Intelligence</h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Strategic oversight of Wajina International's financial health and collection compliance.</p>
+            </div>
+
+            <!-- Oppo Stats Strip -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Weekly Collection</h3>
+                        <i class="fa-solid fa-money-bill-trend-up" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="weeklyTotal" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">Géª--M</div>
+                        <div style="font-size: 0.7rem; color: var(--brand-emerald-light); font-weight: 700;">+4.2% from last week</div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: var(--text-secondary);">Fee Compliance</h3>
+                        <i class="fa-solid fa-circle-check" style="color: var(--brand-moonstone); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="complianceRate" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">--%</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">Term 3 Target: 92%</div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; background: var(--brand-gunmetal); color: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.8rem; color: rgba(255,255,255,0.7);">Operational Opex</h3>
+                        <i class="fa-solid fa-chart-pie" style="color: var(--brand-saffron); font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div id="opexTotal" style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">Géª--M</div>
+                        <div style="font-size: 0.7rem; color: var(--brand-saffron); font-weight: 700;">Within budget envelope</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oppo Grid -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+                <!-- Cashflow Chart -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h3 style="font-size: 1.1rem;">Cashflow Trajectory</h3>
+                        <div class="glass" style="font-size: 0.7rem; padding: 0.4rem 0.8rem; color: var(--brand-moonstone); font-weight: 700;">LIVE UPDATES Active</div>
+                    </div>
+                    <div style="height: 300px; position: relative;">
+                         <canvas id="cashflowChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Collection Breakdown -->
+                <div class="card">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 1.5rem;">Campus Breakdown</h3>
+                    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        <div class="glass" style="padding: 1.25rem;">
+                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                 <span style="font-size: 0.85rem; font-weight: 700;">Primary Campus</span>
+                                 <span style="font-size: 0.8rem; color: var(--brand-emerald-light);">88%</span>
+                             </div>
+                             <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px;">
+                                 <div style="width: 88%; height: 100%; background: var(--brand-moonstone); border-radius: 3px;"></div>
+                             </div>
+                        </div>
+                        <div class="glass" style="padding: 1.25rem;">
+                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                 <span style="font-size: 0.85rem; font-weight: 700;">Secondary Campus</span>
+                                 <span style="font-size: 0.8rem; color: var(--brand-emerald-light);">74%</span>
+                             </div>
+                             <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px;">
+                                 <div style="width: 74%; height: 100%; background: var(--brand-saffron); border-radius: 3px;"></div>
+                             </div>
+                        </div>
+                        <div class="glass" style="padding: 1.25rem;">
+                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                 <span style="font-size: 0.85rem; font-weight: 700;">Transport & Logistics</span>
+                                 <span style="font-size: 0.8rem; color: var(--brand-emerald-light);">92%</span>
+                             </div>
+                             <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px;">
+                                 <div style="width: 92%; height: 100%; background: var(--brand-moonstone); border-radius: 3px;"></div>
+                             </div>
+                        </div>
+                    </div>
+                    <button class="glass" style="width: 100%; margin-top: 1.5rem; padding: 1rem; font-weight: 700; color: var(--brand-moonstone);">Full Audit Log</button>
+                </div>
+            </div>
+
+            <!-- Transaction Monitoring -->
+            <div class="card" style="margin-top: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1rem;">Suspicious & Critical Approvals</h3>
+                    <span class="badge" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c;">2 Items Flagged</span>
+                </div>
+                <div id="approvalFeed" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem;">Scanning transactional blockchain...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/vendors/dompurify/purify.min.js" defer></script>
+    <script src="/sanitize.js" defer></script>
+    <script src="/js/pages/financial-governance-dashboard.js" defer></script>
+</body>
+
+</html>
+
+
+
