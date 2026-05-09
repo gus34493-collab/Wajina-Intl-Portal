@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || "re_fallback_for_build");
 const FROM_ADMISSIONS = "Wajina Admissions <admissions@wajina.com.ng>";
 const FROM_PORTAL = "Wajina Portal <portal@wajina.com.ng>";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://portal.wajina.com.ng";
