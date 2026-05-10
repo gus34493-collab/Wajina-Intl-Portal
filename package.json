@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Wajina International Schools Management Portal",
   "scripts": {
-    "build": "prisma generate && next build",
+    "build": "next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "dev": "next dev",
     "db:migrate": "prisma migrate dev",
