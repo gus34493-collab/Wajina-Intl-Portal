@@ -59,7 +59,7 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
   "/testimonials": ["DIRECTOR", "PRINCIPAL", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
 };
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Skip static assets and public routes
