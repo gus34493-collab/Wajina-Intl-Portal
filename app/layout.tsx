@@ -22,22 +22,31 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
 });
 
+const BASE_URL = "https://www.wajinainternational.com.ng";
+
 export const metadata: Metadata = {
-  title: "Wajina Intl Schools | Excellence in Global Education",
-  description: "Experience world-class learning at Wajina International Schools. From Creche to Secondary, we offer a prestigious blend of British and Nigerian curriculums for the leaders of tomorrow.",
-  keywords: ["Wajina International Schools", "Private School Benue", "Best School Makurdi", "International School Nigeria", "British Curriculum Nigeria", "Wajina Academy Portal"],
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "Wajina International Schools | Excellence in Global Education",
+    template: "%s | Wajina International Schools",
+  },
+  description: "Experience world-class learning at Wajina International Schools, Makurdi. From Crèche to Secondary, we offer a prestigious blend of British and Nigerian curriculums for the leaders of tomorrow.",
+  keywords: ["Wajina International Schools", "Private School Benue", "Best School Makurdi", "International School Nigeria", "British Curriculum Nigeria", "Secondary School Makurdi", "Nursery School Benue"],
   manifest: "/manifest.json",
+  alternates: {
+    canonical: BASE_URL,
+  },
   openGraph: {
     title: "Wajina International Schools | Citadel of Excellence",
     description: "Empowering students through academic rigor and holistic growth in a world-class environment.",
-    url: "https://wajina.edu.ng",
-    siteName: "Wajina Portal",
+    url: BASE_URL,
+    siteName: "Wajina International Schools",
     images: [
       {
         url: "/images/og-preview.png",
         width: 1200,
         height: 630,
-        alt: "Wajina International Schools Campus",
+        alt: "Wajina International Schools Campus, Makurdi",
       },
     ],
     locale: "en_NG",
@@ -68,7 +77,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/images/Logo.png" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Wajina Portal" />
+        <meta name="apple-mobile-web-app-title" content="Wajina International Schools" />
       </head>
       <body
         className={cn(
