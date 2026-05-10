@@ -19,7 +19,7 @@ model User {
   name                  String
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
-  campus                SchoolCampus       @default(PRIMARY)   // RED-1: was SchoolCampus? — backfill secondary users after migration
+  campus                SchoolCampus?      @default(PRIMARY)
   role                  Role               @default(STUDENT)
   status                UserStatus         @default(PENDING)
   phone                 String?
