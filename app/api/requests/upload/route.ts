@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
-import { uploadToSpaces, createPresignedDownloadUrl } from "@/lib/spaces";
+import { uploadToStorage, createPresignedDownloadUrl } from "@/lib/storage";
 import { getAuthUser, unauthorized, badRequest, serverError, getIP } from "@/lib/api-auth";
 import { audit } from "@/lib/audit";
 
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(bytes);
     const key = `submissions/${user.id}/${Date.now()}-${crypto.randomUUID()}${ext}`;
 
-    await uploadToSpaces(key, buffer, file.type);
+    await uploadToStorage(key, buffer, file.type);
 
     // Presigned URL valid for 1 year — serves as the download link stored on the record.
     // A proper /api/requests/[id]/download route should regenerate this on demand.

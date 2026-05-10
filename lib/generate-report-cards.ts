@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { uploadToSpaces } from "@/lib/spaces";
+import { uploadToStorage } from "@/lib/storage";
 import { generatePdfBuffer, ReportCardData } from "@/lib/report-card-pdf";
 
 export async function generateReportCards({
@@ -101,7 +101,7 @@ export async function generateReportCards({
 
     const pdfBuffer = await generatePdfBuffer(data);
     const key = `report-cards/${sessionId}/${termId}/${studentId}.pdf`;
-    await uploadToSpaces(key, pdfBuffer, "application/pdf");
+    await uploadToStorage(key, pdfBuffer, "application/pdf");
 
     return prisma.reportCard.upsert({
       where: { studentId_termId_sessionId: { studentId, termId, sessionId } },

@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
-import { getAuthUser, hasRole, unauthorized, forbidden, serverError, getIP } from "@/lib/api-auth";
-import { audit } from "@/lib/audit";
+import { getAuthUser, unauthorized, forbidden, notFound, serverError, getIP } from "@/lib/api-auth";
 import { sendAdmissionOffer } from "@/lib/email";
+
+const AUTHORIZED = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "ADMIN_STAFF"];
 
 function generateTempPassword(): string {
   const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -27,86 +28,88 @@ function generateTempPassword(): string {
   return pw.join("");
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const actor = await getAuthUser();
   if (!actor) return unauthorized();
-  if (!hasRole(actor, "DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN")) {
-    return forbidden("Not authorised to issue admission offers.");
-  }
+  if (!AUTHORIZED.includes(actor.role as string)) return forbidden();
+
+  const { id } = await params;
 
   try {
-    const { id } = await params;
-
     const admission = await prisma.admission.findUnique({ where: { id } });
-    if (!admission) return NextResponse.json({ error: "Admission not found." }, { status: 404 });
+    if (!admission) return notFound("Admission not found.");
 
-    if (admission.status !== "QUALIFIED" && admission.status !== "SCHOLARSHIP_REVIEW") {
+    if (!["QUALIFIED", "SCHOLARSHIP_REVIEW"].includes(admission.status as string)) {
       return NextResponse.json(
-        { error: `Cannot enroll — current status is ${admission.status}.` },
+        { error: "Only QUALIFIED or SCHOLARSHIP_REVIEW admissions can be offered a place." },
         { status: 422 }
       );
     }
 
     if (!admission.parentEmail) {
       return NextResponse.json(
-        { error: "Parent email is required to create portal access. Update the application first." },
+        { error: "Parent email is required to issue an offer. Update the application first." },
         { status: 422 }
       );
     }
 
-    const parentEmail = admission.parentEmail.toLowerCase().trim();
-    const existing = await prisma.user.findUnique({ where: { email: parentEmail } });
-    if (existing) {
+    const normEmail = admission.parentEmail.toLowerCase().trim();
+
+    const existingParent = await prisma.user.findUnique({ where: { email: normEmail } });
+    if (existingParent) {
       return NextResponse.json(
         { error: "A portal account already exists for this parent email." },
         { status: 409 }
       );
     }
 
-    const feeConfigs = admission.sessionId
-      ? await prisma.feeConfig.findMany({
-          where: { campus: admission.campus, sessionId: admission.sessionId, termId: null },
-          select: { category: true, amount: true },
-        })
-      : [];
-    const fees = feeConfigs.map(f => ({ label: f.category.replace(/_/g, " "), amount: f.amount }));
-
     const tempPassword = generateTempPassword();
-    const hashed = await bcrypt.hash(tempPassword, 12);
+    const hashedPassword = await bcrypt.hash(tempPassword, 12);
     const passwordExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    const studentEmail = `s.${id.slice(-8).toLowerCase()}@students.wajina.ng`;
 
-    const [parentUser, studentUser] = await prisma.$transaction(async (tx) => {
+    // Pull fee configs for this campus/session to include in the offer email
+    const feeConfigs = await prisma.feeConfig.findMany({
+      where: {
+        campus: admission.campus,
+        ...(admission.sessionId ? { sessionId: admission.sessionId } : {}),
+        classId: null,
+        termId: null,
+      },
+      select: { category: true, amount: true },
+    });
+
+    const fees = feeConfigs.map(f => ({
+      label: f.category.replace(/_/g, " "),
+      amount: f.amount,
+    }));
+
+    const { parentUser, studentUser } = await prisma.$transaction(async (tx) => {
       const parent = await (tx.user.create as any)({
         data: {
           name: admission.parentName,
-          email: parentEmail,
-          password: hashed,
+          email: normEmail,
+          password: hashedPassword,
           role: "PARENT",
           status: "ACTIVE",
           campus: admission.campus,
-          phone: admission.parentPhone || undefined,
           mustChangePassword: true,
           passwordExpiresAt,
         },
         select: { id: true, name: true, email: true },
       }) as { id: string; name: string; email: string };
 
-      const studentPassword = await bcrypt.hash(generateTempPassword(), 12);
+      // Student is PENDING until class/arm assigned by admin
       const student = await tx.user.create({
         data: {
           name: admission.applicantName,
-          email: studentEmail,
-          password: studentPassword,
+          email: `s.${id.slice(-8).toLowerCase()}@students.wajina.ng`,
+          password: await bcrypt.hash(crypto.randomBytes(24).toString("hex"), 10),
           role: "STUDENT",
-          status: "ACTIVE",
+          status: "PENDING",
           campus: admission.campus,
         },
-        select: { id: true, name: true, email: true },
-      }) as { id: string; name: string; email: string };
+        select: { id: true },
+      });
 
       await tx.studentParent.create({
         data: {
@@ -115,40 +118,50 @@ export async function POST(
           relationshipType: "GUARDIAN",
           isPrimary: true,
           canAuthorisePayment: true,
-          canPickup: true,
         },
       });
 
-      await tx.admission.update({ where: { id }, data: { status: "OFFERED" } });
+      await tx.admission.update({
+        where: { id },
+        data: { status: "OFFERED" },
+      });
 
-      return [parent, student];
+      await tx.auditLog.create({
+        data: {
+          actorId: actor.id,
+          action: "ADMISSION_OFFERED",
+          entity: "Admission",
+          entityId: id,
+          detail: `Parent: ${normEmail} · Student: ${admission.applicantName}`,
+          ipAddress: getIP(req),
+          campus: admission.campus,
+        },
+      });
+
+      return { parentUser: parent, studentUser: student };
     });
 
+    // Non-blocking — email failure must not roll back account creation
     sendAdmissionOffer({
-      parentName: admission.parentName,
+      parentName: parentUser.name,
       parentEmail: parentUser.email,
       studentName: admission.applicantName,
       targetClass: admission.targetClass,
-      campus: admission.campus,
+      campus: admission.campus as string,
       tempPassword,
       fees,
-    }).catch(err => console.error("[admissions/enroll] email failed:", err));
-
-    audit(
-      actor.id,
-      "ADMISSION_OFFERED",
-      "Admission",
-      id,
-      `Parent: ${parentUser.email} | Student: ${studentUser.email}`,
-      getIP(req)
-    );
+    }).catch(err => console.error("[enroll] offer email failed:", err));
 
     return NextResponse.json(
-      { parentId: parentUser.id, studentId: studentUser.id, message: "Offer sent and portal accounts created." },
+      {
+        message: "Admission offered. Portal accounts created and offer email queued.",
+        parentId: parentUser.id,
+        studentId: studentUser.id,
+      },
       { status: 201 }
     );
   } catch (err) {
-    console.error("[admissions/enroll POST]", err);
+    console.error("[admissions/[id]/enroll POST]", err);
     return serverError();
   }
 }

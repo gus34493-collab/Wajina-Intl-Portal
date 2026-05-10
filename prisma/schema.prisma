@@ -710,7 +710,7 @@ model ReportCard {
   termId        String
   sessionId     String
   campus        SchoolCampus
-  spacesKey     String           // DO Spaces object key — used to mint pre-signed download URLs
+  spacesKey     String           // R2 object key — used to mint presigned download URLs
   snapshotJson  Json             // frozen grade snapshot at time of sealing (source of truth if PDF is re-generated)
   publishedById String
   publishedAt   DateTime         @default(now())

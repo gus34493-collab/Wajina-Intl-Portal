@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { createPresignedDownloadUrl } from "@/lib/spaces";
+import { createPresignedDownloadUrl } from "@/lib/storage";
 import { getAuthUser, unauthorized, forbidden, notFound, serverError } from "@/lib/api-auth";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

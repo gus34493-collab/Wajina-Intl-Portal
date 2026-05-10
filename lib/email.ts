@@ -1,8 +1,8 @@
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY || "re_fallback_for_build");
-const FROM_ADMISSIONS = "Wajina Admissions <admissions@wajina.com.ng>";
-const FROM_PORTAL = "Wajina Portal <portal@wajina.com.ng>";
+const FROM_ADMISSIONS = "Wajina Admissions <admissions@wajinainternational.com.ng>";
+const FROM_PORTAL = "Wajina Portal <portal@wajinainternational.com.ng>";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://portal.wajina.com.ng";
 
 // ── Shared layout wrapper ─────────────────────────────────────────────────────
@@ -16,7 +16,7 @@ function wrap(accentColor: string, headerText: string, subText: string, body: st
     <div style="padding:40px;">${body}</div>
     <div style="background:#f5f5f5;padding:24px 40px;text-align:center;border-top:1px solid #eee;">
       <p style="margin:0;font-size:11px;color:#999;">© 2026 Wajina International Schools · Makurdi, Benue State</p>
-      <p style="margin:4px 0 0;font-size:11px;color:#999;">Questions? <a href="mailto:admissions@wajina.com.ng" style="color:#6AB547;">admissions@wajina.com.ng</a></p>
+      <p style="margin:4px 0 0;font-size:11px;color:#999;">Questions? <a href="mailto:admissions@wajinainternational.com.ng" style="color:#6AB547;">admissions@wajinainternational.com.ng</a></p>
     </div>
   </div></body></html>`;
 }
@@ -119,7 +119,7 @@ export async function sendPasswordExpiryWarning({ name, email }: { name: string;
     <a href="${APP_URL}/portal/setup" style="display:inline-block;background:#c0392b;color:#fff;padding:14px 32px;border-radius:8px;font-weight:900;text-decoration:none;margin:28px 0;font-size:14px;">
       Change Password Now →
     </a>
-    <p style="font-size:12px;color:#999;">This is an automated security message. Contact admissions@wajina.com.ng for help.</p>
+    <p style="font-size:12px;color:#999;">This is an automated security message. Contact admissions@wajinainternational.com.ng for help.</p>
   `;
   return resend.emails.send({
     from: FROM_PORTAL,
@@ -146,7 +146,7 @@ export async function sendStaffCredentials({
     ${credentialBox(APP_URL, email, tempPassword, "in 7 days")}
     <p style="font-size:12px;color:#999;">
       If you did not expect this email, please contact the HR office immediately at
-      <a href="mailto:hr@wajina.com.ng" style="color:#6AB547;">hr@wajina.com.ng</a>.
+      <a href="mailto:hr@wajinainternational.com.ng" style="color:#6AB547;">hr@wajinainternational.com.ng</a>.
     </p>
   `;
   return resend.emails.send({

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
-import { uploadToSpaces, getPublicUrl } from "@/lib/spaces";
+import { uploadToStorage, getPublicUrl } from "@/lib/storage";
 import { getAuthUser, unauthorized, badRequest, serverError } from "@/lib/api-auth";
 
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -26,9 +26,8 @@ export async function POST(req: NextRequest) {
     if (buffer.byteLength > MAX_BYTES) return badRequest("File exceeds the 5 MB limit.");
 
     const key = `profile-photos/${user.id}-${crypto.randomUUID()}${ext}`;
-    await uploadToSpaces(key, buffer, file.type);
+    await uploadToStorage(key, buffer, file.type);
 
-    // Store the public CDN URL — the profile-photos prefix must be public-read on DO Spaces.
     const profilePhoto = getPublicUrl(key);
 
     const updated = await prisma.user.update({
