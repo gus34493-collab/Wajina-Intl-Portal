@@ -66,6 +66,7 @@ export async function proxy(request: NextRequest) {
   if (
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/admissions") ||
+    pathname.startsWith("/api/cron") ||
     pathname.startsWith("/api/support") ||
     pathname.startsWith("/api/payments") ||
     pathname.replace(/\/$/, "") === "/portal" ||
