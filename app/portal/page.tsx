@@ -322,12 +322,12 @@ export default function PortalPage() {
 
           <RecoveryModal isOpen={isRecoveryOpen} onClose={() => setIsRecoveryOpen(false)} />
 
-          <div className="mt-6 flex items-center justify-center gap-4">
-            <div className="h-px w-6 bg-brand-accent" />
-            <p className="text-token-micro font-black uppercase tracking-[0.3em] text-white/20">
+          <div className="mt-6 w-full flex items-center justify-center gap-4">
+            <div className="h-px w-6 bg-brand-accent shrink-0" />
+            <p className="text-token-micro font-black uppercase tracking-[0.3em] text-white/20 text-center">
               © 2026 Wajina International Schools
             </p>
-            <div className="h-px w-6 bg-brand-accent" />
+            <div className="h-px w-6 bg-brand-accent shrink-0" />
           </div>
         </motion.div>
       </div>
