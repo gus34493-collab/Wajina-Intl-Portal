@@ -31,7 +31,7 @@ export function getDefaultRoute(role: string): string {
     HOD: '/hod-dashboard',
     DEAN: '/dean-dashboard',
     TEACHER: '/teacher-dashboard',
-    FORM_TEACHER: '/teacher-dashboard',
+    FORM_TEACHER: '/form-teacher-dashboard',
     BURSAR: '/bursar-primary-dashboard',
     ACCOUNTS_OFFICER: '/accounts-officer-dashboard',
     HR: '/hr-dashboard',
@@ -255,14 +255,15 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
     ],
   },
   FORM_TEACHER: {
-    title: "Academic Suite",
+    title: "Form Teacher Suite",
     sections: [
       {
         title: "GENERAL",
         items: [
-          { label: "Dashboard", href: "/teacher-dashboard", icon: "fa-house" },
-          { label: "Attendance", href: "/teacher-dashboard?view=attendance", icon: "fa-users-rectangle" },
+          { label: "Dashboard", href: "/form-teacher-dashboard", icon: "fa-house" },
+          { label: "Attendance", href: "/form-teacher-dashboard?view=attendance", icon: "fa-users-rectangle" },
           { label: "Gradebook", href: "/gradebook", icon: "fa-table" },
+          { label: "My Subjects", href: "/teacher-dashboard", icon: "fa-chalkboard-teacher" },
         ],
       },
     ],

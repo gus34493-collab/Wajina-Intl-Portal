@@ -39,7 +39,8 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
   "/hr-dashboard": ["DIRECTOR", "HR"],
 
   // Academic
-  "/teacher-dashboard": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "TEACHER", "FORM_TEACHER"],
+  "/teacher-dashboard": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "TEACHER"],
+  "/form-teacher-dashboard": ["DIRECTOR", "PRINCIPAL", "FORM_TEACHER"],
   "/gradebook": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "TEACHER", "FORM_TEACHER", "DEAN"],
   "/review-grades": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HOD", "DEAN"],
   "/academic-performance": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ACADEMICS", "VP_ADMIN", "HOD"],
