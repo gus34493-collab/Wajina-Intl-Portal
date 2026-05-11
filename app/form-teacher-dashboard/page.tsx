@@ -55,6 +55,24 @@ export default function FormTeacherDashboard() {
 
   useEffect(() => { fetchData(); }, []);
 
+  const [attPeriod, setAttPeriod] = useState<"DAY" | "WEEK" | "MONTH" | "TERM">("DAY");
+  const [periodStats, setPeriodStats] = useState<{ present: number; absent: number; late: number; total: number; rate: number | null } | null>(null);
+  const [periodLoading, setPeriodLoading] = useState(false);
+
+  useEffect(() => {
+    if (attPeriod === "DAY" || !data?.arm) return;
+    const armId = data.arm.id;
+    const termId = data.termName ? undefined : undefined; // termId not in arm, skip for now
+    const periodParam = attPeriod.toLowerCase();
+    const url = `/api/attendance/summary?armId=${armId}&period=${periodParam}${attPeriod === "TERM" && termId ? `&termId=${termId}` : ""}`;
+    setPeriodLoading(true);
+    fetch(url)
+      .then((r) => r.json())
+      .then(setPeriodStats)
+      .catch(console.error)
+      .finally(() => setPeriodLoading(false));
+  }, [attPeriod, data?.arm]);
+
   const firstName = user?.name?.split(" ")[0] ?? "Teacher";
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
@@ -138,62 +156,146 @@ export default function FormTeacherDashboard() {
           </div>
         </section>
 
-        {/* ── Two-Session Attendance ── */}
+        {/* ── Attendance ── */}
         {(loading || data?.arm) && (
           <section>
-            <h2 className="text-xs font-black text-brand-primary/40 uppercase tracking-[0.3em] mb-3">Today&apos;s Attendance</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[
-                { label: "Morning Register", session: "MORNING", att: data?.morningAttendance, icon: <Sun size={15} className="text-brand-accent" /> },
-                { label: "Closing Register", session: "CLOSING", att: data?.closingAttendance, icon: <Sunset size={15} className="text-brand-primary/60" /> },
-              ].map(({ label, session, att, icon }) => (
-                loading ? (
-                  <div key={session} className="h-28 rounded-2xl bg-white border border-brand-primary/8 animate-pulse" />
-                ) : !att?.isMarked ? (
-                  <div key={session} className="bg-white border border-brand-accent/20 rounded-2xl p-4 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      {icon}
-                      <div>
-                        <p className="text-sm font-black text-brand-primary">{label}</p>
-                        <p className="text-[0.6rem] text-brand-primary/40 font-medium uppercase tracking-widest">Not marked yet</p>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-xs font-black text-brand-primary/40 uppercase tracking-[0.3em]">Attendance</h2>
+              {/* Period filter tabs */}
+              <div className="flex gap-1 bg-brand-primary/5 rounded-xl p-1">
+                {(["DAY", "WEEK", "MONTH", "TERM"] as const).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => { setAttPeriod(p); if (p === "DAY") setPeriodStats(null); }}
+                    className={cn(
+                      "text-[0.6rem] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg transition-all",
+                      attPeriod === p
+                        ? "bg-white text-brand-primary shadow-sm"
+                        : "text-brand-primary/40 hover:text-brand-primary/70"
+                    )}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* DAY view: morning + closing cards */}
+            {attPeriod === "DAY" && (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {[
+                    { label: "Morning Register", session: "MORNING", att: data?.morningAttendance, icon: <Sun size={15} className="text-brand-accent" /> },
+                    { label: "Closing Register", session: "CLOSING", att: data?.closingAttendance, icon: <Sunset size={15} className="text-brand-primary/60" /> },
+                  ].map(({ label, session, att, icon }) => (
+                    loading ? (
+                      <div key={session} className="h-28 rounded-2xl bg-white border border-brand-primary/8 animate-pulse" />
+                    ) : !att?.isMarked ? (
+                      <div key={session} className="bg-white border border-brand-accent/20 rounded-2xl p-4 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          {icon}
+                          <div>
+                            <p className="text-sm font-black text-brand-primary">{label}</p>
+                            <p className="text-[0.6rem] text-brand-primary/40 font-medium uppercase tracking-widest">Not marked yet</p>
+                          </div>
+                        </div>
+                        <button onClick={() => router.push(`/form-teacher-dashboard?view=attendance&session=${session}`)}
+                          className="shrink-0 bg-brand-primary text-white text-[0.6rem] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg">
+                          Mark
+                        </button>
                       </div>
-                    </div>
-                    <button onClick={() => router.push(`/form-teacher-dashboard?view=attendance&session=${session}`)}
-                      className="shrink-0 bg-brand-primary text-white text-[0.6rem] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg">
-                      Mark
-                    </button>
-                  </div>
-                ) : (
-                  <div key={session} className="bg-white border border-brand-success/20 rounded-2xl p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      {icon}
-                      <p className="text-[0.65rem] font-black text-brand-primary/60 uppercase tracking-widest">{label}</p>
-                      <span className="ml-auto text-[0.6rem] font-black bg-brand-success/10 text-brand-success px-2 py-0.5 rounded-full">{att.rate}%</span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[["Present", att.present, "text-brand-success"], ["Absent", att.absent, "text-red-500"], ["Late", att.late, "text-brand-accent"]].map(([lbl, val, col]) => (
-                        <div key={lbl as string} className="text-center">
-                          <p className={cn("text-lg font-display font-black", col)}>{val as number}</p>
-                          <p className="text-[0.55rem] font-black text-brand-primary/30 uppercase">{lbl as string}</p>
+                    ) : (
+                      <div key={session} className="bg-white border border-brand-success/20 rounded-2xl p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          {icon}
+                          <p className="text-[0.65rem] font-black text-brand-primary/60 uppercase tracking-widest">{label}</p>
+                          <span className="ml-auto text-[0.6rem] font-black bg-brand-success/10 text-brand-success px-2 py-0.5 rounded-full">{att.rate}%</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[["Present", att.present, "text-brand-success"], ["Absent", att.absent, "text-red-500"], ["Late", att.late, "text-brand-accent"]].map(([lbl, val, col]) => (
+                            <div key={lbl as string} className="text-center">
+                              <p className={cn("text-lg font-display font-black", col)}>{val as number}</p>
+                              <p className="text-[0.55rem] font-black text-brand-primary/30 uppercase">{lbl as string}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  ))}
+                </div>
+
+                {/* Weekly trend */}
+                {!loading && (data?.weeklyTrend?.length ?? 0) > 1 && (
+                  <div className="mt-3 bg-white border border-brand-primary/8 rounded-2xl p-4">
+                    <p className="text-[0.6rem] font-black text-brand-primary/30 uppercase tracking-widest mb-2">7-Day Morning Trend</p>
+                    <div className="flex items-end gap-1.5 h-8">
+                      {data!.weeklyTrend.map((d, i) => (
+                        <div key={i} title={`${d.date}: ${d.rate}%`} className="flex-1 rounded-sm bg-brand-success/10 relative overflow-hidden h-full">
+                          <div className="absolute bottom-0 left-0 right-0 rounded-sm bg-brand-success/60" style={{ height: `${Math.max(4, d.rate)}%` }} />
                         </div>
                       ))}
                     </div>
                   </div>
-                )
-              ))}
-            </div>
+                )}
+              </>
+            )}
 
-            {/* Weekly trend */}
-            {!loading && (data?.weeklyTrend?.length ?? 0) > 1 && (
-              <div className="mt-3 bg-white border border-brand-primary/8 rounded-2xl p-4">
-                <p className="text-[0.6rem] font-black text-brand-primary/30 uppercase tracking-widest mb-2">7-Day Morning Trend</p>
-                <div className="flex items-end gap-1.5 h-8">
-                  {data!.weeklyTrend.map((d, i) => (
-                    <div key={i} title={`${d.date}: ${d.rate}%`} className="flex-1 rounded-sm bg-brand-success/10 relative overflow-hidden h-full">
-                      <div className="absolute bottom-0 left-0 right-0 rounded-sm bg-brand-success/60" style={{ height: `${Math.max(4, d.rate)}%` }} />
+            {/* WEEK / MONTH / TERM view: aggregated summary */}
+            {attPeriod !== "DAY" && (
+              <div className="bg-white border border-brand-primary/8 rounded-2xl p-5">
+                {periodLoading ? (
+                  <div className="flex flex-col gap-3">
+                    <div className="h-4 w-32 rounded bg-brand-primary/5 animate-pulse" />
+                    <div className="grid grid-cols-4 gap-3">
+                      {[1,2,3,4].map((i) => <div key={i} className="h-16 rounded-xl bg-brand-primary/5 animate-pulse" />)}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ) : periodStats ? (
+                  <>
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-[0.65rem] font-black text-brand-primary/40 uppercase tracking-widest">
+                        {attPeriod === "WEEK" ? "Last 7 Days" : attPeriod === "MONTH" ? "This Month" : "This Term"} · All Sessions
+                      </p>
+                      <div className={cn(
+                        "text-sm font-display font-black px-3 py-1 rounded-xl",
+                        (periodStats.rate ?? 0) >= 75 ? "bg-brand-success/10 text-brand-success" : "bg-brand-accent/10 text-brand-accent"
+                      )}>
+                        {periodStats.rate !== null ? `${periodStats.rate}%` : "—"}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-4 gap-3 mb-4">
+                      {[
+                        ["Present", periodStats.present, "text-brand-success", "bg-brand-success/8"],
+                        ["Absent",  periodStats.absent,  "text-red-500",       "bg-red-50"],
+                        ["Late",    periodStats.late,    "text-brand-accent",  "bg-brand-accent/8"],
+                        ["Total",   periodStats.total,   "text-brand-primary", "bg-brand-primary/5"],
+                      ].map(([lbl, val, col, bg]) => (
+                        <div key={lbl as string} className={cn("rounded-xl p-3 text-center", bg as string)}>
+                          <p className={cn("text-xl font-display font-black", col as string)}>{val as number}</p>
+                          <p className="text-[0.55rem] font-black text-brand-primary/30 uppercase tracking-wide mt-0.5">{lbl as string}</p>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Rate bar */}
+                    {periodStats.total > 0 && (
+                      <div>
+                        <div className="h-2 bg-brand-primary/8 rounded-full overflow-hidden">
+                          <div
+                            className={cn("h-full rounded-full transition-all duration-700", (periodStats.rate ?? 0) >= 75 ? "bg-brand-success" : "bg-brand-accent")}
+                            style={{ width: `${periodStats.rate ?? 0}%` }}
+                          />
+                        </div>
+                        <p className="text-[0.6rem] font-black text-brand-primary/30 uppercase tracking-widest mt-1.5">
+                          {(periodStats.rate ?? 0) >= 75 ? "Satisfactory attendance" : "Below 75% threshold"}
+                        </p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-[0.65rem] font-black text-brand-primary/30 uppercase tracking-widest text-center py-6">
+                    {data?.arm ? "Loading period data…" : "No class assigned"}
+                  </p>
+                )}
               </div>
             )}
           </section>
