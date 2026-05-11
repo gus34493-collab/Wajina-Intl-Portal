@@ -4,7 +4,7 @@ import { getAuthUser, unauthorized, forbidden, serverError } from "@/lib/api-aut
 
 const ALLOWED = [
   "DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER",
-  "VP_ADMIN", "VP_ACADEMICS", "HR", "ADMIN_STAFF", "FORM_TEACHER", "TEACHER",
+  "VP_ADMIN", "VP_ACADEMICS", "HR", "FORM_TEACHER", "TEACHER",
 ];
 
 export async function GET(req: NextRequest) {

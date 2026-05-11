@@ -10,7 +10,7 @@ export async function GET(
 ) {
   const user = await getAuthUser();
   if (!user) return unauthorized();
-  if (!hasRole(user, "DIRECTOR", "PRINCIPAL", "TEACHER", "FORM_TEACHER", "ADMIN_STAFF")) return forbidden();
+  if (!hasRole(user, "DIRECTOR", "PRINCIPAL", "TEACHER", "FORM_TEACHER")) return forbidden();
 
   const { armId } = await params;
 

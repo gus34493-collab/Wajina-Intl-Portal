@@ -11,7 +11,7 @@ import {
 } from "@/lib/api-auth";
 import { audit } from "@/lib/audit";
 
-const MANAGEMENT = ["DIRECTOR", "PRINCIPAL", "ADMIN_STAFF"] as const;
+const MANAGEMENT = ["DIRECTOR", "PRINCIPAL"] as const;
 
 export async function PATCH(
   req: NextRequest,

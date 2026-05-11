@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { getAuthUser, unauthorized, forbidden, notFound, serverError, getIP } from "@/lib/api-auth";
 
 const MANAGEMENT = [
-  "DIRECTOR", "PRINCIPAL", "ADMIN_STAFF", "HEAD_TEACHER", "ASST_HEAD_TEACHER",
+  "DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER",
   "VP_ADMIN", "VP_ACADEMICS", "BURSAR", "HR", "DEAN",
 ];
 

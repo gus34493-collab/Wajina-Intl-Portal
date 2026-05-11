@@ -25,6 +25,14 @@ export async function POST(req: NextRequest) {
     const role = user.role as string;
     if (role === "TEACHER" || role === "FORM_TEACHER") {
       if (subject.teacherId !== user.id) return forbidden();
+      const studentIds = [...new Set(grades.map((r: any) => r.studentId))];
+      const enrolled = await prisma.user.findMany({
+        where: { id: { in: studentIds as string[] }, classId: subject.classId },
+        select: { id: true },
+      });
+      if (enrolled.length !== studentIds.length) {
+        return forbidden("One or more students are not enrolled in this subject's class.");
+      }
     }
 
     const config = getAssessmentConfig(subject.class.campus as string, subject.class.category ?? "", subject.class.name);

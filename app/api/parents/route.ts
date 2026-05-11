@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getAuthUser, unauthorized, forbidden, serverError } from "@/lib/api-auth";
 
-const ALLOWED = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "HR", "ADMIN_STAFF"];
+const ALLOWED = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "HR"];
 
 export async function GET(req: NextRequest) {
   const user = await getAuthUser();

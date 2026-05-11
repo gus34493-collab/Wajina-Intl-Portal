@@ -18,7 +18,7 @@ const OPS_LEADERS = [
 
 const ANY_STAFF = [
   ...OPS_LEADERS,
-  "TEACHER", "FORM_TEACHER", "HR", "BURSAR", "ACCOUNTS_OFFICER", "ADMIN_STAFF",
+  "TEACHER", "FORM_TEACHER", "HR", "BURSAR", "ACCOUNTS_OFFICER",
 ] as const;
 
 export async function GET(req: NextRequest) {

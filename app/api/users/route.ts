@@ -7,7 +7,7 @@ import { audit } from "@/lib/audit";
 const VALID_ROLES = [
   "DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "VP_ADMIN", "HOD",
   "HEAD_TEACHER", "ASST_HEAD_TEACHER", "DEAN",
-  "BURSAR", "ACCOUNTS_OFFICER", "HR", "ADMIN_STAFF",
+  "BURSAR", "ACCOUNTS_OFFICER", "HR",
   "FORM_TEACHER", "TEACHER", "PARENT", "STUDENT",
 ];
 
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get("limit") ?? "50"), 200);
     const skip = (page - 1) * limit;
 
-    const isStaffOrTeacher = ["TEACHER", "FORM_TEACHER", "ADMIN_STAFF"].includes(role);
+    const isStaffOrTeacher = ["TEACHER", "FORM_TEACHER"].includes(role);
     const forcedRole = isStaffOrTeacher ? "STUDENT" : roleFilter;
     const campusFilter = role !== "DIRECTOR" ? (user.campus as string) : campus;
 

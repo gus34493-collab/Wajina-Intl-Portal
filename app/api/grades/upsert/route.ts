@@ -24,6 +24,10 @@ export async function PUT(req: NextRequest) {
     const role = user.role as string;
     if (role === "TEACHER" || role === "FORM_TEACHER") {
       if (subject.teacherId !== user.id) return forbidden();
+      const enrollment = await prisma.user.findFirst({
+        where: { id: studentId, classId: subject.classId },
+      });
+      if (!enrollment) return forbidden("Student is not enrolled in this subject's class.");
     }
 
     const config = getAssessmentConfig(subject.class.campus as string, subject.class.category ?? "", subject.class.name);

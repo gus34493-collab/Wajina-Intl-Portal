@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import prisma from './prisma';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "fallback-for-build-only");
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "wajina-international-architecture-2026");
 
 const ACCESS_TOKEN_EXPIRY = '2h';
 const REFRESH_TOKEN_EXPIRY = '7d';

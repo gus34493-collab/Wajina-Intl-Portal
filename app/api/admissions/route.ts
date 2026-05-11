@@ -3,10 +3,10 @@ import prisma from "@/lib/prisma";
 import { getAuthUser, unauthorized, forbidden, badRequest, serverError, getIP } from "@/lib/api-auth";
 
 const MANAGEMENT = [
-  "DIRECTOR", "PRINCIPAL", "ADMIN_STAFF", "HEAD_TEACHER", "ASST_HEAD_TEACHER",
+  "DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER",
   "VP_ADMIN", "VP_ACADEMICS", "BURSAR", "HR",
 ];
-const ADMISSION_OFFICERS = ["DIRECTOR", "PRINCIPAL", "ADMIN_STAFF", "HEAD_TEACHER", "VP_ADMIN"];
+const ADMISSION_OFFICERS = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN"];
 
 export async function GET(req: NextRequest) {
   const user = await getAuthUser();

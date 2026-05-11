@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 import { getAuthUser, unauthorized, forbidden, notFound, serverError, getIP } from "@/lib/api-auth";
 import { sendAdmissionOffer } from "@/lib/email";
 
-const AUTHORIZED = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "ADMIN_STAFF"];
+const AUTHORIZED = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN"];
 
 function generateTempPassword(): string {
   const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";

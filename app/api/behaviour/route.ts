@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const user = await getAuthUser();
   if (!user) return unauthorized();
-  if (!hasRole(user, "DIRECTOR", "PRINCIPAL", "TEACHER", "FORM_TEACHER", "ADMIN_STAFF")) return forbidden();
+  if (!hasRole(user, "DIRECTOR", "PRINCIPAL", "TEACHER", "FORM_TEACHER")) return forbidden();
 
   try {
     const { studentId, date, category, severity, description, actionTaken, termId, sessionId } = await req.json();

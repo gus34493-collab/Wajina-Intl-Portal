@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getAuthUser, unauthorized, serverError } from "@/lib/api-auth";
+import { getAuthUser, unauthorized, forbidden, serverError } from "@/lib/api-auth";
 
 export async function GET(
   _req: NextRequest,
@@ -10,6 +10,11 @@ export async function GET(
   if (!user) return unauthorized();
 
   const { teacherId } = await params;
+
+  const canView =
+    ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "HR"].includes(user.role) ||
+    user.id === teacherId;
+  if (!canView) return forbidden();
 
   try {
     const appraisals = await prisma.teacherAppraisal.findMany({
