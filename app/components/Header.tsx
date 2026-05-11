@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Sun, Moon, Bell, ArrowLeft, ChevronDown, UserCircle, LogOut, Camera, User, Menu } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -73,33 +74,54 @@ export default function Header({ user, loading, onUserUpdate, onMobileMenuToggle
 
   return (
     <header role="banner" className="flex items-center justify-between h-20 px-4 md:px-0 bg-transparent relative z-50">
-      {/* Mobile Menu Toggle (Left) */}
-      <button
-        onClick={onMobileMenuToggle}
-        className="md:hidden w-12 h-12 rounded-xl border border-brand-primary/5 bg-white text-brand-primary grid place-items-center shadow-sm"
-      >
-        <Menu size={20} />
-      </button>
 
-      {/* Left Zone: Greeting Slab — ALWAYS visible with scaling */}
-      <div className="flex items-center gap-2 md:gap-8 min-w-0 flex-1">
+      {/* ── MOBILE HEADER: logo + hamburger only ── */}
+      <div className="flex md:hidden items-center justify-between w-full">
+        <div className="flex items-center gap-3">
+          <div className="bg-brand-primary p-1.5 rounded-xl shadow-sm">
+            <Image
+              src="/images/logo-no-bg.png"
+              alt="Wajina International Schools"
+              width={28}
+              height={28}
+              priority
+              className="object-contain"
+            />
+          </div>
+          <div className="flex flex-col leading-none">
+            <span className="text-[0.5rem] font-display font-black text-brand-primary uppercase tracking-[0.3em]">WAJINA</span>
+            <span className="text-[0.42rem] font-black text-brand-primary/40 uppercase tracking-[0.25em]">INT&apos;L SCHOOLS</span>
+          </div>
+        </div>
+        <button
+          onClick={onMobileMenuToggle}
+          className="w-11 h-11 rounded-xl border border-brand-primary/10 bg-white text-brand-primary grid place-items-center shadow-sm"
+          aria-label="Open menu"
+        >
+          <Menu size={20} />
+        </button>
+      </div>
+
+      {/* ── DESKTOP HEADER: full layout ── */}
+      {/* Left Zone: Back + Greeting */}
+      <div className="hidden md:flex items-center gap-8 min-w-0 flex-1">
         <button
           onClick={() => router.back()}
-          className="w-11 h-11 md:w-12 md:h-12 shrink-0 rounded-xl border border-brand-primary/5 hover:bg-brand-primary hover:text-white transition-all grid place-items-center bg-white shadow-sm group"
+          className="w-12 h-12 shrink-0 rounded-xl border border-brand-primary/5 hover:bg-brand-primary hover:text-white transition-all grid place-items-center bg-white shadow-sm group"
         >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform md:size-[18px]" />
+          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
         </button>
 
         <div className="min-w-0">
-          <h2 className="text-token-micro md:text-token-micro font-display font-black text-brand-primary/40 tracking-[0.2em] md:tracking-[0.3em] uppercase mb-0.5 md:mb-1 truncate">
+          <h2 className="text-token-micro font-display font-black text-brand-primary/40 tracking-[0.3em] uppercase mb-1 truncate">
             {greeting}
           </h2>
-          <div className="flex items-center gap-1.5 md:gap-3 min-w-0">
-            <p className="text-token-micro md:text-sm font-black text-brand-primary uppercase tracking-tight truncate">
+          <div className="flex items-center gap-3 min-w-0">
+            <p className="text-sm font-black text-brand-primary uppercase tracking-tight truncate">
               <span className="text-brand-accent">{userName}</span>
             </p>
             {user?.role !== "DIRECTOR" && user?.campus && (
-              <span className="text-token-micro md:text-token-micro font-black text-brand-primary/40 uppercase tracking-[0.2em] border-l border-brand-primary/10 pl-2 md:pl-3 truncate">
+              <span className="text-token-micro font-black text-brand-primary/40 uppercase tracking-[0.2em] border-l border-brand-primary/10 pl-3 truncate">
                 {user.campus}
               </span>
             )}
@@ -107,8 +129,8 @@ export default function Header({ user, loading, onUserUpdate, onMobileMenuToggle
         </div>
       </div>
 
-      {/* Right Zone: Command Actions */}
-      <div className="flex items-center gap-4 md:gap-8 ml-auto md:ml-0">
+      {/* Right Zone: Command Actions (desktop only) */}
+      <div className="hidden md:flex items-center gap-8 ml-0">
         <div className="flex items-center gap-4">
           <button
             onClick={toggleTheme}
@@ -117,29 +139,29 @@ export default function Header({ user, loading, onUserUpdate, onMobileMenuToggle
             {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </button>
 
-          <button className="grid relative w-11 h-11 md:w-12 md:h-12 rounded-xl border border-brand-primary/5 hover:border-brand-primary transition-all place-items-center bg-white text-brand-primary shadow-sm shrink-0">
-            <Bell size={18} className="md:size-5" />
-            <span className="absolute top-2.5 right-2.5 md:top-3 md:right-3 w-1.5 h-1.5 md:w-2 md:h-2 bg-brand-accent border-2 border-white rounded-full" />
+          <button className="grid relative w-12 h-12 rounded-xl border border-brand-primary/5 hover:border-brand-primary transition-all place-items-center bg-white text-brand-primary shadow-sm shrink-0">
+            <Bell size={18} />
+            <span className="absolute top-3 right-3 w-2 h-2 bg-brand-accent border-2 border-white rounded-full" />
           </button>
         </div>
 
         <div className="relative">
           <div
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-4 cursor-pointer group md:bg-white/50 md:backdrop-blur-sm md:border border-brand-primary/5 md:px-4 md:py-2 rounded-2xl hover:bg-white transition-all shadow-sm"
+            className="flex items-center gap-4 cursor-pointer group bg-white/50 backdrop-blur-sm border border-brand-primary/5 px-4 py-2 rounded-2xl hover:bg-white transition-all shadow-sm"
           >
-            <div className="w-12 h-12 md:w-10 md:h-10 bg-white rounded-xl border border-brand-primary/10 overflow-hidden relative shadow-inner">
+            <div className="w-10 h-10 bg-white rounded-xl border border-brand-primary/10 overflow-hidden relative shadow-inner">
               {user?.profilePhoto ? (
                 <img src={user.profilePhoto} alt="User" className="w-full h-full object-cover" />
               ) : (
                 <UserCircle size={24} className="text-brand-primary/20 absolute inset-0 m-auto" />
               )}
             </div>
-            <div className="block min-w-0 text-right">
-              <p className="text-token-micro md:text-token-micro font-black text-brand-primary uppercase tracking-wider leading-none mb-0.5 md:mb-1 truncate">{user?.name}</p>
-              <p className="text-token-micro md:text-token-micro font-black text-brand-accent uppercase tracking-widest opacity-80 truncate">{user?.role}</p>
+            <div className="min-w-0 text-right">
+              <p className="text-token-micro font-black text-brand-primary uppercase tracking-wider leading-none mb-1 truncate">{user?.name}</p>
+              <p className="text-token-micro font-black text-brand-accent uppercase tracking-widest opacity-80 truncate">{user?.role}</p>
             </div>
-            <ChevronDown size={12} className={cn("text-brand-primary transition-all opacity-40 block", isDropdownOpen && "rotate-180 opacity-100")} />
+            <ChevronDown size={12} className={cn("text-brand-primary transition-all opacity-40", isDropdownOpen && "rotate-180 opacity-100")} />
           </div>
 
           <AnimatePresence>
@@ -199,4 +221,3 @@ export default function Header({ user, loading, onUserUpdate, onMobileMenuToggle
     </header>
   );
 }
-
