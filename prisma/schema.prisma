@@ -311,29 +311,31 @@ model Grade {
 }
 
 model Attendance {
-  id         String           @id @default(cuid(2))
-  date       DateTime         @db.Date
+  id         String            @id @default(cuid(2))
+  date       DateTime          @db.Date
+  session    AttendanceSession @default(MORNING)
   status     AttendanceStatus
-  campus     SchoolCampus     @default(PRIMARY) // RED-1: added — backfill secondary attendance after migration
+  campus     SchoolCampus      @default(PRIMARY)
   studentId  String
   armId      String?
   markedById String?
   termId     String?
   note       String?
-  createdAt  DateTime         @default(now())
-  markedBy   User?            @relation("AttendanceMarker", fields: [markedById], references: [id])
-  student    User             @relation("StudentAttendance", fields: [studentId], references: [id])
-  term       Term?            @relation(fields: [termId], references: [id])
-  arm        ClassArm?        @relation(fields: [armId], references: [id]) // YELLOW-2: added FK — clean orphaned armIds before migrating
+  createdAt  DateTime          @default(now())
+  markedBy   User?             @relation("AttendanceMarker", fields: [markedById], references: [id])
+  student    User              @relation("StudentAttendance", fields: [studentId], references: [id])
+  term       Term?             @relation(fields: [termId], references: [id])
+  arm        ClassArm?         @relation(fields: [armId], references: [id])
 
-  @@unique([studentId, date])
+  @@unique([studentId, date, session])
   @@index([studentId])
   @@index([date])
   @@index([termId])
   @@index([armId])
   @@index([markedById])
-  @@index([armId, date])       // YELLOW-2: bulk arm-level attendance marking
-  @@index([termId, studentId]) // YELLOW-2: term attendance report per student
+  @@index([armId, date])
+  @@index([armId, date, session])
+  @@index([termId, studentId])
   @@index([campus])
 }
 
@@ -814,6 +816,12 @@ enum ReportCardStatus {
 enum AttendanceStatus {
   PRESENT
   ABSENT
+  LATE
+}
+
+enum AttendanceSession {
+  MORNING
+  CLOSING
 }
 
 enum RequestLevel {

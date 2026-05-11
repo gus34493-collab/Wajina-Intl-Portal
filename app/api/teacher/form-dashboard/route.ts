@@ -10,7 +10,6 @@ export async function GET(_req: NextRequest) {
   if (!ALLOWED.includes(user.role as string)) return forbidden();
 
   try {
-    // Get the arm this form teacher manages
     const arm = await prisma.classArm.findFirst({
       where: { teacherId: user.id },
       include: {
@@ -19,43 +18,48 @@ export async function GET(_req: NextRequest) {
       },
     });
 
-    // Today's attendance for this arm
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let attendance = { present: 0, absent: 0, late: 0, total: 0, rate: null as number | null, isMarked: false };
+    // Per-session attendance for today
+    const morningAttendance = { present: 0, absent: 0, late: 0, total: 0, rate: null as number | null, isMarked: false };
+    const closingAttendance = { present: 0, absent: 0, late: 0, total: 0, rate: null as number | null, isMarked: false };
 
     if (arm) {
-      const [present, absent, late, total] = await Promise.all([
-        prisma.attendance.count({ where: { armId: arm.id, date: today, status: "PRESENT" } }),
-        prisma.attendance.count({ where: { armId: arm.id, date: today, status: "ABSENT" } }),
-        prisma.attendance.count({ where: { armId: arm.id, date: today, status: "LATE" } }),
-        prisma.attendance.count({ where: { armId: arm.id, date: today } }),
+      const [mPresent, mAbsent, mLate, mTotal, cPresent, cAbsent, cLate, cTotal] = await Promise.all([
+        (prisma.attendance as any).count({ where: { armId: arm.id, date: today, session: "MORNING", status: "PRESENT" } }),
+        (prisma.attendance as any).count({ where: { armId: arm.id, date: today, session: "MORNING", status: "ABSENT" } }),
+        (prisma.attendance as any).count({ where: { armId: arm.id, date: today, session: "MORNING", status: "LATE" } }),
+        (prisma.attendance as any).count({ where: { armId: arm.id, date: today, session: "MORNING" } }),
+        (prisma.attendance as any).count({ where: { armId: arm.id, date: today, session: "CLOSING", status: "PRESENT" } }),
+        (prisma.attendance as any).count({ where: { armId: arm.id, date: today, session: "CLOSING", status: "ABSENT" } }),
+        (prisma.attendance as any).count({ where: { armId: arm.id, date: today, session: "CLOSING", status: "LATE" } }),
+        (prisma.attendance as any).count({ where: { armId: arm.id, date: today, session: "CLOSING" } }),
       ]);
-      attendance = {
-        present,
-        absent,
-        late,
-        total,
-        rate: total > 0 ? Math.round((present / total) * 100) : null,
-        isMarked: total > 0,
-      };
+
+      Object.assign(morningAttendance, {
+        present: mPresent, absent: mAbsent, late: mLate, total: mTotal,
+        rate: mTotal > 0 ? Math.round((mPresent / mTotal) * 100) : null,
+        isMarked: mTotal > 0,
+      });
+      Object.assign(closingAttendance, {
+        present: cPresent, absent: cAbsent, late: cLate, total: cTotal,
+        rate: cTotal > 0 ? Math.round((cPresent / cTotal) * 100) : null,
+        isMarked: cTotal > 0,
+      });
     }
 
-    // Teacher's subjects
     const subjects = await prisma.subject.findMany({
       where: { teacherId: user.id },
       select: { id: true, name: true, class: { select: { name: true } } },
       orderBy: { name: "asc" },
     });
 
-    // Current term
     const term = await prisma.term.findFirst({
       where: { isCurrent: true },
       select: { id: true, name: true },
     });
 
-    // Grading compliance per subject
     let gradeCompliance = 0;
     let pendingSubjectsCount = 0;
     let subjectStatus: Array<{ subjectId: string; name: string; className: string; hasGrades: boolean; gradeCount: number }> = [];
@@ -83,28 +87,25 @@ export async function GET(_req: NextRequest) {
       pendingSubjectsCount = subjects.length - withGrades;
     }
 
-    // Grades pending form-teacher approval (submitted by subject teachers for their arm)
     const formApprovalPending = arm
-      ? await prisma.grade.count({
-          where: { student: { armId: arm.id }, status: "SUBMITTED" },
-        })
+      ? await prisma.grade.count({ where: { student: { armId: arm.id }, status: "SUBMITTED" } })
       : 0;
 
-    // Weekly attendance trend (last 7 school days for this arm)
+    // 7-day attendance trend (morning session only for the trend)
     const sevenDaysAgo = new Date(today);
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     let weeklyTrend: Array<{ date: string; rate: number }> = [];
     if (arm) {
-      const weekAttendance = await prisma.attendance.groupBy({
+      const weekRows = await (prisma.attendance as any).groupBy({
         by: ["date", "status"],
-        where: { armId: arm.id, date: { gte: sevenDaysAgo, lte: today } },
+        where: { armId: arm.id, session: "MORNING", date: { gte: sevenDaysAgo, lte: today } },
         _count: { _all: true },
         orderBy: { date: "asc" },
       });
 
       const dayMap: Record<string, { present: number; total: number }> = {};
-      for (const row of weekAttendance) {
+      for (const row of weekRows) {
         const d = (row.date as Date).toISOString().split("T")[0];
         if (!dayMap[d]) dayMap[d] = { present: 0, total: 0 };
         dayMap[d].total += row._count._all;
@@ -117,22 +118,27 @@ export async function GET(_req: NextRequest) {
       }));
     }
 
+    // Recent lesson plan submissions
+    const recentLessonPlans = await prisma.request.findMany({
+      where: { senderId: user.id, category: "LESSON_PLAN" },
+      select: { id: true, title: true, status: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+    });
+
     return NextResponse.json({
       arm: arm
-        ? {
-            id: arm.id,
-            fullName: arm.fullName,
-            className: arm.class.name,
-            studentCount: arm._count.students,
-          }
+        ? { id: arm.id, fullName: arm.fullName, className: arm.class.name, studentCount: arm._count.students }
         : null,
-      attendance,
+      morningAttendance,
+      closingAttendance,
       subjects: subjectStatus,
       gradeCompliance,
       pendingSubjectsCount,
       formApprovalPending,
       weeklyTrend,
       termName: term?.name ?? null,
+      recentLessonPlans,
     });
   } catch (err) {
     console.error("[teacher/form-dashboard GET]", err);
