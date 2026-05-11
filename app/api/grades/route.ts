@@ -10,7 +10,7 @@ const GRADE_SELECT = {
   status: true, campus: true, createdAt: true, updatedAt: true,
   student: { select: { id: true, name: true } },
   subject: { select: { id: true, name: true } },
-  term: { select: { id: true, name: true, academicSessionId: true } },
+  term: { select: { id: true, name: true, sessionId: true } },
   session: { select: { id: true, name: true, year: true } },
 } as const;
 

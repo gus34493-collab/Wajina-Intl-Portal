@@ -39,7 +39,7 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
   "/hr-dashboard": ["DIRECTOR", "HR"],
 
   // Academic
-  "/teacher-dashboard": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "TEACHER"],
+  "/teacher-dashboard": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "TEACHER", "FORM_TEACHER", "DEAN"],
   "/form-teacher-dashboard": ["DIRECTOR", "PRINCIPAL", "FORM_TEACHER"],
   "/gradebook": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "TEACHER", "FORM_TEACHER", "DEAN"],
   "/review-grades": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HOD", "DEAN"],
@@ -58,6 +58,20 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
   "/pupil-records": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "HR", "HOD", "DEAN"],
   "/session-planner": ["DIRECTOR", "PRINCIPAL", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
   "/testimonials": ["DIRECTOR", "PRINCIPAL", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
+
+  // Student & parent specific
+  "/student-previous-results": ["STUDENT", "DIRECTOR"],
+  "/student-results-detail": ["STUDENT", "DIRECTOR"],
+  "/results": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
+
+  // Unprotected pages now guarded
+  "/director-operations": ["DIRECTOR", "BURSAR"],
+  "/fee-configuration": ["DIRECTOR"],
+  "/parent-relations-dashboard": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
+  "/parent-risk-families": ["DIRECTOR", "PRINCIPAL", "DEAN", "HEAD_TEACHER"],
+  "/school-config": ["DIRECTOR"],
+  "/school-structure": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "BURSAR"],
+  "/issue-expense": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
 };
 
 export async function middleware(request: NextRequest) {

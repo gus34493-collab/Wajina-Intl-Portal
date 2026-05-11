@@ -60,8 +60,8 @@ function ParentDashboardContent() {
   }, []);
 
   // Calculate dynamic stats
-  const avgAttendance = wards.length 
-    ? (wards.reduce((acc, w) => acc + (w.attendanceRate || 0), 0) / wards.length).toFixed(1)
+  const avgAttendance = wards.length
+    ? (wards.reduce((acc, w) => acc + (w.attendance?.rate || 0), 0) / wards.length).toFixed(1)
     : "0";
   
   const pendingFeesCount = wards.filter(w => !w.payment || w.payment.status !== "CONFIRMED").length;

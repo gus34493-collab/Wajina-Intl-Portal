@@ -44,7 +44,9 @@ export async function GET(_req: NextRequest) {
     ]);
 
     // Simple compliance logic: how many grades exist vs a rough estimate of students
-    const compliance = subjectIds.length > 0 ? Math.min(Math.round((gradesCount / (subjectIds.length * 30)) * 100), 100) : 0;
+    const compliance = subjectIds.length > 0 && gradesCount > 0
+      ? Math.min(Math.round((gradesCount / (subjectIds.length * 30)) * 100), 100)
+      : 0;
 
     const recentGrading = recentGrades.map(g => ({
       subject: g.subject.name,
