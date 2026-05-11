@@ -13,12 +13,10 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get("limit") || "10");
 
-    const [incidents, total] = await Promise.all([
+    const campusFilter = user.campus ? { campus: user.campus as any } : {};
+    const [incidents, total, atRiskGroups] = await Promise.all([
       prisma.behaviourRecord.findMany({
-        where: {
-          campus: user.campus as any,
-          severity: { in: ["MEDIUM", "HIGH", "CRITICAL"] },
-        },
+        where: { ...campusFilter, severity: { in: ["MEDIUM", "HIGH", "CRITICAL"] } },
         orderBy: { createdAt: "desc" },
         take: limit,
         select: {
@@ -31,10 +29,11 @@ export async function GET(req: NextRequest) {
         },
       }),
       prisma.behaviourRecord.count({
-        where: {
-          campus: user.campus as any,
-          severity: { in: ["MEDIUM", "HIGH", "CRITICAL"] },
-        },
+        where: { ...campusFilter, severity: { in: ["MEDIUM", "HIGH", "CRITICAL"] } },
+      }),
+      (prisma.behaviourRecord as any).groupBy({
+        by: ["studentId"],
+        where: { ...campusFilter, severity: { in: ["HIGH", "CRITICAL"] } },
       }),
     ]);
 
@@ -44,7 +43,7 @@ export async function GET(req: NextRequest) {
       date: new Date(inc.createdAt).toLocaleDateString("en-GB"),
     }));
 
-    return NextResponse.json({ incidents: formatted, total });
+    return NextResponse.json({ incidents: formatted, total, studentsAtRisk: atRiskGroups.length });
   } catch (err) {
     console.error("[discipline/incidents GET]", err);
     return serverError();

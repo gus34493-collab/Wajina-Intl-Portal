@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardShell from "@/app/components/DashboardShell";
 import { 
   Zap, 
@@ -22,6 +22,30 @@ import { cn } from "@/lib/utils";
 
 export default function OperationsHubPage() {
   const [activeTab, setActiveTab] = useState("COMMAND");
+  const [staffCount, setStaffCount] = useState<string>("--");
+  const [studentCount, setStudentCount] = useState<string>("--");
+
+  useEffect(() => {
+    async function fetchCounts() {
+      try {
+        const [staffRes, studentRes] = await Promise.all([
+          fetch("/api/users/staff"),
+          fetch("/api/users?role=STUDENT&status=ACTIVE&limit=1"),
+        ]);
+        if (staffRes.ok) {
+          const data = await staffRes.json();
+          setStaffCount(String(Array.isArray(data) ? data.length : "--"));
+        }
+        if (studentRes.ok) {
+          const data = await studentRes.json();
+          setStudentCount(String(data.total ?? "--"));
+        }
+      } catch {
+        // non-critical
+      }
+    }
+    fetchCounts();
+  }, []);
 
   return (
     <DashboardShell>
@@ -111,17 +135,17 @@ export default function OperationsHubPage() {
 
               {/* Strategic Command Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 <CommandCard 
-                    title="Staffing Pulse" 
-                    desc="Institutional HR health and deployment status." 
-                    stat="142 Active" 
-                    trend="+2 Provisioning" 
+                 <CommandCard
+                    title="Staffing Pulse"
+                    desc="Institutional HR health and deployment status."
+                    stat={`${staffCount} Active`}
+                    trend="Staff on record"
                  />
-                 <CommandCard 
-                    title="Enrollment Velocity" 
-                    desc="Real-time admissions and retention metrics." 
-                    stat="482 Pupils" 
-                    trend="92% Retention" 
+                 <CommandCard
+                    title="Enrollment Velocity"
+                    desc="Real-time admissions and retention metrics."
+                    stat={`${studentCount} Pupils`}
+                    trend="Active enrollment"
                     highlight
                  />
               </div>

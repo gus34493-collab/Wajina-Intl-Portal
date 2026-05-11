@@ -53,6 +53,24 @@ export default function PrincipalDashboard() {
     .filter((g: any) => Math.abs((g.total || 0) - meanScore) > 20)
     .slice(0, 5);
 
+  // Compute per-subject averages from fetched grade data
+  const subjectMap: Record<string, { sum: number; count: number }> = {};
+  for (const g of data?.grades || []) {
+    const name: string = g.subject.name;
+    if (!subjectMap[name]) subjectMap[name] = { sum: 0, count: 0 };
+    subjectMap[name].sum += g.total || 0;
+    subjectMap[name].count += 1;
+  }
+  const topSubjects = Object.entries(subjectMap)
+    .sort(([, a], [, b]) => b.count - a.count)
+    .slice(0, 4)
+    .map(([name, { sum, count }]) => ({ name: name.slice(0, 8), avg: Math.round(sum / count) }));
+  const chartData = [meanScore, ...topSubjects.map((s) => s.avg)];
+  const chartLabels = ["Mean", ...topSubjects.map((s) => s.name)];
+
+  const reviewedCount = data ? Math.max(0, (data.total || 0) - (data.pendingCount || 0)) : 0;
+  const gaugeTotal = data?.total || 1;
+
   return (
     <DashboardShell>
       <div className="flex flex-col gap-8">
@@ -98,7 +116,6 @@ export default function PrincipalDashboard() {
                   <p className="text-token-micro font-black text-brand-primary/50 uppercase tracking-widest">Mastery Level</p>
                   <p className="text-2xl font-display font-black text-brand-primary my-0.5">{meanScore}%</p>
                   <p className="text-token-micro font-bold text-brand-accent">Institutional average</p>
-                  <p className="text-token-micro font-black text-brand-secondary uppercase tracking-widest mt-1">↑ +4pts from last term</p>
                 </div>
               </div>
             </div>
@@ -110,9 +127,9 @@ export default function PrincipalDashboard() {
                 <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest">Principal Overview</p>
               </div>
               <div className="h-[280px]">
-                {meanScore > 0 && <PerformanceBarChart
-                  data={[meanScore, 75, 62, 88, 55]}
-                  labels={["Inst. Mean", "Math", "English", "Science", "Civics"]}
+                {chartData.length > 0 && <PerformanceBarChart
+                  data={chartData}
+                  labels={chartLabels}
                 />}
               </div>
             </div>
@@ -176,7 +193,7 @@ export default function PrincipalDashboard() {
             <div className="card flex flex-col items-center justify-center p-8 bg-white border border-brand-primary/8">
               <h4 className="font-black text-brand-primary mb-6 self-start uppercase text-xs tracking-widest">Review Progress</h4>
               <div className="w-44 h-44">
-                <RevenueGauge collected={78} expected={100} />
+                <RevenueGauge collected={reviewedCount} expected={gaugeTotal} />
               </div>
               <div className="mt-6 text-center">
                 <p className="text-token-micro font-black text-brand-primary/50 uppercase tracking-widest">Grade Status</p>

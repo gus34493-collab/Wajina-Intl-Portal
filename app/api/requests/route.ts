@@ -21,6 +21,8 @@ export async function GET(req: NextRequest) {
     if (role === "DIRECTOR") {
       const campus = searchParams.get("campus");
       if (campus && campus !== "ALL") where.sender = { campus: campus as any };
+    } else if (role === "STUDENT" || role === "PARENT") {
+      where.OR = [{ senderId: user.id }, { receiverId: user.id }];
     } else {
       where.OR = [
         { sender: { campus: user.campus as any } },

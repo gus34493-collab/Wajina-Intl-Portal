@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   keywords: ["Wajina International Schools", "Private School Benue", "Best School Makurdi", "International School Nigeria", "British Curriculum Nigeria", "Secondary School Makurdi", "Nursery School Benue"],
   manifest: "/manifest.json",
   alternates: {
-    canonical: BASE_URL,
+    canonical: "/",
   },
   openGraph: {
     title: "Wajina International Schools | Citadel of Excellence",
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "brand-primary",
+  themeColor: "#3F4739",
   width: "device-width",
   initialScale: 1,
 };

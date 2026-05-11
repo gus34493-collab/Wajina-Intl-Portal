@@ -76,6 +76,7 @@ model User {
   // Relations — auth & documents
   auditLogs             AuditLog[]
   refreshTokens         RefreshToken[]
+  passwordResetTokens   PasswordResetToken[]
   issuedAttestations    Attestation[]      @relation("IssuerAttestation")
   studentAttestations   Attestation[]      @relation("StudentAttestation")
   issuedTestimonials    Testimonial[]      @relation("IssuerTestimonial")
@@ -133,6 +134,7 @@ model PasswordResetToken {
   usedAt    DateTime?
   createdAt DateTime  @default(now())
   ipAddress String?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expiresAt])

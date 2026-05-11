@@ -22,14 +22,21 @@ import { cn } from "@/lib/utils";
 export default function BursarDashboard() {
   const { user, campus } = useAuth();
   const [finance, setFinance] = useState<any>(null);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchFinanceData() {
       try {
-        const res = await fetch("/api/finance/stats");
-        const json = await res.json();
-        setFinance(json);
+        const [statsRes, txRes] = await Promise.all([
+          fetch("/api/finance/stats"),
+          fetch("/api/finance/transactions?limit=5"),
+        ]);
+        if (statsRes.ok) setFinance(await statsRes.json());
+        if (txRes.ok) {
+          const d = await txRes.json();
+          setTransactions(d.transactions || []);
+        }
       } catch (err) {
         console.error("Finance fetch failure:", err);
       } finally {
@@ -143,10 +150,15 @@ export default function BursarDashboard() {
                    </div>
                 </div>
                 <div className="divide-y divide-black/5">
-                   <TransactionItem id="TX-9921" label="School Fee Payment" member="Ayobami T." amount="+ ₦240,000" date="2 mins ago" />
-                   <TransactionItem id="TX-9920" label="Resource Requisition" member="Science Dept" amount="- ₦12,500" date="1 hour ago" isNegative />
-                   <TransactionItem id="TX-9919" label="Admission Deposit" member="John Doe (App)" amount="+ ₦25,000" date="3 hours ago" />
-                   <TransactionItem id="TX-9918" label="Staff Utility Bonus" member="Accounts" amount="- ₦45,000" date="Ides of March" isNegative />
+                   {loading ? (
+                     <div className="p-8 text-center text-xs text-brand-primary/40 font-bold uppercase tracking-widest">Loading...</div>
+                   ) : transactions.length === 0 ? (
+                     <div className="p-8 text-center text-xs text-brand-primary/40 font-bold uppercase tracking-widest">No transactions yet.</div>
+                   ) : (
+                     transactions.map((tx: any) => (
+                       <TransactionItem key={tx.id} id={tx.id} label={tx.label} member={tx.member} amount={tx.amount} date={tx.date} isNegative={!tx.isIncome} />
+                     ))
+                   )}
                 </div>
              </div>
            </div>

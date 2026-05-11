@@ -32,7 +32,11 @@ export default function DeanDashboard() {
         if (incRes.ok) {
           const d = await incRes.json();
           setIncidents(d.incidents || []);
-          setStats(prev => ({ ...prev, totalIncidents: d.total || "--" }));
+          setStats(prev => ({
+            ...prev,
+            totalIncidents: d.total ?? "--",
+            atRisk: d.studentsAtRisk ?? "--",
+          }));
         }
         if (compRes.ok) {
           const d = await compRes.json();

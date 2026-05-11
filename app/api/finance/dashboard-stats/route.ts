@@ -65,11 +65,13 @@ export async function GET(req: NextRequest) {
     }
 
     const totalCollected = Number((collections._sum as any).amount) || 0;
+    const totalOverdue = Math.max(0, totalExpected - totalCollected);
     return NextResponse.json({
       totalStudents: students.length,
       activeStudents: activeCount,
       totalCollected,
       totalExpected,
+      totalOverdue,
       collectionRate: totalExpected > 0 ? Math.round((totalCollected / totalExpected) * 100) : 0,
       sessionName: session.name,
     });
