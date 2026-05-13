@@ -9,10 +9,8 @@ import {
   Zap,
   CheckCircle2,
   ChevronRight,
-  TrendingUp,
   Loader2,
-  Lock,
-  ChevronLeft
+  Bell,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PerformanceBarChart, RevenueGauge } from "@/app/components/Charts";
@@ -30,16 +28,12 @@ export default function PrincipalDashboard() {
       try {
         const res = await fetch("/api/grades/pending-review?overrideFormMaster=true");
         const json = await res.json();
-
         setData(json);
-
-        // Calculate institutional mean from the feed
         const allGrades = json.grades || [];
         if (allGrades.length > 0) {
           const total = allGrades.reduce((sum: number, g: any) => sum + (g.total || 0), 0);
           setMeanScore(Math.round(total / allGrades.length));
         }
-
       } catch (err) {
         console.error("Principal fetch failed:", err);
       } finally {
@@ -53,7 +47,6 @@ export default function PrincipalDashboard() {
     .filter((g: any) => Math.abs((g.total || 0) - meanScore) > 20)
     .slice(0, 5);
 
-  // Compute per-subject averages from fetched grade data
   const subjectMap: Record<string, { sum: number; count: number }> = {};
   for (const g of data?.grades || []) {
     const name: string = g.subject.name;
@@ -76,156 +69,179 @@ export default function PrincipalDashboard() {
       <div className="flex flex-col gap-8">
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse" />
-              <span className="text-token-micro font-black text-brand-primary/40 uppercase tracking-[0.4em]">{campus || "SECONDARY"} OVERSIGHT</span>
-            </div>
-            <h1 className="text-3xl font-display font-black text-brand-primary tracking-tight uppercase italic italic">Academic Overview</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-3xl font-display font-black text-brand-primary tracking-tight">
+              Good morning, Principal
+            </h1>
+            <span className="inline-flex items-center self-start px-3 py-1 rounded-full bg-brand-secondary/10 text-brand-secondary text-token-micro font-black uppercase tracking-widest">
+              {campus || "Secondary"} Campus
+            </span>
           </div>
-          <div className="flex items-center gap-3 bg-white border border-brand-primary/8 rounded-2xl px-5 py-3 shadow-md">
-            <Lock size={16} className="text-brand-accent" />
-            <span className="text-token-micro font-black text-brand-primary uppercase tracking-[0.2em]">{campus || "SECONDARY"} CAMPUS</span>
+          <div className="flex items-center gap-3">
+            <button className="relative w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors">
+              <Bell size={18} />
+              {(data?.pendingCount || 0) > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-error border-2 border-white" />
+              )}
+            </button>
+            <div className="w-10 h-10 rounded-full bg-brand-secondary flex items-center justify-center font-black text-white text-sm select-none">
+              P
+            </div>
           </div>
         </div>
 
-        {/* Operational Intelligence Grid */}
+        {/* Main grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* Main Feed (Left 2/3) */}
+          {/* Left 2/3 */}
           <div className="lg:col-span-2 flex flex-col gap-8">
 
-            {/* KPI Cards */}
+            {/* KPI row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="card border-l-4 border-l-brand-tertiary flex items-center gap-6">
-                <div className="w-14 h-14 rounded-2xl bg-brand-tertiary/10 flex items-center justify-center">
-                  <FileCheck className="text-brand-tertiary" size={24} />
+              <div className="bg-white rounded-3xl shadow-sm border border-brand-primary/8 p-6 md:p-8 flex flex-col gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-11 h-11 rounded-full bg-brand-secondary/10 flex items-center justify-center shrink-0">
+                    <FileCheck className="text-brand-secondary" size={20} />
+                  </div>
+                  <p className="text-token-micro font-black uppercase tracking-widest text-brand-primary/50">
+                    Pending Signatures
+                  </p>
                 </div>
-                <div>
-                  <p className="text-token-micro font-black text-brand-tertiary uppercase tracking-widest">Pending Signatures</p>
-                  <p className="text-2xl font-display font-black text-brand-primary my-0.5">{data?.pendingCount || "0"}</p>
-                  <p className="text-token-micro font-bold text-brand-tertiary">Grades awaiting review</p>
-                </div>
+                <p className="text-5xl font-display font-black text-brand-primary leading-none">
+                  {loading ? <Loader2 size={32} className="animate-spin text-brand-primary/30" /> : (data?.pendingCount ?? 0)}
+                </p>
+                <span className="inline-flex self-start items-center px-3 py-1 rounded-full bg-brand-secondary/10 text-brand-secondary text-token-micro font-black uppercase tracking-widest">
+                  Grades awaiting review
+                </span>
               </div>
-              <div className="card border-l-4 border-l-brand-accent flex items-center gap-6">
-                <div className="w-14 h-14 rounded-2xl bg-brand-accent/10 flex items-center justify-center">
-                  <Zap className="text-brand-accent" size={24} />
+
+              <div className="bg-white rounded-3xl shadow-sm border border-brand-primary/8 p-6 md:p-8 flex flex-col gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-11 h-11 rounded-full bg-brand-accent/10 flex items-center justify-center shrink-0">
+                    <Zap className="text-brand-accent" size={20} />
+                  </div>
+                  <p className="text-token-micro font-black uppercase tracking-widest text-brand-primary/50">
+                    Mastery Score
+                  </p>
                 </div>
-                <div>
-                  <p className="text-token-micro font-black text-brand-primary/50 uppercase tracking-widest">Mastery Level</p>
-                  <p className="text-2xl font-display font-black text-brand-primary my-0.5">{meanScore}%</p>
-                  <p className="text-token-micro font-bold text-brand-accent">Institutional average</p>
-                </div>
+                <p className="text-5xl font-display font-black text-brand-primary leading-none">
+                  {loading ? <Loader2 size={32} className="animate-spin text-brand-primary/30" /> : `${meanScore}%`}
+                </p>
+                <span className="inline-flex self-start items-center px-3 py-1 rounded-full bg-brand-secondary/10 text-brand-secondary text-token-micro font-black uppercase tracking-widest">
+                  Institutional average
+                </span>
               </div>
             </div>
 
-            {/* Subject Mastery Performance */}
-            <div className="card h-[400px]">
-              <div className="flex justify-between items-center mb-8">
+            {/* Bar chart */}
+            <div className="bg-white rounded-3xl shadow-sm border border-brand-primary/8 p-6 md:p-8 h-[400px]">
+              <div className="flex justify-between items-center mb-6">
                 <h4 className="font-black text-brand-primary tracking-tight">Subject Mastery Benchmark</h4>
-                <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest">Principal Overview</p>
+                <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest hidden sm:block">Principal Overview</p>
               </div>
               <div className="h-[280px]">
-                {chartData.length > 0 && <PerformanceBarChart
-                  data={chartData}
-                  labels={chartLabels}
-                />}
+                {chartData.length > 0 && <PerformanceBarChart data={chartData} labels={chartLabels} />}
               </div>
             </div>
 
-            {/* Pending Approvals Table */}
-            <div className="card text-white border-none p-0 overflow-hidden shadow-2xl" style={{ backgroundColor: '#1F2419' }}>
-              <div className="p-8 border-b border-white/10 flex justify-between items-center">
-                <h4 className="font-black text-lg tracking-tight">Grade Review Queue</h4>
-                <button className="text-token-micro font-black uppercase tracking-widest bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition-all">Batch Approve</button>
+            {/* Grade Review Queue */}
+            <div className="bg-white rounded-3xl shadow-sm border border-brand-primary/8 overflow-hidden">
+              <div className="px-6 md:px-8 py-5 border-b border-brand-primary/8 flex justify-between items-center">
+                <h4 className="font-black text-brand-primary tracking-tight text-lg">Grade Review Queue</h4>
+                <button className="text-token-micro font-black uppercase tracking-widest text-brand-secondary hover:underline transition-colors">
+                  Batch Approve
+                </button>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="bg-black/20 text-token-micro font-black uppercase tracking-widest text-white/50">
-                    <tr>
-                      <th className="px-8 py-4">Scholar</th>
-                      <th className="px-8 py-4">Subject</th>
-                      <th className="px-8 py-4 text-center">Score</th>
-                      <th className="px-8 py-4"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5 text-sm">
-                    {loading ? (
-                      <tr><td colSpan={4} className="py-20 text-center text-white/30 font-bold uppercase tracking-widest">Loading grades...</td></tr>
-                    ) : data?.grades.length === 0 ? (
-                      <tr><td colSpan={4} className="py-20 text-center text-white/30 font-bold uppercase tracking-widest">No pending approvals</td></tr>
-                    ) : (
-                      data.grades.slice(0, 8).map((g: any) => (
-                        <tr key={g.id} className="group hover:bg-white/5 transition-colors">
-                          <td className="px-8 py-4">
-                            <p className="font-black text-white group-hover:text-brand-secondary transition-colors">{g.student.name}</p>
-                            <p className="text-token-micro font-bold text-white/40 uppercase tracking-widest">{g.student.enrolledArm?.fullName || "—"}</p>
-                          </td>
-                          <td className="px-8 py-4">
-                            <p className="font-bold text-white/80">{g.subject.name}</p>
-                          </td>
-                          <td className="px-8 py-4 text-center">
-                            <span className={clsx(
-                              "font-black py-1 px-3 rounded-md",
-                              g.total >= 70 ? "bg-brand-secondary/20 text-brand-secondary" : "bg-white/10 text-white"
-                            )}>
-                              {g.total}%
-                            </span>
-                          </td>
-                          <td className="px-8 py-4 text-right">
-                            <ChevronRight className="inline-block text-white/20 group-hover:text-white group-hover:translate-x-1 transition-all" size={16} />
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+
+              <div className="divide-y divide-brand-primary/6">
+                {loading ? (
+                  <div className="py-20 text-center">
+                    <Loader2 size={28} className="animate-spin text-brand-primary/20 mx-auto" />
+                    <p className="mt-3 text-token-micro font-bold text-brand-primary/30 uppercase tracking-widest">Loading grades…</p>
+                  </div>
+                ) : !data?.grades?.length ? (
+                  <div className="py-20 text-center flex flex-col items-center gap-3">
+                    <CheckCircle2 size={28} className="text-brand-success opacity-30" />
+                    <p className="text-token-micro font-bold text-brand-primary/30 uppercase tracking-widest">No pending approvals</p>
+                  </div>
+                ) : (
+                  data.grades.slice(0, 8).map((g: any) => (
+                    <div key={g.id} className="flex items-center gap-4 px-6 md:px-8 py-4 group hover:bg-brand-blush/40 transition-colors">
+                      <div className="w-10 h-10 rounded-xl bg-brand-secondary/10 text-brand-secondary font-black text-sm grid place-items-center shrink-0 uppercase">
+                        {(g.student.name || "?").slice(0, 2)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-black text-brand-primary truncate leading-tight">{g.student.name}</p>
+                        <p className="text-token-micro font-bold text-brand-primary/40 uppercase tracking-widest truncate">
+                          {g.student.enrolledArm?.fullName || "—"}
+                        </p>
+                      </div>
+                      <p className="hidden sm:block font-bold text-brand-primary/60 text-sm w-28 truncate shrink-0">{g.subject.name}</p>
+                      <span className={cn(
+                        "font-black py-1 px-3 rounded-full text-sm shrink-0",
+                        g.total >= 70 ? "bg-brand-secondary/10 text-brand-secondary" : "bg-brand-primary/6 text-brand-primary/50"
+                      )}>
+                        {g.total}%
+                      </span>
+                      <ChevronRight size={16} className="text-brand-primary/20 group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all shrink-0" />
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
           </div>
 
-          {/* Action Center (Right 1/3) */}
+          {/* Right 1/3 */}
           <div className="flex flex-col gap-8">
 
-            {/* Registry Health Gauge */}
-            <div className="card flex flex-col items-center justify-center p-8 bg-white border border-brand-primary/8">
-              <h4 className="font-black text-brand-primary mb-6 self-start uppercase text-xs tracking-widest">Review Progress</h4>
+            {/* Gauge */}
+            <div className="bg-white rounded-3xl shadow-sm border border-brand-primary/8 p-6 md:p-8 flex flex-col items-center">
+              <h4 className="font-black text-brand-primary self-start text-token-micro uppercase tracking-widest mb-6">Review Progress</h4>
               <div className="w-44 h-44">
                 <RevenueGauge collected={reviewedCount} expected={gaugeTotal} />
               </div>
               <div className="mt-6 text-center">
-                <p className="text-token-micro font-black text-brand-primary/50 uppercase tracking-widest">Grade Status</p>
+                <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest">Grade Status</p>
                 <p className="text-lg font-display font-black text-brand-success mt-1">Grade Optimal</p>
               </div>
             </div>
 
-            {/* Anomaly Alerts */}
-            <div className="card border-l-4 border-l-brand-error glass-premium flex flex-col gap-6">
+            {/* Anomalies */}
+            <div className="bg-white rounded-3xl shadow-sm border border-brand-primary/8 p-6 md:p-8 flex flex-col gap-5">
               <div className="flex items-center gap-2">
-                <AlertCircle className="text-brand-error" size={20} />
+                <AlertCircle className="text-brand-error shrink-0" size={20} />
                 <h4 className="font-black text-brand-primary tracking-tight">Academic Anomalies</h4>
               </div>
-
-              <div className="space-y-4">
-                {anomalies.map((g: any, i: number) => (
-                  <div key={i} className="flex items-center gap-4 bg-brand-blush/50 p-4 rounded-xl border border-brand-primary/8">
-                    <div className="w-2 h-2 rounded-full bg-brand-error shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-black text-brand-primary truncate">{g.student.name}</p>
-                      <p className="text-token-micro font-bold text-brand-tertiary uppercase tracking-widest">{g.subject.name}: {g.total}%</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="space-y-3">
+                <AnimatePresence>
+                  {anomalies.map((g: any, i: number) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="flex items-center gap-3 bg-brand-blush/50 p-3 rounded-xl border border-brand-primary/6"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-brand-error shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-black text-brand-primary truncate">{g.student.name}</p>
+                        <p className="text-token-micro font-bold text-brand-primary/40 uppercase tracking-widest truncate">
+                          {g.subject.name}: {g.total}%
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
                 {anomalies.length === 0 && !loading && (
-                  <div className="py-8 text-center text-xs font-bold text-brand-primary/40 italic flex flex-col items-center gap-3">
-                    <CheckCircle2 size={24} className="text-brand-success opacity-20" />
-                    Registry is healthy.
+                  <div className="py-8 text-center flex flex-col items-center gap-3">
+                    <CheckCircle2 size={24} className="text-brand-success opacity-25" />
+                    <p className="text-xs font-bold text-brand-primary/40 italic">Registry is healthy.</p>
                   </div>
                 )}
               </div>
-
               <button className="btn-primary w-full py-4 text-token-micro uppercase tracking-widest flex items-center justify-center gap-2">
                 <ShieldCheck size={14} />
                 Calibrate Alerts
@@ -248,14 +264,9 @@ export default function PrincipalDashboard() {
 
 function QuickLink({ label }: { label: string }) {
   return (
-    <button className="w-full flex justify-between items-center p-4 bg-white border border-brand-primary/8 rounded-xl hover:bg-brand-blush transition-colors group">
+    <button className="w-full flex justify-between items-center p-4 bg-white border border-brand-primary/8 rounded-2xl hover:bg-brand-blush transition-colors group shadow-sm">
       <span className="text-token-micro font-black text-brand-primary uppercase tracking-widest">{label}</span>
-      <ChevronRight size={14} className="text-brand-primary/30 group-hover:text-brand-primary transition-colors" />
+      <ChevronRight size={14} className="text-brand-primary/30 group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all" />
     </button>
   );
 }
-
-function clsx(...classes: any[]) {
-  return classes.filter(Boolean).join(' ');
-}
-

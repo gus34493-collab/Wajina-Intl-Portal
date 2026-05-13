@@ -3,7 +3,7 @@ import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "fallback-for-build-only");
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "wajina-international-architecture-2026");
 
 export type AuthUser = {
   id: string;

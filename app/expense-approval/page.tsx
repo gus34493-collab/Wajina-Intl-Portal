@@ -48,18 +48,18 @@ export default function ExpenseApprovalPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-display font-black text-brand-primary tracking-tight uppercase flex items-center gap-3">
-              Expense <span className="text-[brand-secondary]">Verification</span>
+              Expense <span className="text-brand-secondary">Verification</span>
             </h1>
             <p className="text-brand-tertiary text-token-micro font-black uppercase tracking-[0.3em] mt-1">
               Bursary-level audit and tactical approval of institutional financial outflows.
             </p>
           </div>
           <div className="flex items-center gap-3 self-start">
-             <button className="bg-white border-2 border-brand-primary/8 text-brand-primary px-6 py-3.5 rounded-2xl shadow-sm font-black text-token-micro uppercase tracking-widest flex items-center gap-2 hover:border-[brand-secondary]/30 transition-all">
+             <button className="bg-white border-2 border-brand-primary/8 text-brand-primary px-6 py-3.5 rounded-2xl shadow-sm font-black text-token-micro uppercase tracking-widest flex items-center gap-2 hover:border-brand-secondary/30 transition-all">
                 <Download size={16} />
                 Disbursement Ledger
              </button>
-             <button className="bg-white border-2 border-[brand-secondary] text-brand-primary px-6 py-3.5 rounded-2xl shadow-lg shadow-[brand-secondary]/10 font-black text-token-micro uppercase tracking-widest flex items-center gap-2 hover:bg-[brand-secondary] transition-all">
+             <button className="bg-white border-2 border-brand-secondary text-brand-primary px-6 py-3.5 rounded-2xl shadow-lg shadow-brand-secondary/10 font-black text-token-micro uppercase tracking-widest flex items-center gap-2 hover:bg-brand-secondary transition-all">
                 <FileText size={16} />
                 New Requisition
              </button>
@@ -86,7 +86,7 @@ export default function ExpenseApprovalPage() {
             <input 
               type="text" 
               placeholder="Search Requisition ID..." 
-              className="w-full bg-black/[0.02] border border-brand-primary/8 rounded-xl pl-10 pr-4 py-3 text-token-micro font-black text-brand-primary focus:border-[brand-secondary]/30 outline-none uppercase tracking-widest"
+              className="w-full bg-black/[0.02] border border-brand-primary/8 rounded-xl pl-10 pr-4 py-3 text-token-micro font-black text-brand-primary focus:border-brand-secondary/30 outline-none uppercase tracking-widest"
             />
           </div>
         </div>
@@ -97,9 +97,9 @@ export default function ExpenseApprovalPage() {
               Array(4).fill(0).map((_, i) => <div key={i} className="h-32 card animate-pulse bg-white border border-brand-primary/8 shadow-xl" />)
            ) : requests.length === 0 ? (
               <div className="h-96 card bg-white border-dashed border-2 border-brand-primary/8 flex flex-col items-center justify-center text-center shadow-xl">
-                 <div className="w-24 h-24 rounded-full bg-[brand-secondary]/5 grid place-items-center mb-8 relative">
-                    <div className="absolute inset-0 bg-[brand-secondary]/10 rounded-full animate-ping" />
-                    <CheckCircle2 size={40} className="text-[brand-secondary] relative z-10" />
+                 <div className="w-24 h-24 rounded-full bg-brand-secondary/5 grid place-items-center mb-8 relative">
+                    <div className="absolute inset-0 bg-brand-secondary/10 rounded-full animate-ping" />
+                    <CheckCircle2 size={40} className="text-brand-secondary relative z-10" />
                  </div>
                  <h4 className="font-black text-brand-primary uppercase tracking-widest text-sm">Expense Journal Synchronized</h4>
                  <p className="text-token-micro text-brand-tertiary mt-2 max-w-xs leading-relaxed uppercase font-black">
@@ -123,10 +123,10 @@ export default function ExpenseApprovalPage() {
         </div>
 
         {/* Bursary Alert */}
-        <div className="card bg-white border-dashed border-2 border-[brand-secondary]/20 p-8 flex items-start gap-6 shadow-xl">
-           <AlertCircle size={24} className="text-[brand-secondary] shrink-0" />
+        <div className="card bg-white border-dashed border-2 border-brand-secondary/20 p-8 flex items-start gap-6 shadow-xl">
+           <AlertCircle size={24} className="text-brand-secondary shrink-0" />
            <div>
-              <p className="text-token-micro font-black text-[brand-secondary] uppercase tracking-[0.2em] mb-2">Institutional Spending Policy</p>
+              <p className="text-token-micro font-black text-brand-secondary uppercase tracking-[0.2em] mb-2">Institutional Spending Policy</p>
               <p className="text-token-caption font-bold text-brand-primary/60 leading-relaxed uppercase tracking-tight font-sans">
                  Any expenditure exceeding ₦500,000 requires a secondary authorization key from the VP Admin or Principal. Transactions above ₦2.5M must be escalated to the Director.
               </p>
@@ -141,19 +141,19 @@ function FinanceKPI({ label, value, sub, icon, highlight }: any) {
   return (
     <div className={cn(
       "bg-white border rounded-[1.5rem] p-6 flex items-center justify-between shadow-lg relative overflow-hidden group hover:shadow-2xl transition-all",
-      highlight ? "border-[brand-secondary]/30" : "border-brand-primary/8"
+      highlight ? "border-brand-secondary/30" : "border-brand-primary/8"
     )}>
       <div>
         <p className="text-token-micro font-black text-brand-tertiary uppercase tracking-widest">{label}</p>
         <p className="text-3xl font-display font-black text-brand-primary mt-1 tabular-nums tracking-tighter">{value}</p>
         <div className="flex items-center gap-1.5 mt-1.5">
-           <div className={cn("w-1 h-1 rounded-full", highlight ? "bg-[brand-secondary]" : "bg-black/10")} />
-           <p className={cn("text-token-micro font-black uppercase tracking-widest", highlight ? "text-[brand-secondary]" : "text-brand-tertiary")}>{sub}</p>
+           <div className={cn("w-1 h-1 rounded-full", highlight ? "bg-brand-secondary" : "bg-black/10")} />
+           <p className={cn("text-token-micro font-black uppercase tracking-widest", highlight ? "text-brand-secondary" : "text-brand-tertiary")}>{sub}</p>
         </div>
       </div>
       <div className={cn(
         "w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
-        highlight ? "bg-[brand-secondary]/10 text-[brand-secondary]" : "bg-black/[0.03] text-brand-tertiary/60"
+        highlight ? "bg-brand-secondary/10 text-brand-secondary" : "bg-black/[0.03] text-brand-tertiary/60"
       )}>
         {icon}
       </div>
@@ -183,10 +183,10 @@ function MockExpenseCard({ title, sector, amount, sender, date, priority, highli
   return (
     <div className={cn(
       "card bg-white group hover:translate-x-1 hover:shadow-2xl transition-all border-l-[6px] shadow-xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-8",
-      highlight ? "border-l-[brand-secondary]" : "border-l-black/5"
+      highlight ? "border-l-brand-secondary" : "border-l-black/5"
     )}>
        <div className="flex gap-6 items-start flex-1">
-          <div className="w-14 h-14 rounded-2xl bg-black/[0.03] border border-brand-primary/8 grid place-items-center text-brand-primary shrink-0 group-hover:bg-[brand-secondary]/10 group-hover:text-[brand-secondary] transition-all">
+          <div className="w-14 h-14 rounded-2xl bg-black/[0.03] border border-brand-primary/8 grid place-items-center text-brand-primary shrink-0 group-hover:bg-brand-secondary/10 group-hover:text-brand-secondary transition-all">
              <CreditCard size={24} />
           </div>
           <div>
@@ -194,13 +194,13 @@ function MockExpenseCard({ title, sector, amount, sender, date, priority, highli
                 <h4 className="font-black text-brand-primary uppercase tracking-tight text-sm">{title}</h4>
                 <span className={cn(
                   "px-3 py-1 rounded-full text-token-micro font-black uppercase tracking-widest",
-                  priority === 'CRITICAL' ? "bg-rose-600/10 text-rose-600 border border-red-500/20" : highlight ? "bg-[brand-secondary]/10 text-[brand-secondary] border border-[brand-secondary]/20" : "bg-black/[0.05] text-brand-tertiary border border-brand-primary/8"
+                  priority === 'CRITICAL' ? "bg-rose-600/10 text-rose-600 border border-red-500/20" : highlight ? "bg-brand-secondary/10 text-brand-secondary border border-brand-secondary/20" : "bg-black/[0.05] text-brand-tertiary border border-brand-primary/8"
                 )}>
                    {priority}
                 </span>
              </div>
              <div className="flex flex-wrap gap-x-6 gap-y-2 text-token-micro font-black text-brand-tertiary uppercase tracking-widest">
-                <span className="flex items-center gap-1.5"><div className="w-1 h-1 rounded-full bg-[brand-secondary]" /> {sector}</span>
+                <span className="flex items-center gap-1.5"><div className="w-1 h-1 rounded-full bg-brand-secondary" /> {sector}</span>
                 <span>Verified by {sender}</span>
                 <span className="tabular-nums opacity-60">{date}</span>
              </div>
@@ -210,8 +210,8 @@ function MockExpenseCard({ title, sector, amount, sender, date, priority, highli
        <div className="flex flex-col md:items-end gap-1.5 min-w-[140px]">
           <p className="text-3xl font-display font-black text-brand-primary tracking-tighter tabular-nums leading-none">{amount}</p>
           <div className="flex items-center gap-1.5">
-             <div className="w-1.5 h-1.5 rounded-full bg-[brand-secondary] animate-pulse" />
-             <p className="text-token-micro font-black text-[brand-secondary] uppercase tracking-[0.2em]">Authorized for Audit</p>
+             <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-pulse" />
+             <p className="text-token-micro font-black text-brand-secondary uppercase tracking-[0.2em]">Authorized for Audit</p>
           </div>
        </div>
 
@@ -221,7 +221,7 @@ function MockExpenseCard({ title, sector, amount, sender, date, priority, highli
           </button>
           <button className={cn(
             "h-12 px-8 rounded-2xl font-black text-token-micro uppercase tracking-widest flex items-center gap-3 transition-all shadow-lg active:scale-95",
-            highlight ? "bg-[brand-secondary] text-brand-primary shadow-[brand-secondary]/20" : "bg-black text-white"
+            highlight ? "bg-brand-secondary text-brand-primary shadow-brand-secondary/20" : "bg-black text-white"
           )}>
              <CheckCircle2 size={18} />
              Authorize

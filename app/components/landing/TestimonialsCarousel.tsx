@@ -58,12 +58,6 @@ export default function TestimonialsCarousel() {
           viewport={{ once: true }}
           className="space-y-4"
         >
-          <span
-            className="text-token-micro font-black uppercase tracking-[0.45em]"
-            style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}
-          >
-            Plate V · Voices
-          </span>
           <h2
             className="leading-[0.9] tracking-tight"
             style={{

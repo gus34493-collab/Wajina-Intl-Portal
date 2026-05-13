@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DashboardShell from "@/app/components/DashboardShell";
-import { FilePen, Trophy, BarChart3, ChevronRight, Calendar } from "lucide-react";
+import { FilePen, Trophy, BarChart3, ChevronRight, Bell } from "lucide-react";
 import { useAuth } from "@/app/components/AuthContext";
 
 export default function HODDashboard() {
@@ -41,96 +41,120 @@ export default function HODDashboard() {
     fetchData();
   }, []);
 
-  const currentDate = new Date().toLocaleDateString("en-GB", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric",
-  });
-
   return (
     <DashboardShell>
       <div className="flex flex-col gap-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse" />
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-pulse" />
               <span className="text-token-micro font-black text-brand-primary/40 uppercase tracking-[0.4em]">{campus || "PRIMARY"} UNIT</span>
             </div>
-            <h1 className="text-3xl font-display font-black text-brand-primary tracking-tighter uppercase mb-1">Academic Excellence</h1>
+            <h1 className="text-3xl font-display font-black text-brand-primary tracking-tight">
+              Academic <span className="text-brand-secondary">Excellence</span>
+            </h1>
           </div>
-          <div className="flex items-center gap-2 bg-white border border-brand-primary/8 rounded-xl px-4 py-3 shadow-sm self-start">
-            <Calendar size={16} className="text-brand-tertiary" />
-            <span className="text-xs font-black text-brand-primary tracking-wide uppercase">{currentDate}</span>
+          <div className="flex items-center gap-3">
+            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors">
+              <Bell size={18} />
+            </button>
+            <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center font-black text-white text-sm select-none">
+              HD
+            </div>
           </div>
         </div>
 
         {/* KPI Strip */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="card flex items-center gap-8 group hover:translate-y-[-4px] transition-all duration-300">
-            <div className="w-16 h-16 rounded-2xl bg-brand-primary/5 flex items-center justify-center group-hover:bg-brand-primary group-hover:text-white transition-all duration-500 shadow-inner"><FilePen size={24} className="text-brand-accent" /></div>
-            <div>
-              <p className="text-token-micro font-black text-brand-primary/30 uppercase tracking-[0.3em] mb-1">ACTIVE SUBMISSIONS</p>
-              <p className="text-2xl font-display font-black text-brand-primary my-0.5">{stats.pending}</p>
-              <p className="text-token-micro font-black text-brand-accent uppercase tracking-widest">{campus || "PRIMARY"} UNIT</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white rounded-3xl border border-brand-primary/8 shadow-sm p-6 flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-full bg-brand-primary/8 flex items-center justify-center shrink-0">
+                <FilePen size={20} className="text-brand-primary" />
+              </div>
+              <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest">Active Submissions</p>
             </div>
+            <p className="text-5xl font-display font-black text-brand-primary leading-none tracking-tighter">{stats.pending}</p>
+            <span className="inline-flex self-start items-center px-3 py-1 rounded-full bg-brand-secondary/10 text-brand-secondary text-token-micro font-black uppercase tracking-widest">
+              {campus || "PRIMARY"} Unit
+            </span>
           </div>
-          <div className="card flex items-center gap-8 bg-brand-primary text-white border-none shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:scale-150 transition-transform duration-700" />
-            <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center relative z-10"><Trophy size={24} className="text-brand-accent" /></div>
-            <div className="relative z-10">
-              <p className="text-token-micro font-black uppercase tracking-[0.3em] opacity-50 mb-1">ELITE SCHOLARS</p>
-              <p className="text-2xl font-display font-black my-0.5 text-brand-accent">{stats.elite}</p>
-              <p className="text-token-micro font-black text-white/40 uppercase tracking-widest">80% BENCHMARK</p>
+
+          <div className="bg-brand-primary rounded-3xl shadow-xl shadow-brand-primary/20 p-6 flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                <Trophy size={20} className="text-white" />
+              </div>
+              <p className="text-token-micro font-black text-white/50 uppercase tracking-widest">Elite Scholars</p>
             </div>
+            <p className="text-5xl font-display font-black text-white leading-none tracking-tighter">{stats.elite}</p>
+            <span className="inline-flex self-start items-center px-3 py-1 rounded-full bg-white/10 text-white text-token-micro font-black uppercase tracking-widest">
+              80% Benchmark
+            </span>
           </div>
-          <div className="card flex items-center gap-8 group hover:translate-y-[-4px] transition-all duration-300">
-            <div className="w-16 h-16 rounded-2xl bg-brand-primary/5 flex items-center justify-center group-hover:bg-brand-primary group-hover:text-white transition-all duration-500 shadow-inner"><BarChart3 size={24} className="text-brand-accent" /></div>
-            <div>
-              <p className="text-token-micro font-black text-brand-primary/30 uppercase tracking-[0.3em] mb-1">DEPT. AVERAGE</p>
-              <p className="text-2xl font-display font-black text-brand-primary my-0.5">{stats.avg}</p>
-              <p className="text-token-micro font-black text-brand-secondary uppercase tracking-widest">OPTIMAL STABILITY</p>
+
+          <div className="bg-white rounded-3xl border border-brand-primary/8 shadow-sm p-6 flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-full bg-brand-primary/8 flex items-center justify-center shrink-0">
+                <BarChart3 size={20} className="text-brand-primary" />
+              </div>
+              <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest">Dept. Average</p>
             </div>
+            <p className="text-5xl font-display font-black text-brand-primary leading-none tracking-tighter">{stats.avg}</p>
+            <span className="inline-flex self-start items-center px-3 py-1 rounded-full bg-brand-secondary/10 text-brand-secondary text-token-micro font-black uppercase tracking-widest">
+              Optimal Stability
+            </span>
           </div>
         </div>
 
         {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          <div className="lg:col-span-3 card flex flex-col">
-            <div className="flex justify-between items-center mb-8">
-              <h4 className="font-black text-brand-primary text-lg">Departmental High Achievers</h4>
-              <button className="text-token-micro font-black uppercase tracking-widest text-brand-tertiary bg-brand-blush px-3 py-2 rounded-lg">View Hall of Fame</button>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <div className="lg:col-span-3 bg-white rounded-3xl border border-brand-primary/8 shadow-sm p-6 md:p-8 flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+              <h4 className="font-black text-brand-primary">Departmental High Achievers</h4>
+              <button className="text-token-micro font-black uppercase tracking-widest text-brand-secondary hover:underline">View Hall of Fame</button>
             </div>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               {achievers.length === 0 ? (
-                <p className="text-xs text-brand-tertiary text-center py-8 italic">Syncing performance logs...</p>
+                <div className="py-12 text-center flex flex-col items-center gap-3">
+                  <Trophy size={28} className="text-brand-primary/10" />
+                  <p className="text-xs font-black text-brand-primary/40 uppercase tracking-widest italic">Syncing performance logs…</p>
+                </div>
               ) : (
                 achievers.map((a, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 bg-brand-blush/50 rounded-xl border border-brand-primary/5 hover:border-brand-accent/20 transition-all cursor-pointer group">
+                  <div key={i} className="flex items-center justify-between p-4 bg-brand-blush/40 rounded-2xl border border-brand-primary/5 hover:border-brand-secondary/20 transition-all cursor-pointer group">
                     <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-brand-accent/10 grid place-items-center shrink-0"><Trophy size={16} className="text-brand-accent" /></div>
+                      <div className="w-9 h-9 rounded-xl bg-brand-secondary/10 grid place-items-center shrink-0">
+                        <Trophy size={16} className="text-brand-secondary" />
+                      </div>
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-brand-primary truncate">{a.name}</p>
-                        <p className="text-token-micro font-bold text-brand-tertiary">{a.subject} • {a.score}%</p>
+                        <p className="text-token-micro font-bold text-brand-primary/40 uppercase tracking-wider">{a.subject} · {a.score}%</p>
                       </div>
                     </div>
-                    <ChevronRight size={14} className="text-brand-tertiary opacity-50 group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight size={14} className="text-brand-primary/20 group-hover:text-brand-secondary group-hover:translate-x-0.5 transition-all shrink-0" />
                   </div>
                 ))
               )}
             </div>
           </div>
 
-          <div className="lg:col-span-2 card flex flex-col">
-            <h4 className="font-black text-brand-primary mb-8 text-lg">Academic Task Queue</h4>
-            <div className="flex flex-col gap-4">
+          <div className="lg:col-span-2 bg-white rounded-3xl border border-brand-primary/8 shadow-sm p-6 md:p-8 flex flex-col">
+            <h4 className="font-black text-brand-primary mb-6">Academic Task Queue</h4>
+            <div className="flex flex-col gap-3">
               {tasks.length === 0 ? (
-                <p className="text-xs text-brand-tertiary text-center py-8 italic">Loading unit tasks...</p>
+                <div className="py-12 text-center flex flex-col items-center gap-3">
+                  <FilePen size={28} className="text-brand-primary/10" />
+                  <p className="text-xs font-black text-brand-primary/40 uppercase tracking-widest italic">Loading unit tasks…</p>
+                </div>
               ) : (
                 tasks.map((t, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 bg-brand-blush/50 rounded-xl border border-brand-primary/5 hover:border-brand-tertiary/20 transition-all cursor-pointer group">
+                  <div key={i} className="flex items-center justify-between p-4 bg-brand-blush/40 rounded-2xl border border-brand-primary/5 hover:border-brand-primary/20 transition-all cursor-pointer group">
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-brand-primary truncate">{t.title}</p>
-                      <p className="text-token-micro font-bold text-brand-tertiary">{t.sender?.name || "Staff"}</p>
+                      <p className="text-token-micro font-bold text-brand-primary/40 uppercase tracking-wider">{t.sender?.name || "Staff"}</p>
                     </div>
-                    <ChevronRight size={14} className="text-brand-tertiary opacity-50 group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight size={14} className="text-brand-primary/20 group-hover:translate-x-0.5 transition-all shrink-0" />
                   </div>
                 ))
               )}
@@ -141,4 +165,3 @@ export default function HODDashboard() {
     </DashboardShell>
   );
 }
-

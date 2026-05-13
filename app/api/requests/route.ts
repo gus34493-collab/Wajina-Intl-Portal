@@ -10,13 +10,16 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
     const level = searchParams.get("level");
+    const category = searchParams.get("category");
     const skip = parseInt(searchParams.get("skip") ?? "0");
-    const take = Math.min(parseInt(searchParams.get("take") ?? "100"), 200);
+    const rawLimit = searchParams.get("limit") ?? searchParams.get("take") ?? "100";
+    const take = Math.min(parseInt(rawLimit), 200);
 
     const role = user.role as string;
     let where: any = {};
     if (status) where.status = status.toUpperCase();
     if (level) where.level = level.toUpperCase();
+    if (category) where.category = category.toUpperCase();
 
     if (role === "DIRECTOR") {
       const campus = searchParams.get("campus");

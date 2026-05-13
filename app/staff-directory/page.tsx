@@ -108,10 +108,10 @@ export default function StaffDirectoryPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
            <div className="flex-1">
              <div className="flex items-center gap-3 mb-4">
-                <div className="w-2 h-2 rounded-full bg-[brand-secondary] animate-pulse" />
+                <div className="w-2 h-2 rounded-full bg-brand-secondary animate-pulse" />
                 <span className="text-token-micro font-black uppercase text-brand-tertiary tracking-[0.4em]">Governance & HR</span>
              </div>
-             <h1 className="text-4xl font-display font-black text-brand-primary tracking-tight leading-none uppercase">Personnel <span className="text-[brand-secondary]">Registry</span></h1>
+             <h1 className="text-4xl font-display font-black text-brand-primary tracking-tight leading-none uppercase">Personnel <span className="text-brand-secondary">Registry</span></h1>
              <p className="text-brand-tertiary text-token-micro font-black uppercase tracking-widest mt-2">Central repository for administrative, instructional, and operational personnel.</p>
            </div>
            
@@ -119,7 +119,7 @@ export default function StaffDirectoryPage() {
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-tertiary/60" size={18} />
               <Input 
                  placeholder="Search institutional staff..." 
-                 className="bg-white border-2 border-brand-primary/8 text-brand-primary pl-12 rounded-2xl h-14 shadow-sm focus:border-[brand-secondary]/30 transition-all font-bold uppercase text-xs"
+                 className="bg-white border-2 border-brand-primary/8 text-brand-primary pl-12 rounded-2xl h-14 shadow-sm focus:border-brand-secondary/30 transition-all font-bold uppercase text-xs"
                  value={searchQuery}
                  onChange={e => setSearchQuery(e.target.value)}
               />
@@ -170,7 +170,7 @@ export default function StaffDirectoryPage() {
                      animate={{ opacity: 1, scale: 1 }}
                      className={cn(
                         "card group hover:shadow-2xl hover:translate-y-[-4px] transition-all p-10 flex flex-col gap-8 relative overflow-hidden bg-white border shadow-xl",
-                        staff.status === 'DISABLED' ? "border-red-500/10 grayscale" : "border-brand-primary/8 hover:border-[brand-secondary]/30"
+                        staff.status === 'DISABLED' ? "border-red-500/10 grayscale" : "border-brand-primary/8 hover:border-brand-secondary/30"
                      )}
                   >
                      {staff.status === 'DISABLED' && (
@@ -183,7 +183,7 @@ export default function StaffDirectoryPage() {
                         <div className="flex items-center gap-5">
                            <div className={cn(
                               "w-12 h-12 rounded-2xl flex items-center justify-center transition-colors font-display font-black text-xl border",
-                              staff.status === 'DISABLED' ? "bg-rose-50 text-rose-400 border-red-100" : "bg-black/[0.03] border-brand-primary/8 text-brand-primary group-hover:bg-[brand-secondary]/10 group-hover:border-[brand-secondary]/20"
+                              staff.status === 'DISABLED' ? "bg-rose-50 text-rose-400 border-red-100" : "bg-black/[0.03] border-brand-primary/8 text-brand-primary group-hover:bg-brand-secondary/10 group-hover:border-brand-secondary/20"
                            )}>
                               {staff.name.charAt(0)}
                            </div>
@@ -192,9 +192,9 @@ export default function StaffDirectoryPage() {
                               <p className="text-token-micro font-black text-brand-tertiary uppercase tracking-widest mt-1">{staff.role}</p>
                            </div>
                         </div>
-                        <div className="flex items-center gap-1.5 bg-[brand-secondary]/10 px-3 py-1 rounded-full border border-[brand-secondary]/20">
-                           <div className="w-1 h-1 rounded-full bg-[brand-secondary] animate-pulse" />
-                           <span className="text-token-micro font-black text-[brand-secondary] uppercase tracking-widest leading-none">85%</span>
+                        <div className="flex items-center gap-1.5 bg-brand-secondary/10 px-3 py-1 rounded-full border border-brand-secondary/20">
+                           <div className="w-1 h-1 rounded-full bg-brand-secondary animate-pulse" />
+                           <span className="text-token-micro font-black text-brand-secondary uppercase tracking-widest leading-none">85%</span>
                         </div>
                      </div>
 
@@ -207,7 +207,7 @@ export default function StaffDirectoryPage() {
                            <span className="text-brand-tertiary">Registry Status</span>
                            <div className={cn(
                              "flex items-center gap-1.5 font-black uppercase",
-                             staff.status === 'DISABLED' ? "text-rose-600" : "text-[brand-secondary]"
+                             staff.status === 'DISABLED' ? "text-rose-600" : "text-brand-secondary"
                            )}>
                               <BadgeCheck size={12} />
                               Verified
@@ -222,7 +222,7 @@ export default function StaffDirectoryPage() {
                               setPendingPromotionRole(staff.role);
                               setIsManageModalOpen(true);
                            }}
-                           className="flex items-center gap-2 text-token-micro font-black uppercase tracking-widest text-[brand-secondary] hover:text-brand-primary transition-all"
+                           className="flex items-center gap-2 text-token-micro font-black uppercase tracking-widest text-brand-secondary hover:text-brand-primary transition-all"
                         >
                            <Settings size={14} />
                            Command Actions
@@ -254,8 +254,8 @@ export default function StaffDirectoryPage() {
                   <div className="p-10 border-b border-brand-primary/8 bg-black/[0.01]">
                      <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
-                           <div className="w-1.5 h-1.5 rounded-full bg-[brand-secondary]" />
-                           <span className="text-token-micro font-black text-[brand-secondary] uppercase tracking-[0.3em]">Management Console</span>
+                           <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary" />
+                           <span className="text-token-micro font-black text-brand-secondary uppercase tracking-[0.3em]">Management Console</span>
                         </div>
                         <button onClick={() => setIsManageModalOpen(false)} className="text-brand-tertiary/60 hover:text-brand-primary transition-all"><X size={24} /></button>
                      </div>
@@ -267,12 +267,12 @@ export default function StaffDirectoryPage() {
                      {/* Promote Action */}
                      <div className="space-y-5 p-8 bg-black/[0.02] rounded-3xl border border-brand-primary/8">
                         <div className="flex items-center gap-3">
-                           <ArrowUpCircle className="text-[brand-secondary]" size={20} />
+                           <ArrowUpCircle className="text-brand-secondary" size={20} />
                            <h4 className="font-black text-brand-primary text-token-micro uppercase tracking-widest">Promotion / Role Alignment</h4>
                         </div>
                         <div className="flex gap-4">
                            <select 
-                              className="flex-1 h-14 bg-white border-2 border-brand-primary/8 rounded-2xl px-6 text-token-micro font-black uppercase tracking-widest focus:border-[brand-secondary]/30 transition-all outline-none"
+                              className="flex-1 h-14 bg-white border-2 border-brand-primary/8 rounded-2xl px-6 text-token-micro font-black uppercase tracking-widest focus:border-brand-secondary/30 transition-all outline-none"
                               value={pendingPromotionRole}
                               onChange={(e) => setPendingPromotionRole(e.target.value)}
                            >
@@ -283,7 +283,7 @@ export default function StaffDirectoryPage() {
                            <button 
                               disabled={actionLoading || pendingPromotionRole === selectedStaff.role}
                               onClick={() => handleAdminAction('PROMOTE', selectedStaff)}
-                              className="bg-white border-2 border-[brand-secondary] text-brand-primary px-8 rounded-2xl font-black text-token-micro uppercase tracking-widest hover:bg-[brand-secondary] transition-all disabled:opacity-30 disabled:grayscale"
+                              className="bg-white border-2 border-brand-secondary text-brand-primary px-8 rounded-2xl font-black text-token-micro uppercase tracking-widest hover:bg-brand-secondary transition-all disabled:opacity-30 disabled:grayscale"
                            >
                               {actionLoading ? "SYNCING..." : "PROMOTE"}
                            </button>
@@ -298,7 +298,7 @@ export default function StaffDirectoryPage() {
                            className={cn(
                               "flex flex-col items-center justify-center gap-4 p-8 rounded-3xl border transition-all group",
                               selectedStaff.status === 'DISABLED' 
-                                 ? "bg-black/[0.02] border-[brand-secondary] text-[brand-secondary]" 
+                                 ? "bg-black/[0.02] border-brand-secondary text-brand-secondary" 
                                  : "bg-black/[0.02] border-brand-primary/8 text-brand-primary hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50/30"
                            )}
                         >
@@ -339,11 +339,11 @@ function SummaryCard({ label, value, accent, icon, highlight }: { label: string,
    return (
       <div className={cn(
         "card bg-white flex items-center gap-10 group shadow-xl transition-all border",
-        highlight ? "border-[brand-secondary]/30" : "border-brand-primary/8 hover:border-brand-primary/10"
+        highlight ? "border-brand-secondary/30" : "border-brand-primary/8 hover:border-brand-primary/10"
       )}>
          <div className={cn(
             "w-20 h-20 rounded-[1.75rem] flex items-center justify-center transition-all duration-500",
-            highlight ? "bg-[brand-secondary]/10 text-brand-primary border border-[brand-secondary]/20" : "bg-black/[0.03] text-brand-tertiary group-hover:bg-[brand-secondary]/5"
+            highlight ? "bg-brand-secondary/10 text-brand-primary border border-brand-secondary/20" : "bg-black/[0.03] text-brand-tertiary group-hover:bg-brand-secondary/5"
          )}>
             <div className="scale-125">{icon}</div>
          </div>
@@ -351,8 +351,8 @@ function SummaryCard({ label, value, accent, icon, highlight }: { label: string,
             <p className="text-token-micro font-black text-brand-tertiary uppercase tracking-[0.3em] mb-1.5">{label}</p>
             <p className="text-4xl font-display font-black text-brand-primary leading-none tabular-nums tracking-tighter">{value}</p>
             <div className="flex items-center gap-2 mt-2">
-                <div className={cn("w-1 h-1 rounded-full", highlight ? "bg-[brand-secondary]" : "bg-black/10")} />
-                <p className={cn("text-token-micro font-black uppercase tracking-widest", highlight ? "text-[brand-secondary]" : "text-brand-tertiary")}>{accent}</p>
+                <div className={cn("w-1 h-1 rounded-full", highlight ? "bg-brand-secondary" : "bg-black/10")} />
+                <p className={cn("text-token-micro font-black uppercase tracking-widest", highlight ? "text-brand-secondary" : "text-brand-tertiary")}>{accent}</p>
             </div>
          </div>
       </div>

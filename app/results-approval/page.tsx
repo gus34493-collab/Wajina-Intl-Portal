@@ -91,7 +91,7 @@ export default function ResultsApprovalPage() {
               <UserCheck size={28} />
             </div>
             <div>
-              <h1 className="text-3xl font-display font-black text-brand-primary tracking-tight uppercase leading-none mb-2">Results <span className="text-[brand-secondary]">Seal</span></h1>
+              <h1 className="text-3xl font-display font-black text-brand-primary tracking-tight uppercase leading-none mb-2">Results <span className="text-brand-secondary">Seal</span></h1>
               <p className="text-token-micro font-black text-brand-tertiary uppercase tracking-[0.2em]">Finalize and seal institutional academic gradebooks</p>
             </div>
           </div>
@@ -99,7 +99,7 @@ export default function ResultsApprovalPage() {
           <div className="flex items-center gap-4">
             <button 
                 onClick={fetchGrades}
-                className="bg-white border-2 border-brand-primary/8 text-brand-primary px-6 py-4 rounded-2xl shadow-sm font-black text-token-micro uppercase tracking-widest flex items-center gap-2 hover:border-[brand-secondary]/30 transition-all"
+                className="bg-white border-2 border-brand-primary/8 text-brand-primary px-6 py-4 rounded-2xl shadow-sm font-black text-token-micro uppercase tracking-widest flex items-center gap-2 hover:border-brand-secondary/30 transition-all"
             >
               <RefreshCw size={16} className={cn(loading && "animate-spin")} />
               Sync
@@ -107,7 +107,7 @@ export default function ResultsApprovalPage() {
             <button 
                 onClick={() => setShowSignModal(true)}
                 disabled={grades.length === 0 || loading}
-                className="bg-white border-2 border-[brand-secondary] text-brand-primary font-black text-token-micro uppercase tracking-widest px-8 py-4 rounded-2xl shadow-lg shadow-[brand-secondary]/10 flex items-center gap-2 hover:bg-[brand-secondary] transition-all disabled:opacity-30 disabled:grayscale"
+                className="bg-white border-2 border-brand-secondary text-brand-primary font-black text-token-micro uppercase tracking-widest px-8 py-4 rounded-2xl shadow-lg shadow-brand-secondary/10 flex items-center gap-2 hover:bg-brand-secondary transition-all disabled:opacity-30 disabled:grayscale"
             >
               <Stamp size={18} />
               Verify & Publish
@@ -121,7 +121,7 @@ export default function ResultsApprovalPage() {
           <div className="lg:col-span-1 space-y-6">
             <div className="card bg-white flex flex-col gap-6 border border-brand-primary/8 shadow-xl p-8">
               <div className="flex items-center gap-2">
-                <Filter size={16} className="text-[brand-secondary]" />
+                <Filter size={16} className="text-brand-secondary" />
                 <h4 className="font-black text-brand-primary text-token-micro uppercase tracking-widest">Campus Cluster</h4>
               </div>
               <div className="flex flex-col gap-3">
@@ -132,21 +132,21 @@ export default function ResultsApprovalPage() {
                     className={cn(
                       "flex items-center justify-between p-5 rounded-2xl border-2 transition-all text-token-micro font-black tracking-widest uppercase",
                       selectedCampus === campus 
-                      ? "bg-[brand-secondary]/10 border-[brand-secondary] text-brand-primary" 
+                      ? "bg-brand-secondary/10 border-brand-secondary text-brand-primary" 
                       : "bg-black/[0.02] border-transparent text-brand-tertiary hover:bg-black/[0.04]"
                     )}
                   >
                     {campus}
-                    {selectedCampus === campus && <CheckCircle size={14} className="text-[brand-secondary]" />}
+                    {selectedCampus === campus && <CheckCircle size={14} className="text-brand-secondary" />}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="card bg-white border-dashed border-2 border-[brand-secondary]/20 p-8 flex flex-col gap-5 shadow-xl">
-              <AlertCircle size={24} className="text-[brand-secondary] shrink-0" />
+            <div className="card bg-white border-dashed border-2 border-brand-secondary/20 p-8 flex flex-col gap-5 shadow-xl">
+              <AlertCircle size={24} className="text-brand-secondary shrink-0" />
               <div>
-                <p className="text-token-micro font-black text-[brand-secondary] uppercase tracking-[0.2em] mb-2">Cryptographic Protocol</p>
+                <p className="text-token-micro font-black text-brand-secondary uppercase tracking-[0.2em] mb-2">Cryptographic Protocol</p>
                 <p className="text-token-caption font-bold text-brand-primary/50 leading-relaxed uppercase tracking-tight font-sans">
                   Every publish action triggers a non-repudiable seal. Marks are immutable post-publication without Director key escalation.
                 </p>
@@ -160,8 +160,8 @@ export default function ResultsApprovalPage() {
                <div className="p-8 border-b border-brand-primary/8 bg-black/[0.01] flex items-center justify-between">
                   <h5 className="font-black text-brand-primary uppercase text-token-micro tracking-[0.3em]">Institutional Grade Inventory • {grades.length} Records</h5>
                   <div className="flex items-center gap-2">
-                     <div className="w-1.5 h-1.5 rounded-full bg-[brand-secondary] animate-pulse" />
-                     <span className="text-token-micro font-black text-[brand-secondary] uppercase tracking-widest">Live Audit</span>
+                     <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-pulse" />
+                     <span className="text-token-micro font-black text-brand-secondary uppercase tracking-widest">Live Audit</span>
                   </div>
                </div>
                
@@ -189,7 +189,7 @@ export default function ResultsApprovalPage() {
                           <td className="px-8 py-6 text-token-micro font-black text-brand-tertiary uppercase tracking-widest">
                             {grade.student.enrolledArm?.fullName || "RESERVE"}
                           </td>
-                          <td className="px-8 py-6 text-token-micro font-black text-[brand-secondary] uppercase tracking-widest">
+                          <td className="px-8 py-6 text-token-micro font-black text-brand-secondary uppercase tracking-widest">
                             {grade.subject.name}
                           </td>
                           <td className="px-8 py-6 text-center">
@@ -200,7 +200,7 @@ export default function ResultsApprovalPage() {
                           <td className="px-8 py-6 text-right">
                              <span className={cn(
                                "inline-flex px-3 py-1 rounded-full text-token-micro font-black uppercase tracking-widest border",
-                               grade.status === "PENDING" ? "border-orange-500/30 text-orange-500 bg-orange-500/5" : "border-[brand-secondary]/30 text-[brand-secondary] bg-[brand-secondary]/5"
+                               grade.status === "PENDING" ? "border-orange-500/30 text-orange-500 bg-orange-500/5" : "border-brand-secondary/30 text-brand-secondary bg-brand-secondary/5"
                              )}>
                                {grade.status}
                              </span>
@@ -236,7 +236,7 @@ export default function ResultsApprovalPage() {
             >
               <div className="flex flex-col gap-10">
                 <div className="flex items-center gap-6">
-                   <div className="w-16 h-16 rounded-2xl bg-[brand-secondary]/10 border border-[brand-secondary]/20 flex items-center justify-center text-[brand-secondary]">
+                   <div className="w-16 h-16 rounded-2xl bg-brand-secondary/10 border border-brand-secondary/20 flex items-center justify-center text-brand-secondary">
                       <Stamp size={32} />
                    </div>
                    <div>
@@ -254,7 +254,7 @@ export default function ResultsApprovalPage() {
 
                 {isPublishing && (
                   <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center gap-6 z-20">
-                     <div className="w-12 h-12 border-4 border-[brand-secondary] border-t-transparent rounded-full animate-spin" />
+                     <div className="w-12 h-12 border-4 border-brand-secondary border-t-transparent rounded-full animate-spin" />
                      <p className="font-black text-brand-primary uppercase tracking-[0.4em] text-token-micro">Applying Cryptographic Seals...</p>
                   </div>
                 )}

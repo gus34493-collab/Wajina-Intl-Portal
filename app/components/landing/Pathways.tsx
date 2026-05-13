@@ -124,12 +124,6 @@ export default function Pathways() {
             viewport={{ once: true }}
             className="space-y-3"
           >
-            <span
-              className="text-token-micro font-black uppercase tracking-[0.45em]"
-              style={{ color: "var(--color-cinematic-moss)", fontFamily: "var(--font-sans)" }}
-            >
-              Plate II · Educational Journey
-            </span>
             <h2
               className="leading-[0.9] tracking-tight"
               style={{

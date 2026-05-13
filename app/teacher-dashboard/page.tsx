@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import DashboardShell from "@/app/components/DashboardShell";
-import { Clock, Presentation, ChevronRight, Upload, Table, Calendar, Users, CheckCircle2, AlertCircle, UserX } from "lucide-react";
+import { Clock, Presentation, ChevronRight, Upload, Table, Bell, Users, CheckCircle2, UserX } from "lucide-react";
 import { useAuth } from "@/app/components/AuthContext";
 import { cn } from "@/lib/utils";
 
@@ -50,14 +50,12 @@ function AttendanceView({ armId }: { armId?: string }) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-display font-black text-brand-primary tracking-tight uppercase">
-            Attendance <span className="text-brand-accent">Records</span>
+            Attendance <span className="text-brand-secondary">Records</span>
           </h2>
           <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest mt-1">
             {periodLabel[period]} · {campus || "Campus"}
           </p>
         </div>
-
-        {/* Period filter */}
         <div className="flex gap-1 bg-brand-primary/5 rounded-2xl p-1">
           {(["DAY", "WEEK", "MONTH", "TERM"] as const).map((p) => (
             <button
@@ -76,7 +74,6 @@ function AttendanceView({ armId }: { armId?: string }) {
         </div>
       </div>
 
-      {/* Summary Cards */}
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => <div key={i} className="h-24 rounded-3xl bg-white border border-brand-primary/8 animate-pulse" />)}
@@ -84,10 +81,10 @@ function AttendanceView({ armId }: { armId?: string }) {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: "Attendance Rate", value: summary?.rate !== null && summary?.rate !== undefined ? `${summary.rate}%` : "—", icon: <CheckCircle2 size={18} />, color: (summary?.rate ?? 0) >= 75 ? "text-brand-success" : "text-brand-accent", bg: (summary?.rate ?? 0) >= 75 ? "bg-brand-success/5 border-brand-success/20" : "bg-brand-accent/5 border-brand-accent/20" },
-            { label: "Present",         value: summary?.present ?? 0,  icon: <CheckCircle2 size={18} />, color: "text-brand-success", bg: "bg-white border-brand-primary/8" },
-            { label: "Absent",          value: summary?.absent ?? 0,   icon: <UserX size={18} />,        color: "text-red-500",       bg: "bg-white border-brand-primary/8" },
-            { label: "Late",            value: summary?.late ?? 0,     icon: <Clock size={18} />,        color: "text-brand-accent",  bg: "bg-white border-brand-primary/8" },
+            { label: "Attendance Rate", value: summary?.rate !== null && summary?.rate !== undefined ? `${summary.rate}%` : "—", icon: <CheckCircle2 size={18} />, color: (summary?.rate ?? 0) >= 75 ? "text-brand-secondary" : "text-brand-accent", bg: (summary?.rate ?? 0) >= 75 ? "bg-brand-secondary/10 border-brand-secondary/20" : "bg-brand-accent/5 border-brand-accent/20" },
+            { label: "Present", value: summary?.present ?? 0, icon: <CheckCircle2 size={18} />, color: "text-brand-secondary", bg: "bg-white border-brand-primary/8" },
+            { label: "Absent", value: summary?.absent ?? 0, icon: <UserX size={18} />, color: "text-brand-error", bg: "bg-white border-brand-primary/8" },
+            { label: "Late", value: summary?.late ?? 0, icon: <Clock size={18} />, color: "text-brand-accent", bg: "bg-white border-brand-primary/8" },
           ].map((card) => (
             <div key={card.label} className={cn("rounded-3xl p-5 border flex flex-col gap-3", card.bg)}>
               <div className="flex justify-between items-center">
@@ -102,18 +99,17 @@ function AttendanceView({ armId }: { armId?: string }) {
         </div>
       )}
 
-      {/* Rate progress bar */}
       {!loading && summary && (
         <div className="bg-white border border-brand-primary/8 rounded-2xl p-5">
           <div className="flex justify-between mb-2">
             <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest">Collection Rate</p>
-            <p className={cn("text-token-micro font-black uppercase tracking-widest", (summary.rate ?? 0) >= 75 ? "text-brand-success" : "text-brand-accent")}>
+            <p className={cn("text-token-micro font-black uppercase tracking-widest", (summary.rate ?? 0) >= 75 ? "text-brand-secondary" : "text-brand-accent")}>
               {(summary.rate ?? 0) >= 75 ? "Satisfactory" : "Below 75% Target"}
             </p>
           </div>
           <div className="h-2.5 bg-brand-primary/8 rounded-full overflow-hidden">
             <div
-              className={cn("h-full rounded-full transition-all duration-700", (summary.rate ?? 0) >= 75 ? "bg-brand-success" : "bg-brand-accent")}
+              className={cn("h-full rounded-full transition-all duration-700", (summary.rate ?? 0) >= 75 ? "bg-brand-secondary" : "bg-brand-accent")}
               style={{ width: `${summary.rate ?? 0}%` }}
             />
           </div>
@@ -123,13 +119,11 @@ function AttendanceView({ armId }: { armId?: string }) {
         </div>
       )}
 
-      {/* Records table */}
       <div className="bg-white border border-brand-primary/8 rounded-3xl overflow-hidden">
         <div className="px-6 py-4 border-b border-brand-primary/5 flex justify-between items-center">
           <h4 className="font-black text-brand-primary text-sm uppercase tracking-widest">Recent Records</h4>
           <span className="text-token-micro font-black text-brand-primary/30 uppercase tracking-widest">{periodLabel[period]}</span>
         </div>
-
         {loading ? (
           <div className="p-6 flex flex-col gap-3">
             {[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-12 rounded-xl bg-brand-primary/5 animate-pulse" />)}
@@ -151,9 +145,9 @@ function AttendanceView({ armId }: { armId?: string }) {
                 </div>
                 <span className={cn(
                   "text-[0.6rem] font-black uppercase tracking-widest px-3 py-1 rounded-full shrink-0",
-                  rec.status === "PRESENT" ? "bg-brand-success/10 text-brand-success" :
-                  rec.status === "LATE"    ? "bg-brand-accent/10 text-brand-accent" :
-                                             "bg-red-50 text-red-500"
+                  rec.status === "PRESENT" ? "bg-brand-secondary/10 text-brand-secondary" :
+                  rec.status === "LATE" ? "bg-brand-accent/10 text-brand-accent" :
+                                          "bg-brand-error/10 text-brand-error"
                 )}>
                   {rec.status}
                 </span>
@@ -206,10 +200,6 @@ function TeacherDashboardContent() {
     fetchData();
   }, []);
 
-  const currentDate = new Date().toLocaleDateString("en-GB", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric",
-  });
-
   if (view === "attendance") {
     return (
       <DashboardShell>
@@ -228,63 +218,69 @@ function TeacherDashboardContent() {
 
   return (
     <DashboardShell>
-      <div className="flex flex-col gap-5 md:gap-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pointer-events-none">
-          <div className="space-y-1">
+      <div className="flex flex-col gap-8">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse" />
+              <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-pulse" />
               <span className="text-token-micro font-black text-brand-primary/40 uppercase tracking-[0.4em]">{campus || "PRIMARY"} FACULTY</span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-display font-black text-brand-primary tracking-tighter uppercase leading-none">
-              My <span className="text-brand-accent">Workspace</span>
+            <h1 className="text-3xl font-display font-black text-brand-primary tracking-tight">
+              My <span className="text-brand-secondary">Workspace</span>
             </h1>
           </div>
-          <div className="flex items-center gap-3 bg-white/40 backdrop-blur-sm border border-brand-primary/5 rounded-2xl px-5 py-3.5 shadow-sm self-start pointer-events-auto">
-            <Calendar size={18} className="text-brand-accent" />
-            <span className="text-xs font-black text-brand-primary tracking-widest uppercase">{currentDate}</span>
+          <div className="flex items-center gap-3">
+            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors">
+              <Bell size={18} />
+            </button>
+            <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center font-black text-white text-sm select-none">
+              TC
+            </div>
           </div>
         </div>
 
         {/* KPI Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-8">
-          <div className="card flex flex-col items-center justify-center text-center p-12 bg-white">
-            <h3 className="text-token-micro font-black text-brand-primary/30 uppercase tracking-[0.3em] self-start mb-10">GRADING PROGRESS</h3>
-            <div className="w-48 h-48 rounded-full border-8 border-brand-primary/5 flex items-center justify-center relative shadow-inner">
-              <div className="absolute inset-2 rounded-full border-4 border-brand-accent/20" />
-              <span className="text-4xl font-display font-black text-brand-primary">{stats.compliance}</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Compliance circle */}
+          <div className="bg-white rounded-3xl border border-brand-primary/8 shadow-sm p-8 flex flex-col items-center justify-center text-center gap-4">
+            <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest">Grading Progress</p>
+            <div className="w-36 h-36 rounded-full border-8 border-brand-primary/5 flex items-center justify-center relative shadow-inner">
+              <div className="absolute inset-2 rounded-full border-4 border-brand-secondary/20" />
+              <span className="text-3xl font-display font-black text-brand-primary">{stats.compliance}</span>
             </div>
-            <p className="text-token-micro font-black text-brand-accent mt-10 uppercase tracking-widest">Term Compliance</p>
+            <p className="text-token-micro font-black text-brand-secondary uppercase tracking-widest">Term Compliance</p>
           </div>
 
-          <div className="flex flex-col gap-5 md:gap-8">
-            <div className="card flex-1 flex items-center gap-6 bg-white group hover:translate-y-[-4px] transition-all duration-300">
-              <div className="w-16 h-16 rounded-2xl bg-brand-primary/5 flex items-center justify-center group-hover:bg-brand-primary group-hover:text-white transition-all duration-500">
-                <Clock size={24} className="text-brand-accent" />
+          <div className="flex flex-col gap-4">
+            <div className="bg-white rounded-3xl border border-brand-primary/8 shadow-sm p-6 flex items-center gap-5 group hover:-translate-y-0.5 transition-all flex-1">
+              <div className="w-12 h-12 rounded-2xl bg-brand-primary/8 flex items-center justify-center group-hover:bg-brand-primary group-hover:text-white transition-all shrink-0">
+                <Clock size={22} className="text-brand-primary group-hover:text-white transition-colors" />
               </div>
-              <div className="space-y-1">
-                <p className="text-token-micro font-black text-brand-primary/30 uppercase tracking-[0.3em]">MY SUBJECTS</p>
-                <p className="text-4xl font-display font-black text-brand-primary uppercase tracking-tighter leading-none">{stats.upcoming}</p>
+              <div>
+                <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest">My Subjects</p>
+                <p className="text-4xl font-display font-black text-brand-primary tracking-tighter leading-none mt-1">{stats.upcoming}</p>
               </div>
             </div>
-            <div className="card flex-1 flex items-center gap-6 bg-white group hover:translate-y-[-4px] transition-all duration-300">
-              <div className="w-16 h-16 rounded-2xl bg-brand-primary/5 flex items-center justify-center group-hover:bg-brand-primary group-hover:text-white transition-all duration-500">
-                <Presentation size={24} className="text-brand-accent" />
+            <div className="bg-white rounded-3xl border border-brand-primary/8 shadow-sm p-6 flex items-center gap-5 group hover:-translate-y-0.5 transition-all flex-1">
+              <div className="w-12 h-12 rounded-2xl bg-brand-primary/8 flex items-center justify-center group-hover:bg-brand-primary group-hover:text-white transition-all shrink-0">
+                <Presentation size={22} className="text-brand-primary group-hover:text-white transition-colors" />
               </div>
-              <div className="space-y-1">
-                <p className="text-token-micro font-black text-brand-primary/30 uppercase tracking-[0.3em]">CLASSES TODAY</p>
-                <p className="text-4xl font-display font-black text-brand-primary uppercase tracking-tighter leading-none">{stats.classesToday}</p>
+              <div>
+                <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest">Classes Today</p>
+                <p className="text-4xl font-display font-black text-brand-primary tracking-tighter leading-none mt-1">{stats.classesToday}</p>
               </div>
             </div>
           </div>
 
           {/* Attendance quick access */}
-          <div className="card flex flex-col bg-white p-10 gap-6">
-            <h3 className="text-token-micro font-black text-brand-primary/30 uppercase tracking-[0.3em]">ATTENDANCE</h3>
+          <div className="bg-white rounded-3xl border border-brand-primary/8 shadow-sm p-6 flex flex-col gap-4">
+            <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest">Attendance</p>
             <button
               onClick={() => router.push("/teacher-dashboard?view=attendance")}
-              className="flex-1 flex flex-col items-center justify-center gap-4 p-8 bg-brand-primary/[0.02] rounded-2xl border border-brand-primary/8 hover:border-brand-primary/20 hover:bg-brand-primary/5 transition-all group"
+              className="flex-1 flex flex-col items-center justify-center gap-3 p-6 bg-brand-primary/[0.02] rounded-2xl border border-brand-primary/8 hover:border-brand-secondary/20 hover:bg-brand-secondary/5 transition-all group"
             >
-              <Users size={32} className="text-brand-primary/20 group-hover:text-brand-primary/50 transition-colors" />
+              <Users size={28} className="text-brand-primary/20 group-hover:text-brand-secondary transition-colors" />
               <div className="text-center">
                 <p className="text-sm font-black text-brand-primary uppercase tracking-widest">View Records</p>
                 <p className="text-token-micro font-black text-brand-primary/30 uppercase tracking-widest mt-1">Filter by day / week / month</p>
@@ -293,45 +289,45 @@ function TeacherDashboardContent() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8">
-          <div className="card flex flex-col">
-            <h4 className="font-black text-brand-primary mb-8">Recent Grading Activity</h4>
-            <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-3xl border border-brand-primary/8 shadow-sm p-6 md:p-8 flex flex-col">
+            <h4 className="font-black text-brand-primary mb-6">Recent Grading Activity</h4>
+            <div className="flex flex-col gap-3">
               {gradingFeed.length === 0 ? (
-                <div className="py-10 text-center flex flex-col items-center gap-3">
-                  <Clock size={28} className="text-brand-primary opacity-10" />
+                <div className="py-12 text-center flex flex-col items-center gap-3">
+                  <Clock size={28} className="text-brand-primary/10" />
                   <p className="text-xs font-black text-brand-primary/40 uppercase tracking-widest">No grading activity yet.</p>
                 </div>
               ) : (
                 gradingFeed.map((g, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 bg-brand-blush/50 rounded-xl border border-brand-primary/5 hover:border-brand-primary/20 transition-all cursor-pointer group">
+                  <div key={i} className="flex items-center justify-between p-4 bg-brand-blush/40 rounded-2xl border border-brand-primary/5 hover:border-brand-secondary/20 transition-all cursor-pointer group">
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-brand-primary truncate">{g.subject} — {g.className}</p>
-                      <p className="text-token-micro font-bold text-brand-primary/50">{g.studentsGraded} · {g.date}</p>
+                      <p className="text-token-micro font-bold text-brand-primary/40 uppercase tracking-wider">{g.studentsGraded} · {g.date}</p>
                     </div>
-                    <ChevronRight size={14} className="text-brand-primary/30 group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight size={14} className="text-brand-primary/20 group-hover:text-brand-secondary group-hover:translate-x-0.5 transition-all shrink-0" />
                   </div>
                 ))
               )}
             </div>
           </div>
 
-          <div className="card bg-brand-primary text-white border-none shadow-2xl relative overflow-hidden group p-12">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -mr-24 -mt-24 blur-3xl group-hover:scale-150 transition-transform duration-700" />
-            <h4 className="text-base font-black uppercase tracking-[0.2em] mb-10 relative z-10">Quick Access</h4>
-            <div className="grid grid-cols-2 gap-6 relative z-10">
-              <a href="/gradebook" className="bg-white/5 p-8 rounded-[1.5rem] hover:bg-white/10 transition-all border border-white/5 group/btn">
-                <div className="w-12 h-12 rounded-xl bg-brand-accent/20 flex items-center justify-center mb-6 group-hover/btn:bg-brand-accent group-hover/btn:text-brand-primary transition-colors">
-                  <Table size={24} className="text-brand-accent group-hover/btn:text-brand-primary" />
+          {/* Quick Access (inverted hero card) */}
+          <div className="bg-brand-primary rounded-3xl shadow-xl shadow-brand-primary/20 p-8 flex flex-col">
+            <h4 className="text-base font-black uppercase tracking-[0.2em] text-white mb-8">Quick Access</h4>
+            <div className="grid grid-cols-2 gap-4 flex-1">
+              <a href="/gradebook" className="bg-white/5 p-6 rounded-2xl hover:bg-white/10 transition-all border border-white/5 group/btn flex flex-col gap-4 no-underline">
+                <div className="w-11 h-11 rounded-xl bg-brand-secondary/20 flex items-center justify-center group-hover/btn:bg-brand-secondary transition-colors">
+                  <Table size={20} className="text-brand-secondary group-hover/btn:text-white transition-colors" />
                 </div>
                 <span className="font-black text-xs block uppercase tracking-widest text-white/60 group-hover/btn:text-white transition-colors">Master Gradebook</span>
               </a>
               <button
                 onClick={() => router.push("/teacher-dashboard?view=attendance")}
-                className="bg-white/5 p-8 rounded-[1.5rem] hover:bg-white/10 transition-all border border-white/5 group/btn text-left"
+                className="bg-white/5 p-6 rounded-2xl hover:bg-white/10 transition-all border border-white/5 group/btn text-left flex flex-col gap-4"
               >
-                <div className="w-12 h-12 rounded-xl bg-brand-accent/20 flex items-center justify-center mb-6 group-hover/btn:bg-brand-accent group-hover/btn:text-brand-primary transition-colors">
-                  <Users size={24} className="text-brand-accent group-hover/btn:text-brand-primary" />
+                <div className="w-11 h-11 rounded-xl bg-brand-secondary/20 flex items-center justify-center group-hover/btn:bg-brand-secondary transition-colors">
+                  <Users size={20} className="text-brand-secondary group-hover/btn:text-white transition-colors" />
                 </div>
                 <span className="font-black text-xs block uppercase tracking-widest text-white/60 group-hover/btn:text-white transition-colors">Attendance Records</span>
               </button>

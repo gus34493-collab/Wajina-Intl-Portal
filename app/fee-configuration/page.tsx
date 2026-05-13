@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 import DashboardShell from "@/app/components/DashboardShell";
 import {
   CreditCard,
-  Save,
   TrendingUp,
   Info,
   Layers,
   Zap,
   Loader2,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -36,6 +36,8 @@ export default function FeeConfigurationPage() {
   const [sessionName, setSessionName] = useState<string>("—");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -75,6 +77,7 @@ export default function FeeConfigurationPage() {
 
   const handleUpdate = (campus: string, field: keyof CampusFees, raw: string) => {
     const value = parseInt(raw.replace(/[^0-9]/g, "")) || 0;
+    setIsDirty(true);
     setFees((prev) => prev.map((row) => (row.campus === campus ? { ...row, [field]: value } : row)));
   };
 
@@ -100,6 +103,9 @@ export default function FeeConfigurationPage() {
         toast.error(`${failed.length} fee(s) failed to save. Check your permissions.`);
       } else {
         toast.success("Fee structure published successfully.");
+        setSavedAt(new Date());
+        setIsDirty(false);
+        setTimeout(() => setSavedAt(null), 2500);
       }
     } catch (err) {
       toast.error("Failed to save fee structure.");
@@ -126,14 +132,27 @@ export default function FeeConfigurationPage() {
               Session: <span className="text-brand-primary">{sessionName}</span>
             </p>
           </div>
-          <button
-            onClick={handleSave}
-            disabled={isSaving || isLoading || !sessionId}
-            className="bg-white border-2 border-brand-secondary text-brand-primary px-10 h-14 rounded-2xl font-black text-token-micro uppercase tracking-widest hover:bg-brand-secondary/10 transition-all shadow-lg flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Zap size={16} />}
-            {isSaving ? "Publishing..." : "Publish Structure"}
-          </button>
+          <div className="flex items-center gap-4">
+            {isDirty && !savedAt && (
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse" />
+                <span className="text-token-micro font-black text-brand-accent uppercase tracking-widest">Unsaved changes</span>
+              </div>
+            )}
+            <button
+              onClick={handleSave}
+              disabled={isSaving || isLoading || !sessionId}
+              className={cn(
+                "border-2 px-10 h-14 rounded-2xl font-black text-token-micro uppercase tracking-widest transition-all shadow-lg flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed",
+                savedAt
+                  ? "bg-brand-secondary border-brand-secondary text-white"
+                  : "bg-white border-brand-secondary text-brand-primary hover:bg-brand-secondary/10"
+              )}
+            >
+              {isSaving ? <Loader2 size={16} className="animate-spin" /> : savedAt ? <CheckCircle2 size={16} /> : <Zap size={16} />}
+              {isSaving ? "Publishing..." : savedAt ? "Fees Published" : "Publish Structure"}
+            </button>
+          </div>
         </div>
 
         {/* Summary Cards */}

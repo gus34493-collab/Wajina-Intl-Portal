@@ -19,26 +19,50 @@ import {
   MoreVertical
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 export default function SchoolConfig() {
   const [data, setData] = useState<any>(null);
   const [view, setView] = useState("calendar");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchConfig() {
-      try {
-        const res = await fetch("/api/structure?type=overview");
-        const json = await res.json();
-        setData(json);
-      } catch (err) {
-        console.error("Config fetch failed:", err);
-      } finally {
-        setLoading(false);
-      }
+  const fetchConfig = async () => {
+    try {
+      const res = await fetch("/api/structure/overview");
+      const json = await res.json();
+      setData(json);
+    } catch (err) {
+      console.error("Config fetch failed:", err);
+    } finally {
+      setLoading(false);
     }
-    fetchConfig();
-  }, []);
+  };
+
+  useEffect(() => { fetchConfig(); }, []);
+
+  const activateTerm = async (termId: string) => {
+    try {
+      const res = await fetch(`/api/terms/${termId}/activate`, { method: "PATCH" });
+      if (res.ok) {
+        toast.success("Term activated. All dashboards will reflect the new period.");
+        fetchConfig();
+      } else {
+        toast.error("Failed to activate term.");
+      }
+    } catch { toast.error("Network error."); }
+  };
+
+  const activateSession = async (sessionId: string) => {
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}/activate`, { method: "PATCH" });
+      if (res.ok) {
+        toast.success("Session activated successfully.");
+        fetchConfig();
+      } else {
+        toast.error("Failed to activate session.");
+      }
+    } catch { toast.error("Network error."); }
+  };
 
   return (
     <DashboardShell>
@@ -96,10 +120,16 @@ export default function SchoolConfig() {
                                 </div>
                                 <div className="flex justify-between items-center">
                                    <div className="flex items-center gap-2">
-                                      <div className={clsx("w-2 h-2 rounded-full", s.status === 'ACTIVE' ? "bg-brand-success" : "bg-text-brand-tertiary opacity-30")} />
+                                      <div className={clsx("w-2 h-2 rounded-full", s.status === 'ACTIVE' ? "bg-brand-secondary" : "bg-brand-tertiary opacity-30")} />
                                       <span className="text-token-micro font-black uppercase tracking-widest">{s.status}</span>
                                    </div>
-                                   <button className="text-brand-tertiary hover:text-brand-primary transition-colors"><MoreVertical size={16} /></button>
+                                   {s.status !== 'ACTIVE' ? (
+                                     <button onClick={() => activateSession(s.id)} className="text-token-micro font-black text-brand-secondary uppercase tracking-widest hover:underline">
+                                       Set Active
+                                     </button>
+                                   ) : (
+                                     <button className="text-brand-tertiary hover:text-brand-primary transition-colors"><MoreVertical size={16} /></button>
+                                   )}
                                 </div>
                              </div>
                            ))}
@@ -121,11 +151,16 @@ export default function SchoolConfig() {
                                       <p className="text-token-micro font-bold text-brand-tertiary uppercase tracking-widest mt-1">Registry Open • Jan - Apr</p>
                                    </div>
                                 </div>
-                                <button className={clsx(
-                                  "px-5 py-2.5 rounded-xl text-token-micro font-black uppercase tracking-widest border transition-all",
-                                  t.isCurrent ? "bg-brand-success/10 border-brand-success/20 text-brand-success" : "bg-white border-brand-primary/8 text-brand-tertiary hover:border-brand-tertiary/20"
-                                )}>
-                                   {t.isCurrent ? "Live Term" : "Activate Cycle"}
+                                <button
+                                  onClick={() => !t.isCurrent && activateTerm(t.id)}
+                                  className={clsx(
+                                    "px-5 py-2.5 rounded-xl text-token-micro font-black uppercase tracking-widest border transition-all",
+                                    t.isCurrent
+                                      ? "bg-brand-secondary/10 border-brand-secondary/20 text-brand-secondary cursor-default"
+                                      : "bg-white border-brand-primary/8 text-brand-tertiary hover:border-brand-secondary/20 hover:text-brand-secondary"
+                                  )}
+                                >
+                                  {t.isCurrent ? "Live Term" : "Activate Cycle"}
                                 </button>
                              </div>
                            ))}

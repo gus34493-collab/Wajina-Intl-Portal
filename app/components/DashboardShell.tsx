@@ -11,6 +11,32 @@ import { useAuth } from "./AuthContext";
 import { cn } from "@/lib/utils";
 import NeuralGatewayBuffer from "./auth/NeuralGatewayBuffer";
 
+function SessionContextPill() {
+  const [context, setContext] = useState<{ sessionName: string; termName: string | null } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/session/current")
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => d && setContext(d))
+      .catch(() => {});
+  }, []);
+
+  if (!context) return null;
+
+  const label = context.termName
+    ? `${context.sessionName} · ${context.termName} TERM`
+    : context.sessionName;
+
+  return (
+    <div className="hidden md:flex items-center gap-2 -mt-4 mb-1 self-start">
+      <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-pulse" />
+      <span className="text-token-micro font-black text-brand-primary/40 uppercase tracking-[0.3em] select-none">
+        {label}
+      </span>
+    </div>
+  );
+}
+
 export default function DashboardShell({
   children,
 }: {
@@ -80,6 +106,7 @@ export default function DashboardShell({
                   onUserUpdate={updateUser}
                   onMobileMenuToggle={() => setIsMobileOpen(!isMobileOpen)}
                 />
+                <SessionContextPill />
                 {/* Temp-password banner */}
                 {user?.mustChangePassword && !bannerDismissed && (() => {
                   const expiresAt = user.passwordExpiresAt ? new Date(user.passwordExpiresAt) : null;

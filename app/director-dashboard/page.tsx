@@ -98,8 +98,8 @@ export default function DirectorDashboard() {
       sub: loading ? "Loading…" : `${data?.collectionRate ?? 0}% of ₦${((data?.totalExpected ?? 0) / 1e6).toFixed(1)}M target`,
       trend: data?.collectionRate,
       icon: <Wallet size={20} />,
-      iconBg: "bg-brand-success/10",
-      iconColor: "text-brand-success",
+      iconBg: "bg-brand-secondary/10",
+      iconColor: "text-brand-secondary",
       alert: false,
     },
     {
@@ -207,8 +207,8 @@ export default function DirectorDashboard() {
               <div className="flex items-center gap-1.5">
                 {kpi.trend !== null && kpi.trend !== undefined ? (
                   <>
-                    <TrendingUp size={11} className="text-brand-success" />
-                    <span className="text-[0.6rem] font-black text-brand-success">{kpi.trend}%</span>
+                    <TrendingUp size={11} className="text-brand-secondary" />
+                    <span className="text-[0.6rem] font-black text-brand-secondary">{kpi.trend}%</span>
                     <span className="text-[0.6rem] text-brand-primary/30 font-medium">fee collection</span>
                   </>
                 ) : kpi.alert ? (
@@ -238,7 +238,7 @@ export default function DirectorDashboard() {
               </div>
               <button
                 onClick={() => router.push("/director-finances")}
-                className="flex items-center gap-1 text-[0.65rem] font-black text-brand-success uppercase tracking-widest hover:opacity-80 transition-opacity"
+                className="flex items-center gap-1 text-[0.65rem] font-black text-brand-secondary uppercase tracking-widest hover:opacity-80 transition-opacity"
               >
                 View Report <ArrowUpRight size={12} />
               </button>
@@ -291,7 +291,7 @@ export default function DirectorDashboard() {
               </div>
               <div>
                 <p className="text-[0.55rem] font-black text-brand-primary/30 uppercase tracking-widest">Rate</p>
-                <p className={cn("text-sm font-display font-black mt-0.5", (data?.collectionRate ?? 0) >= 70 ? "text-brand-success" : "text-brand-accent")}>
+                <p className={cn("text-sm font-display font-black mt-0.5", (data?.collectionRate ?? 0) >= 70 ? "text-brand-secondary" : "text-brand-accent")}>
                   {data?.collectionRate ?? 0}%
                 </p>
               </div>
@@ -302,7 +302,7 @@ export default function DirectorDashboard() {
           <div className="bg-white rounded-2xl border border-brand-primary/8 p-6 md:p-8 flex flex-col">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-base font-display font-black text-brand-primary tracking-tight">Recent Activity</h2>
-              <div className="w-2 h-2 rounded-full bg-brand-success animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-brand-secondary animate-pulse" />
             </div>
 
             {loading ? (

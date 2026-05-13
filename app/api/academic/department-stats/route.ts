@@ -21,46 +21,48 @@ export async function GET(_req: NextRequest) {
     });
     const subjectIds = subjects.map(s => s.id);
 
-    const [pendingCount, achievers, stats] = await Promise.all([
+    const [pendingCount, allGrades, stats] = await Promise.all([
       prisma.grade.count({
-        where: {
-          subjectId: { in: subjectIds },
-          termId: currentTerm.id,
-          status: "SUBMITTED" 
-        }
+        where: { subjectId: { in: subjectIds }, termId: currentTerm.id, status: "SUBMITTED" }
       }),
       prisma.grade.findMany({
-        where: {
-          subjectId: { in: subjectIds },
-          termId: currentTerm.id,
-          total: { gte: 80 }
-        },
-        orderBy: { total: "desc" },
-        take: 5,
+        where: { subjectId: { in: subjectIds }, termId: currentTerm.id },
         select: {
           total: true,
+          studentId: true,
           student: { select: { name: true } },
           subject: { select: { name: true } }
         }
       }),
       prisma.grade.aggregate({
-        where: {
-          subjectId: { in: subjectIds },
-          termId: currentTerm.id
-        },
+        where: { subjectId: { in: subjectIds }, termId: currentTerm.id },
         _avg: { total: true }
       })
     ]);
 
-    const formattedAchievers = achievers.map(a => ({
-      name: a.student.name,
-      subject: a.subject.name,
-      score: Math.round(a.total)
-    }));
+    // Group grades by student and compute per-student averages
+    const byStudent = new Map<string, { name: string; subject: string; totals: number[] }>();
+    for (const g of allGrades) {
+      if (!byStudent.has(g.studentId)) {
+        byStudent.set(g.studentId, { name: g.student.name, subject: g.subject.name, totals: [g.total] });
+      } else {
+        const entry = byStudent.get(g.studentId)!;
+        entry.totals.push(g.total);
+      }
+    }
+    const studentAverages = Array.from(byStudent.values()).map(s => ({
+      name: s.name,
+      subject: s.subject,
+      score: Math.round(s.totals.reduce((a, b) => a + b, 0) / s.totals.length),
+      avg: s.totals.reduce((a, b) => a + b, 0) / s.totals.length,
+    })).sort((a, b) => b.avg - a.avg);
+
+    const formattedAchievers = studentAverages.slice(0, 10).map(({ name, subject, score }) => ({ name, subject, score }));
+    const eliteCount = studentAverages.filter(s => s.avg >= 80).length;
 
     return NextResponse.json({
       pendingCount,
-      eliteCount: achievers.length,
+      eliteCount,
       deptAverage: Math.round(stats._avg.total || 0),
       achievers: formattedAchievers
     });

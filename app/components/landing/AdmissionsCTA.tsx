@@ -52,12 +52,6 @@ export default function AdmissionsCTA() {
           className="space-y-10"
         >
           <div className="space-y-5">
-            <span
-              className="text-token-micro font-black uppercase tracking-[0.45em]"
-              style={{ color: "#3E6E2A", fontFamily: "var(--font-sans)" }}
-            >
-              Plate VI · Admissions 2025–2026
-            </span>
             <h2
               className="leading-[0.9] tracking-tight"
               style={{
