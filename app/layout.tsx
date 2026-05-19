@@ -33,6 +33,15 @@ export const metadata: Metadata = {
   description: "Experience world-class learning at Wajina International Schools, Makurdi. From Crèche to Secondary, we offer a prestigious blend of British and Nigerian curriculums for the leaders of tomorrow.",
   keywords: ["Wajina International Schools", "Private School Benue", "Best School Makurdi", "International School Nigeria", "British Curriculum Nigeria", "Secondary School Makurdi", "Nursery School Benue"],
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/images/logo-no-bg.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/images/logo-no-bg.png", type: "image/png" },
+    ],
+    shortcut: "/images/logo-no-bg.png",
+  },
   alternates: {
     canonical: "/",
   },
@@ -74,7 +83,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="scroll-smooth no-scrollbar" data-scroll-behavior="smooth">
       <head>
-        <link rel="apple-touch-icon" href="/images/Logo.png" />
+        <link rel="apple-touch-icon" href="/images/logo-no-bg.png" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Wajina International Schools" />

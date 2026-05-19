@@ -198,8 +198,8 @@ function LogStep({ label, time, active = false }: { label: string, time: string,
 
 function MotionChevron() {
    return (
-      <div className="flex flex-center justify-center py-1 opacity-20">
-         <ChevronRight rotate={90} size={14} className="rotate-90" />
+      <div className="flex items-center justify-center py-1 opacity-20">
+         <ChevronRight size={14} className="rotate-90" />
       </div>
    );
 }

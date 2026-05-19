@@ -7,6 +7,7 @@ import {
   Users, ClipboardCheck, BookOpen, CheckCircle2, ChevronRight,
   AlertCircle, MapPin, UserCheck, BarChart3, GraduationCap,
   FileText, Upload, X, Loader2, Sun, Sunset,
+  MessageSquare, ArrowUpRight, CheckCheck, XCircle, Clock,
 } from "lucide-react";
 import DashboardShell from "@/app/components/DashboardShell";
 import { useAuth } from "@/app/components/AuthContext";
@@ -54,6 +55,40 @@ export default function FormTeacherDashboard() {
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  const [inbox, setInbox] = useState<any[]>([]);
+  const [inboxLoading, setInboxLoading] = useState(true);
+  const [respondingTo, setRespondingTo] = useState<string | null>(null);
+  const [respondText, setRespondText] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/requests?receivedOnly=true&status=PENDING&level=K1&limit=10")
+      .then((r) => r.json())
+      .then((d) => setInbox(d.requests ?? []))
+      .catch(console.error)
+      .finally(() => setInboxLoading(false));
+  }, []);
+
+  async function handleRequestAction(id: string, action: "approve" | "deny" | "escalate" | "respond", feedback?: string) {
+    setActionLoading(true);
+    try {
+      const res = await fetch(`/api/requests/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, feedback: feedback ?? undefined }),
+      });
+      if (!res.ok) throw new Error("Action failed");
+      toast.success(action === "escalate" ? "Escalated to Head Teacher" : action === "respond" ? "Response sent" : `Request ${action}d`);
+      setInbox((prev) => action === "respond" ? prev : prev.filter((r) => r.id !== id));
+      setRespondingTo(null);
+      setRespondText("");
+    } catch {
+      toast.error("Failed to process request. Please try again.");
+    } finally {
+      setActionLoading(false);
+    }
+  }
 
   const [attPeriod, setAttPeriod] = useState<"DAY" | "WEEK" | "MONTH" | "TERM">("DAY");
   const [periodStats, setPeriodStats] = useState<{ present: number; absent: number; late: number; total: number; rate: number | null } | null>(null);
@@ -392,6 +427,106 @@ export default function FormTeacherDashboard() {
               <FileText size={24} className="mx-auto text-brand-primary/20 mb-2" />
               <p className="text-[0.65rem] font-black text-brand-primary/30 uppercase tracking-widest">No lesson plans submitted yet</p>
             </div>
+          )}
+        </section>
+
+        {/* ── Parent Requests Inbox ── */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xs font-black text-brand-primary/40 uppercase tracking-[0.3em]">
+              Parent Requests
+              {!inboxLoading && inbox.length > 0 && (
+                <span className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-accent text-white text-[0.55rem] font-black">
+                  {inbox.length}
+                </span>
+              )}
+            </h2>
+          </div>
+
+          {inboxLoading ? (
+            <div className="flex flex-col gap-2">
+              {[1, 2].map((i) => <div key={i} className="h-20 rounded-2xl bg-white border border-brand-primary/8 animate-pulse" />)}
+            </div>
+          ) : inbox.length === 0 ? (
+            <div className="bg-white border border-brand-primary/8 rounded-2xl p-6 flex items-center gap-4">
+              <CheckCheck size={22} className="text-brand-secondary shrink-0" />
+              <div>
+                <p className="text-sm font-black text-brand-primary">Inbox clear</p>
+                <p className="text-[0.65rem] text-brand-primary/40 font-medium mt-0.5">No pending parent requests.</p>
+              </div>
+            </div>
+          ) : (
+            <motion.div variants={STAGGER} initial="hidden" animate="show" className="flex flex-col gap-3">
+              {inbox.map((req) => (
+                <motion.div key={req.id} variants={ITEM} className="bg-white border border-brand-primary/8 rounded-2xl overflow-hidden">
+                  <div className="px-4 py-3.5 flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-brand-primary/5 flex items-center justify-center shrink-0 mt-0.5">
+                      <MessageSquare size={15} className="text-brand-primary/40" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-black text-brand-primary leading-snug truncate">{req.title}</p>
+                      <p className="text-[0.6rem] font-black text-brand-primary/30 uppercase tracking-widest mt-0.5">
+                        From: {req.sender?.name ?? "Parent"} · {new Date(req.createdAt).toLocaleDateString("en-NG", { day: "numeric", month: "short" })}
+                      </p>
+                    </div>
+                    <span className="flex items-center gap-1 text-[0.6rem] font-black text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full shrink-0">
+                      <Clock size={10} /> Pending
+                    </span>
+                  </div>
+
+                  {respondingTo === req.id ? (
+                    <div className="px-4 pb-4 flex flex-col gap-2 border-t border-brand-primary/5">
+                      <textarea
+                        value={respondText}
+                        onChange={(e) => setRespondText(e.target.value)}
+                        placeholder="Type your response…"
+                        rows={3}
+                        className="w-full mt-3 border border-brand-primary/10 rounded-xl px-4 py-3 text-sm font-medium text-brand-primary outline-none focus:border-brand-primary/30 bg-brand-primary/3 placeholder:text-brand-primary/20 resize-none"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          disabled={!respondText.trim() || actionLoading}
+                          onClick={() => handleRequestAction(req.id, "respond", respondText)}
+                          className="flex-1 bg-brand-primary text-white text-[0.6rem] font-black uppercase tracking-widest py-2.5 rounded-xl flex items-center justify-center gap-1.5 disabled:opacity-40"
+                        >
+                          {actionLoading ? <Loader2 size={12} className="animate-spin" /> : <CheckCheck size={12} />}
+                          Send Response
+                        </button>
+                        <button
+                          onClick={() => { setRespondingTo(null); setRespondText(""); }}
+                          className="px-3 py-2.5 border border-brand-primary/10 rounded-xl text-brand-primary/50 hover:text-brand-primary transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="px-4 pb-3.5 flex gap-2 border-t border-brand-primary/5 pt-3">
+                      <button
+                        onClick={() => setRespondingTo(req.id)}
+                        className="flex items-center gap-1.5 text-[0.6rem] font-black text-brand-primary bg-brand-primary/5 border border-brand-primary/10 px-3 py-2 rounded-xl uppercase tracking-widest hover:bg-brand-primary/10 transition-colors"
+                      >
+                        <MessageSquare size={11} /> Respond
+                      </button>
+                      <button
+                        disabled={actionLoading}
+                        onClick={() => handleRequestAction(req.id, "approve")}
+                        className="flex items-center gap-1.5 text-[0.6rem] font-black text-brand-secondary bg-brand-secondary/10 border border-brand-secondary/20 px-3 py-2 rounded-xl uppercase tracking-widest hover:bg-brand-secondary/20 transition-colors disabled:opacity-40"
+                      >
+                        <CheckCheck size={11} /> Resolve
+                      </button>
+                      <button
+                        disabled={actionLoading}
+                        onClick={() => handleRequestAction(req.id, "escalate")}
+                        className="flex items-center gap-1.5 text-[0.6rem] font-black text-orange-600 bg-orange-50 border border-orange-200 px-3 py-2 rounded-xl uppercase tracking-widest hover:bg-orange-100 transition-colors disabled:opacity-40 ml-auto"
+                      >
+                        <ArrowUpRight size={11} /> Escalate
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </motion.div>
           )}
         </section>
 

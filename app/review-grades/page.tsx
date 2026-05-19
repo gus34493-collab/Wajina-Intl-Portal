@@ -3,10 +3,11 @@
 
 import { useState, useEffect } from "react";
 import DashboardShell from "@/app/components/DashboardShell";
-import { 
-  BarChart4, 
-  Search, 
-  Filter, 
+import { useAuth } from "@/app/components/AuthContext";
+import {
+  BarChart4,
+  Search,
+  Filter,
   ChevronRight,
   TrendingUp,
   AlertCircle,
@@ -35,9 +36,16 @@ ChartJS.register(
 );
 
 export default function ReviewGradesPage() {
+  const { user } = useAuth();
   const [grades, setGrades] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCampus, setSelectedCampus] = useState("PRIMARY");
+
+  useEffect(() => {
+    if (user && user.role !== "DIRECTOR") {
+      setSelectedCampus(user.campus || "PRIMARY");
+    }
+  }, [user?.campus, user?.role]);
 
   useEffect(() => {
     async function fetchGrades() {
@@ -131,17 +139,19 @@ export default function ReviewGradesPage() {
            <div className="lg:col-span-2 card flex flex-col gap-6">
               <div className="flex justify-between items-center">
                 <h4 className="font-black text-brand-primary uppercase text-token-micro tracking-widest">Performance Distribution (By Arm)</h4>
+                {user?.role === "DIRECTOR" && (
                 <div className="flex gap-2">
-                   {['PRIMARY', 'SECONDARY'].map(c => (
-                     <button 
-                       key={c}
-                       onClick={() => setSelectedCampus(c)}
-                       className={`px-3 py-1 rounded-lg text-token-micro font-black uppercase tracking-widest transition-all ${selectedCampus === c ? 'bg-brand-primary text-white' : 'bg-brand-blush text-brand-tertiary hover:bg-black/5'}`}
-                     >
-                       {c}
-                     </button>
-                   ))}
+                  {['PRIMARY', 'SECONDARY'].map(c => (
+                    <button
+                      key={c}
+                      onClick={() => setSelectedCampus(c)}
+                      className={`px-3 py-1 rounded-lg text-token-micro font-black uppercase tracking-widest transition-all ${selectedCampus === c ? 'bg-brand-primary text-white' : 'bg-brand-blush text-brand-tertiary hover:bg-black/5'}`}
+                    >
+                      {c}
+                    </button>
+                  ))}
                 </div>
+              )}
               </div>
               <div className="h-[280px] w-full pt-4">
                  <Bar data={barData} options={chartOptions as any} />

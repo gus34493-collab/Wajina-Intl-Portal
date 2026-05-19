@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef, Suspense } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Users,
@@ -51,10 +51,14 @@ function timeAgo(date: string) {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
-export default function DirectorDashboard() {
+function DirectorDashboardContent() {
   const { user } = useAuth();
   const router = useRouter();
-  const [campus, setCampus] = useState<string>("ALL");
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const [campus, setCampus] = useState<string>(
+    (searchParams.get("campus") as string | null) ?? "ALL"
+  );
   const [data, setData] = useState<OverviewData | null>(null);
   const [loading, setLoading] = useState(true);
   const chartRef = useRef<HTMLDivElement>(null);
@@ -161,7 +165,12 @@ export default function DirectorDashboard() {
             {CAMPUSES.map((c) => (
               <button
                 key={c}
-                onClick={() => setCampus(c)}
+                onClick={() => {
+                  setCampus(c);
+                  const params = new URLSearchParams(searchParams.toString());
+                  params.set("campus", c);
+                  router.replace(`${pathname}?${params.toString()}`);
+                }}
                 className={cn(
                   "px-4 py-2 rounded-lg text-[0.65rem] font-black uppercase tracking-widest transition-all",
                   campus === c
@@ -391,5 +400,19 @@ export default function DirectorDashboard() {
 
       </div>
     </DashboardShell>
+  );
+}
+
+export default function DirectorDashboard() {
+  return (
+    <Suspense fallback={
+      <DashboardShell>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <p className="text-token-micro font-black uppercase tracking-widest text-brand-primary/30">Loading dashboard…</p>
+        </div>
+      </DashboardShell>
+    }>
+      <DirectorDashboardContent />
+    </Suspense>
   );
 }

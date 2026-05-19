@@ -8,24 +8,21 @@ import { ShieldAlert, X } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { useAuth } from "./AuthContext";
+import { AcademicProvider, useAcademic } from "./AcademicContext";
 import { cn } from "@/lib/utils";
 import NeuralGatewayBuffer from "./auth/NeuralGatewayBuffer";
 
+const TERM_LABELS: Record<string, string> = { FIRST: "First", SECOND: "Second", THIRD: "Third" };
+
 function SessionContextPill() {
-  const [context, setContext] = useState<{ sessionName: string; termName: string | null } | null>(null);
+  const { activeSession, activeTerm } = useAcademic();
 
-  useEffect(() => {
-    fetch("/api/session/current")
-      .then((r) => r.ok ? r.json() : null)
-      .then((d) => d && setContext(d))
-      .catch(() => {});
-  }, []);
+  if (!activeSession) return null;
 
-  if (!context) return null;
-
-  const label = context.termName
-    ? `${context.sessionName} · ${context.termName} TERM`
-    : context.sessionName;
+  const termLabel = TERM_LABELS[activeTerm?.name ?? ""] ?? activeTerm?.name ?? "";
+  const label = activeTerm
+    ? `${activeSession.name} · ${termLabel} Term`
+    : activeSession.name;
 
   return (
     <div className="hidden md:flex items-center gap-2 -mt-4 mb-1 self-start">
@@ -76,7 +73,7 @@ export default function DashboardShell({
         {loading || !user ? (
           <NeuralGatewayBuffer key="global-buffer" />
         ) : (
-          <>
+          <AcademicProvider>
             {/* Sidebar - Only rendered once loading is complete */}
             <Sidebar
               user={user}
@@ -143,7 +140,7 @@ export default function DashboardShell({
                 </div>
               </div>
             </motion.main>
-          </>
+          </AcademicProvider>
         )}
       </AnimatePresence>
     </div>

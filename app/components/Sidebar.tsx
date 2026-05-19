@@ -104,11 +104,17 @@ export default function Sidebar({
           )}
 
           <button
-            onClick={onToggle}
-            className="hidden lg:grid place-items-center w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+            onClick={() => {
+              if (isMobileOpen) {
+                setIsMobileOpen?.(false);
+              } else {
+                onToggle?.();
+              }
+            }}
+            className="grid place-items-center w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors shrink-0"
           >
             <motion.div animate={{ rotate: collapsed ? 180 : 0 }}>
-              <ChevronLeft size={16} />
+              {isMobileOpen ? <X size={16} /> : <ChevronLeft size={16} />}
             </motion.div>
           </button>
         </div>

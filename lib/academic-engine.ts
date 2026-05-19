@@ -137,17 +137,27 @@ export async function canViewResults(studentId: string, termId?: string): Promis
   const effectiveClassId = student.enrolledArm?.classId ?? student.classId ?? null;
   const effectiveCampus = student.enrolledArm?.class?.campus ?? student.enrolledClass?.campus ?? student.campus ?? null;
 
-  const configs = await prisma.feeConfig.findMany({
-    where: {
-      termId: targetTermId,
-      category: "TUITION",
-      OR: [
-        ...(effectiveClassId ? [{ classId: effectiveClassId }] : []),
-        ...(effectiveCampus ? [{ campus: effectiveCampus, classId: null }] : []),
-        { campus: null, classId: null },
-      ],
-    },
+  const feeWhere = (termId: string | null, sessionId?: string) => ({
+    termId,
+    ...(sessionId !== undefined && { sessionId }),
+    category: "TUITION" as const,
+    OR: [
+      ...(effectiveClassId ? [{ classId: effectiveClassId }] : []),
+      ...(effectiveCampus ? [{ campus: effectiveCampus as any, classId: null }] : []),
+      { campus: null, classId: null },
+    ],
   });
+
+  // Try term-level configs first, then fall back to session-level (termId: null)
+  let configs = await prisma.feeConfig.findMany({ where: feeWhere(targetTermId) });
+
+  if (configs.length === 0) {
+    const term = await prisma.term.findUnique({ where: { id: targetTermId! }, select: { sessionId: true } });
+    if (term) {
+      configs = await prisma.feeConfig.findMany({ where: feeWhere(null, term.sessionId) });
+    }
+  }
+
   if (configs.length === 0) return true;
 
   const feeConfig =

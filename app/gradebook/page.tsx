@@ -15,9 +15,12 @@ import {
   Zap
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { getAssessmentConfig, calculateScore } from "@/lib/academic-engine";
+import { useAcademic } from "@/app/components/AcademicContext";
 
 export default function Gradebook() {
+  const { activeTerm, activeSession, loading: academicLoading } = useAcademic();
   const [subjects, setSubjects] = useState<any[]>([]);
   const [activeSubject, setActiveSubject] = useState<any>(null);
   const [students, setStudents] = useState<any[]>([]);
@@ -27,7 +30,8 @@ export default function Gradebook() {
   const [syncing, setSyncing] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [searchTerm, setSearchTerm] = useState("");
-  
+  const [committing, setCommitting] = useState(false);
+
   const saveTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -46,10 +50,11 @@ export default function Gradebook() {
   }, []);
 
   async function loadSubject(sub: any) {
+    if (!activeTerm) return;
+
     setLoading(true);
     setActiveSubject(sub);
-    
-    // Resolve Config
+
     const assessmentConfig = getAssessmentConfig(sub.class.campus, sub.class.category, sub.class.name);
     setConfig(assessmentConfig);
 
@@ -58,10 +63,9 @@ export default function Gradebook() {
       const studentJson = await studentRes.json();
       setStudents(studentJson.users || []);
 
-      // Pre-load existing grades
-      const gradeRes = await fetch(`/api/grades?subjectId=${sub.id}&termId=current`);
+      const gradeRes = await fetch(`/api/grades?subjectId=${sub.id}&termId=${activeTerm.id}`);
       const gradeJson = await gradeRes.json();
-      
+
       const gradeMap = new Map();
       (gradeJson.grades || []).forEach((g: any) => {
         gradeMap.set(g.studentId, g);
@@ -96,16 +100,17 @@ export default function Gradebook() {
     setSyncing(true);
     
     saveTimeout.current = setTimeout(async () => {
+      if (!activeTerm) { setSyncing(false); return; }
       try {
         await fetch("/api/grades/bulk", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             subjectId: activeSubject.id,
-            termId: 'current', // Logic usually resolves 'current' on backend but good to be explicit
-            sessionId: 'current',
-            grades: Array.from(currentGrades.values())
-          })
+            termId: activeTerm.id,
+            sessionId: activeSession?.id ?? null,
+            grades: Array.from(currentGrades.values()),
+          }),
         });
         setSyncing(false);
       } catch (err) {
@@ -114,15 +119,43 @@ export default function Gradebook() {
     }, 2000);
   }
 
-  const filteredStudents = students.filter(s => 
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  async function handleCommit() {
+    if (!activeSubject || !activeTerm || grades.size === 0) return;
+    setCommitting(true);
+    try {
+      const res = await fetch("/api/grades/submit-batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subjectId: activeSubject.id, termId: activeTerm.id }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Submission failed.");
+      toast.success("Grades submitted for review.");
+      await loadSubject(activeSubject);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to submit grades.");
+    } finally {
+      setCommitting(false);
+    }
+  }
+
+  const filteredStudents = students.filter(s =>
+    s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     s.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <DashboardShell>
       <div className="flex flex-col gap-8 h-[calc(100vh-140px)]">
-        
+
+        {/* No-term warning */}
+        {!academicLoading && !activeTerm && (
+          <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800">
+            <AlertCircle size={16} className="shrink-0" />
+            <p className="text-xs font-semibold">No active term — grade entry is disabled until an administrator activates a term in the Session Planner.</p>
+          </div>
+        )}
+
         {/* Header Block */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
            <div className="flex items-center gap-6">
@@ -150,8 +183,13 @@ export default function Gradebook() {
                  {syncing ? <RotateCw size={14} className="animate-spin" /> : <FileCheck size={14} />}
                  <span className="text-token-micro font-black uppercase tracking-widest">{syncing ? "Synchronizing..." : "Registry Synced"}</span>
               </div>
-              <button className="bg-brand-primary text-white rounded-2xl px-6 py-2.5 font-black text-token-micro uppercase tracking-widest hover:scale-105 transition-transform flex items-center gap-2">
-                 <Save size={14} /> Commit Batch
+              <button
+                onClick={handleCommit}
+                disabled={!activeSubject || !activeTerm || grades.size === 0 || committing}
+                className="bg-brand-primary text-white rounded-2xl px-6 py-2.5 font-black text-token-micro uppercase tracking-widest hover:scale-105 transition-transform flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                {committing ? <RotateCw size={14} className="animate-spin" /> : <Save size={14} />}
+                {committing ? "Submitting…" : "Commit Batch"}
               </button>
            </div>
         </div>
@@ -164,13 +202,16 @@ export default function Gradebook() {
                   <div key={i} className="h-40 bg-white border border-brand-primary/8 rounded-[32px] animate-pulse" />
                 ))
              ) : subjects.map((sub, i) => (
-               <motion.div 
+               <motion.div
                  key={i}
                  initial={{ opacity: 0, y: 10 }}
                  animate={{ opacity: 1, y: 0 }}
                  transition={{ delay: i * 0.05 }}
-                 onClick={() => loadSubject(sub)}
-                 className="card p-8 group hover:-translate-y-2 cursor-pointer transition-all border-none shadow-premium bg-white flex flex-col justify-between"
+                 onClick={() => activeTerm && loadSubject(sub)}
+                 className={clsx(
+                   "card p-8 group transition-all border-none shadow-premium bg-white flex flex-col justify-between",
+                   activeTerm ? "hover:-translate-y-2 cursor-pointer" : "opacity-50 cursor-not-allowed"
+                 )}
                >
                   <div className="flex justify-between items-start">
                      <div className="w-12 h-12 rounded-2xl bg-brand-tertiary/10 flex items-center justify-center text-brand-tertiary">

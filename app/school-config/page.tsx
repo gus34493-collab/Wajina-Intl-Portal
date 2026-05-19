@@ -169,11 +169,61 @@ export default function SchoolConfig() {
                    </motion.div>
                  )}
 
+                 {view === "system" && (
+                   <motion.div
+                     key="system"
+                     initial={{ opacity: 0, x: -20 }}
+                     animate={{ opacity: 1, x: 0 }}
+                     exit={{ opacity: 0, x: 20 }}
+                     className="flex flex-col gap-8"
+                   >
+                     <div className="card">
+                       <div className="flex items-center gap-3 mb-8">
+                         <BookOpen className="text-brand-tertiary" size={18} />
+                         <h3 className="text-sm font-black text-brand-primary uppercase tracking-widest">Institutional Grading Reference</h3>
+                       </div>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                         <GradingScaleCard
+                           title="Standard Scale"
+                           subtitle="Primary · Junior Secondary · Early Years"
+                           rows={[
+                             { min: 75, grade: "A", remark: "Excellent" },
+                             { min: 65, grade: "B", remark: "Very Good" },
+                             { min: 55, grade: "C", remark: "Good" },
+                             { min: 45, grade: "D", remark: "Pass" },
+                             { min: 40, grade: "E", remark: "Fair" },
+                             { min: 0,  grade: "F", remark: "Fail" },
+                           ]}
+                         />
+                         <GradingScaleCard
+                           title="SSS Scale"
+                           subtitle="Senior Secondary (WAEC-aligned)"
+                           rows={[
+                             { min: 75, grade: "A1", remark: "Excellent" },
+                             { min: 70, grade: "B2", remark: "Very Good" },
+                             { min: 65, grade: "B3", remark: "Good" },
+                             { min: 60, grade: "C4", remark: "Credit" },
+                             { min: 55, grade: "C5", remark: "Credit" },
+                             { min: 50, grade: "C6", remark: "Credit" },
+                             { min: 45, grade: "D7", remark: "Pass" },
+                             { min: 40, grade: "E8", remark: "Pass" },
+                             { min: 0,  grade: "F9", remark: "Fail" },
+                           ]}
+                         />
+                       </div>
+                       <div className="mt-8 flex items-center gap-3 px-6 py-4 bg-brand-blush rounded-2xl border border-brand-primary/8">
+                         <ShieldCheck size={14} className="text-brand-tertiary shrink-0" />
+                         <p className="text-token-micro font-black text-brand-tertiary uppercase tracking-widest">Grading scale customisation requires Director key escalation via the academic governance protocol.</p>
+                       </div>
+                     </div>
+                   </motion.div>
+                 )}
+
                  {view === "structure" && (
-                   <motion.div 
-                     key="structure" 
-                     initial={{ opacity: 0, x: -20 }} 
-                     animate={{ opacity: 1, x: 0 }} 
+                   <motion.div
+                     key="structure"
+                     initial={{ opacity: 0, x: -20 }}
+                     animate={{ opacity: 1, x: 0 }}
                      exit={{ opacity: 0, x: 20 }}
                      className="flex flex-col gap-8"
                    >
@@ -305,6 +355,28 @@ function Shortcut({ label }: any) {
        <span className="text-token-micro font-black text-brand-primary uppercase tracking-widest">{label}</span>
        <ChevronRight size={14} className="text-brand-tertiary group-hover:text-brand-tertiary transition-colors" />
     </button>
+  );
+}
+
+function GradingScaleCard({ title, subtitle, rows }: { title: string; subtitle: string; rows: { min: number; grade: string; remark: string }[] }) {
+  return (
+    <div className="flex flex-col gap-4 bg-brand-blush rounded-[2rem] border border-brand-primary/8 p-6">
+      <div className="mb-2">
+        <p className="text-xs font-black text-brand-primary uppercase tracking-tight">{title}</p>
+        <p className="text-token-micro font-black text-brand-tertiary uppercase tracking-widest mt-1">{subtitle}</p>
+      </div>
+      <div className="flex flex-col divide-y divide-brand-primary/8">
+        {rows.map((row, i) => (
+          <div key={i} className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3">
+              <span className="w-10 h-10 rounded-xl bg-white border border-brand-primary/8 flex items-center justify-center font-display font-black text-brand-primary text-sm">{row.grade}</span>
+              <span className="text-token-micro font-black text-brand-tertiary uppercase tracking-widest">{row.remark}</span>
+            </div>
+            <span className="text-token-micro font-black text-brand-primary tabular-nums">{row.min === 0 ? "0–39" : `${row.min}+`}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 

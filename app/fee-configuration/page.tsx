@@ -15,6 +15,8 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
+type Scope = "session" | "term";
+type TermEntry = { id: string; name: string };
 type CampusFees = { tuition: number; admin: number; uniform: number; portal: number };
 type FeeRow = { campus: "PRIMARY" | "SECONDARY"; label: string } & CampusFees;
 
@@ -25,6 +27,9 @@ const CATEGORY_MAP: Record<keyof CampusFees, string> = {
   portal: "ICT",
 };
 
+const TERM_ORDER: Record<string, number> = { FIRST: 0, SECOND: 1, THIRD: 2 };
+const TERM_LABELS: Record<string, string> = { FIRST: "First Term", SECOND: "Second Term", THIRD: "Third Term" };
+
 const DEFAULT_FEES: FeeRow[] = [
   { campus: "PRIMARY", label: "Primary Campus", tuition: 0, admin: 0, uniform: 0, portal: 0 },
   { campus: "SECONDARY", label: "Secondary Campus", tuition: 0, admin: 0, uniform: 0, portal: 0 },
@@ -34,10 +39,28 @@ export default function FeeConfigurationPage() {
   const [fees, setFees] = useState<FeeRow[]>(DEFAULT_FEES);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionName, setSessionName] = useState<string>("—");
+  const [terms, setTerms] = useState<TermEntry[]>([]);
+  const [scope, setScope] = useState<Scope>("session");
+  const [selectedTermId, setSelectedTermId] = useState<string | null>(null);
+  const [allConfigs, setAllConfigs] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [isDirty, setIsDirty] = useState(false);
+
+  const hydrateMatrix = (configs: any[], currentScope: Scope, termId: string | null) => {
+    setFees(DEFAULT_FEES.map((row) => {
+      const updated = { ...row };
+      for (const [field, category] of Object.entries(CATEGORY_MAP)) {
+        const match = configs.find((c) => {
+          const scopeMatch = currentScope === "session" ? !c.termId : c.termId === termId;
+          return c.category === category && c.campus === row.campus && !c.classId && scopeMatch;
+        });
+        if (match) (updated as any)[field] = Number(match.amount);
+      }
+      return updated;
+    }));
+  };
 
   useEffect(() => {
     async function load() {
@@ -50,22 +73,17 @@ export default function FeeConfigurationPage() {
         setSessionId(active.id);
         setSessionName(active.name);
 
+        const sorted: TermEntry[] = (active.terms ?? [])
+          .slice()
+          .sort((a: any, b: any) => (TERM_ORDER[a.name] ?? 0) - (TERM_ORDER[b.name] ?? 0));
+        setTerms(sorted);
+        if (sorted.length > 0) setSelectedTermId(sorted[0].id);
+
         const feeRes = await fetch(`/api/finance/fees?sessionId=${active.id}`);
         if (!feeRes.ok) return;
         const { fees: configs }: { fees: any[] } = await feeRes.json();
-
-        setFees((prev) =>
-          prev.map((row) => {
-            const updated = { ...row };
-            for (const [field, category] of Object.entries(CATEGORY_MAP)) {
-              const match = configs.find(
-                (c) => c.category === category && c.campus === row.campus && !c.classId
-              );
-              if (match) (updated as any)[field] = match.amount;
-            }
-            return updated;
-          })
-        );
+        setAllConfigs(configs);
+        hydrateMatrix(configs, "session", null);
       } catch (err) {
         console.error("Fee config load failed:", err);
       } finally {
@@ -74,6 +92,13 @@ export default function FeeConfigurationPage() {
     }
     load();
   }, []);
+
+  useEffect(() => {
+    if (allConfigs.length > 0 || !isLoading) {
+      hydrateMatrix(allConfigs, scope, selectedTermId);
+      setIsDirty(false);
+    }
+  }, [scope, selectedTermId]);
 
   const handleUpdate = (campus: string, field: keyof CampusFees, raw: string) => {
     const value = parseInt(raw.replace(/[^0-9]/g, "")) || 0;
@@ -86,6 +111,10 @@ export default function FeeConfigurationPage() {
       toast.error("No active session found. Create a session first.");
       return;
     }
+    if (scope === "term" && !selectedTermId) {
+      toast.error("Select a term before publishing.");
+      return;
+    }
     setIsSaving(true);
     try {
       const posts = fees.flatMap((row) =>
@@ -93,7 +122,13 @@ export default function FeeConfigurationPage() {
           fetch("/api/finance/fees", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ category, amount: row[field], campus: row.campus, sessionId }),
+            body: JSON.stringify({
+              category,
+              amount: row[field],
+              campus: row.campus,
+              sessionId,
+              ...(scope === "term" && selectedTermId ? { termId: selectedTermId } : {}),
+            }),
           })
         )
       );
@@ -103,6 +138,11 @@ export default function FeeConfigurationPage() {
         toast.error(`${failed.length} fee(s) failed to save. Check your permissions.`);
       } else {
         toast.success("Fee structure published successfully.");
+        const feeRes = await fetch(`/api/finance/fees?sessionId=${sessionId}`);
+        if (feeRes.ok) {
+          const { fees: refreshed } = await feeRes.json();
+          setAllConfigs(refreshed);
+        }
         setSavedAt(new Date());
         setIsDirty(false);
         setTimeout(() => setSavedAt(null), 2500);
@@ -160,6 +200,46 @@ export default function FeeConfigurationPage() {
           <SummaryCard label="Active Session" value={sessionName} accent="Current Period" icon={<TrendingUp className="text-brand-primary" />} highlight />
           <SummaryCard label="Campuses Configured" value="2" accent="Primary + Secondary" icon={<CreditCard className="text-brand-primary" />} />
           <SummaryCard label="Fee Components" value="4" accent="Per Campus" icon={<Layers className="text-brand-primary" />} />
+        </div>
+
+        {/* Scope Selector */}
+        <div className="flex flex-col gap-4 bg-white border border-brand-primary/8 rounded-[2rem] p-8 shadow-sm">
+          <p className="text-token-micro font-black text-brand-tertiary uppercase tracking-[0.3em]">Fee Scope</p>
+          <div className="flex gap-3 flex-wrap">
+            {(["session", "term"] as Scope[]).map((s) => (
+              <button
+                key={s}
+                onClick={() => setScope(s)}
+                className={cn(
+                  "flex items-center gap-2 px-5 py-3 rounded-2xl border-2 transition-all text-token-micro font-black tracking-widest uppercase",
+                  scope === s
+                    ? "bg-brand-secondary/10 border-brand-secondary text-brand-primary"
+                    : "bg-black/[0.02] border-transparent text-brand-tertiary hover:bg-black/[0.04]"
+                )}
+              >
+                {s === "session" ? "Session Level" : "Per Term"}
+                {scope === s && <CheckCircle2 size={13} className="text-brand-secondary" />}
+              </button>
+            ))}
+          </div>
+          {scope === "term" && terms.length > 0 && (
+            <div className="flex gap-3 flex-wrap pt-2 border-t border-brand-primary/8">
+              {terms.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setSelectedTermId(t.id)}
+                  className={cn(
+                    "px-5 py-2.5 rounded-2xl border-2 transition-all text-token-micro font-black tracking-widest uppercase",
+                    selectedTermId === t.id
+                      ? "bg-brand-primary border-brand-primary text-white"
+                      : "bg-black/[0.02] border-transparent text-brand-tertiary hover:bg-black/[0.04]"
+                  )}
+                >
+                  {TERM_LABELS[t.name] ?? t.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Configuration Matrix */}

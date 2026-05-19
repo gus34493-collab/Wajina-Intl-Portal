@@ -42,7 +42,7 @@ function LoginForm({ onAuthStart }: { onAuthStart: () => void }) {
       sessionStorage.clear();
       updateUser(data);
       onAuthStart();
-      setTimeout(() => router.replace(getDefaultRoute(data.role)), 1000);
+      setTimeout(() => router.replace(getDefaultRoute(data.role, data.campus)), 1000);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -158,7 +158,7 @@ export default function PortalPage() {
   useEffect(() => {
     if (!authLoading) {
       if (user?.role) {
-        router.replace(getDefaultRoute(user.role));
+        router.replace(getDefaultRoute(user.role, user.campus));
       } else {
         setTimeout(() => setStatus("ready"), 800);
       }

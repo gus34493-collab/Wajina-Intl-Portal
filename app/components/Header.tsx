@@ -8,19 +8,38 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
+const ROLE_DISPLAY: Record<string, string> = {
+  DIRECTOR: "DIRECTOR",
+  PRINCIPAL: "SECONDARY PRINCIPAL",
+  HEAD_TEACHER: "PRIMARY PRINCIPAL",
+  ASST_HEAD_TEACHER: "ASST. HEAD TEACHER",
+  FORM_TEACHER: "FORM TEACHER",
+  SUBJECT_TEACHER: "TEACHER",
+  BURSAR: "BURSAR",
+  ACCOUNTS_OFFICER: "ACCOUNTS",
+  ADMISSIONS_OFFICER: "ADMISSIONS",
+  HR_MANAGER: "HR MANAGER",
+  VP_ADMIN: "VP ADMIN",
+  VP_ACADEMICS: "VP ACADEMICS",
+  PARENT: "PARENT",
+  STUDENT: "STUDENT",
+};
+
+function getTimeGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "GOOD MORNING";
+  if (hour < 17) return "GOOD AFTERNOON";
+  return "GOOD EVENING";
+}
+
 export default function Header({ user, loading, onUserUpdate, onMobileMenuToggle }: { user: any, loading: boolean, onUserUpdate?: (user: any) => void, onMobileMenuToggle?: () => void }) {
   const router = useRouter();
-  const [greeting, setGreeting] = useState("Good day");
+  const [greeting] = useState(getTimeGreeting);
   const [theme, setTheme] = useState("light");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) setGreeting("GOOD MORNING");
-    else if (hour < 17) setGreeting("GOOD AFTERNOON");
-    else setGreeting("GOOD EVENING");
-
     const savedTheme = localStorage.getItem("wajina-theme") || "light";
     setTheme(savedTheme);
   }, []);
@@ -114,7 +133,7 @@ export default function Header({ user, loading, onUserUpdate, onMobileMenuToggle
 
         <div className="min-w-0">
           <h2 className="text-token-micro font-display font-black text-brand-primary/40 tracking-[0.3em] uppercase mb-1 truncate">
-            {greeting}
+            {greeting}{user?.role ? ` · ${ROLE_DISPLAY[user.role] ?? user.role}` : ""}
           </h2>
           <div className="flex items-center gap-3 min-w-0">
             <p className="text-sm font-black text-brand-primary uppercase tracking-tight truncate">

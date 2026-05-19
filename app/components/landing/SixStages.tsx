@@ -152,7 +152,7 @@ function NodeImage({ node }: { node: NodeData }) {
 }
 
 // ── Text block ────────────────────────────────────────────────────────────────
-function NodeText({ node, align }: { node: NodeData; align: "left" | "right" }) {
+function NodeText({ node, align }: { node: NodeData; align: "left" | "right" | "center" }) {
   return (
     <div style={{ textAlign: align }}>
       <h3 style={{
@@ -189,7 +189,7 @@ function StageNode({
   index: number;
   pathLength: MotionValue<number>;
 }) {
-  const threshold = index / (NODES.length - 1);
+  const threshold = index / NODES.length;
   const lo = Math.max(0, threshold - 0.04);
   const hi = Math.min(1, threshold + 0.06);
   const imageEnd = Math.min(1, threshold + 0.11);
@@ -285,16 +285,15 @@ function StageNode({
         </motion.div>
       </div>
 
-      {/* Mobile: stacked below badge. flex via Tailwind class — NOT inline style — so md:hidden wins. */}
+      {/* Mobile: stacked below badge, anchored to outer side so it never crosses into the other column. */}
       <div
         className="flex flex-col md:hidden"
         style={{
           position: "absolute",
           top: "calc(100% + 12px)",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: 240,
-          gap: 10,
+          ...(isLeft ? { right: "50%" } : { left: "50%" }),
+          width: "clamp(80px, 38vw, 260px)",
+          gap: "10px",
           pointerEvents: "none",
         }}
       >
@@ -302,7 +301,7 @@ function StageNode({
           <NodeImage node={node} />
         </motion.div>
         <motion.div style={{ opacity: textOpacity, y: textY }}>
-          <NodeText node={node} align="left" />
+          <NodeText node={node} align="center" />
         </motion.div>
       </div>
     </div>
@@ -327,7 +326,7 @@ export default function SixStages() {
         background: "var(--color-cinematic-ink)",
         position: "relative",
         overflow: "hidden",
-        paddingBottom: "8rem",
+        paddingBottom: "14rem",
       }}
     >
       {/* Header */}

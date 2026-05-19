@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import DashboardShell from "@/app/components/DashboardShell";
 import {
   Zap,
@@ -17,6 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function OperationsHubPage() {
+  const router = useRouter();
   const [staffCount, setStaffCount] = useState<string>("--");
   const [studentCount, setStudentCount] = useState<string>("--");
 
@@ -56,11 +58,11 @@ export default function OperationsHubPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="bg-white border-2 border-brand-primary/8 text-brand-primary px-6 py-3.5 rounded-2xl shadow-sm font-black text-token-micro uppercase tracking-widest flex items-center gap-2 hover:border-brand-secondary/30 transition-all">
+            <button onClick={() => router.push("/director-audit-logs")} className="bg-white border-2 border-brand-primary/8 text-brand-primary px-6 py-3.5 rounded-2xl shadow-sm font-black text-token-micro uppercase tracking-widest flex items-center gap-2 hover:border-brand-secondary/30 transition-all">
               <History size={16} />
               Command History
             </button>
-            <button className="bg-white border-2 border-brand-secondary text-brand-primary px-6 py-3.5 rounded-2xl shadow-lg shadow-brand-secondary/10 font-black text-token-micro uppercase tracking-widest flex items-center gap-2 hover:bg-brand-secondary hover:text-white transition-all">
+            <button onClick={() => router.push("/school-config")} className="bg-white border-2 border-brand-secondary text-brand-primary px-6 py-3.5 rounded-2xl shadow-lg shadow-brand-secondary/10 font-black text-token-micro uppercase tracking-widest flex items-center gap-2 hover:bg-brand-secondary hover:text-white transition-all">
               <Settings size={16} />
               Global Config
             </button>
@@ -69,10 +71,10 @@ export default function OperationsHubPage() {
 
         {/* Rapid Action Strip */}
         <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-          <QuickAction label="Onboard Staff" icon={<Users size={18} />} />
-          <QuickAction label="Audit Finances" icon={<FileText size={18} />} />
-          <QuickAction label="Welfare Flag" icon={<ShieldAlert size={18} />} />
-          <QuickAction label="Sync Systems" icon={<Activity size={18} />} highlight />
+          <QuickAction label="Onboard Staff" icon={<Users size={18} />} onClick={() => router.push("/staff-onboarding")} />
+          <QuickAction label="Audit Finances" icon={<FileText size={18} />} onClick={() => router.push("/director-finances")} />
+          <QuickAction label="Welfare Flag" icon={<ShieldAlert size={18} />} onClick={() => router.push("/parent-risk-families")} />
+          <QuickAction label="Sync Systems" icon={<Activity size={18} />} highlight onClick={() => router.push("/operations-hub")} />
         </div>
 
         {/* Command Center Layout */}
@@ -91,37 +93,22 @@ export default function OperationsHubPage() {
                 </div>
               </div>
 
-              <div className="divide-y divide-brand-primary/5">
-                <EventNode
-                  time="09:42 AM"
-                  tag="ACADEMIC"
-                  content="Result publication threshold reached for JSS 1 Alpha. Final audit initiated by Form Master."
-                  status="PROCESSED"
-                />
-                <EventNode
-                  time="08:15 AM"
-                  tag="SECURITY"
-                  content="Director key accessed for Student Previous Results archive (Session 2023/24)."
-                  status="VERIFIED"
-                  alert
-                />
-                <EventNode
-                  time="07:30 AM"
-                  tag="FINANCIAL"
-                  content="Bulk tuition reconciliation completed for Primary Campus segment. ₦12.5M verified."
-                  status="FINALIZED"
-                />
-                <EventNode
-                  time="06:00 AM"
-                  tag="SYSTEM"
-                  content="Daily cloud backup successful. Integrity check: 100%. Latency: 42ms."
-                  status="OPTIMAL"
-                  highlight
-                />
+              <div className="flex flex-col items-center justify-center py-12 gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-brand-primary/[0.04] border border-brand-primary/8 flex items-center justify-center">
+                  <Activity size={22} className="text-brand-primary/20" />
+                </div>
+                <div className="text-center">
+                  <p className="text-token-micro font-black uppercase tracking-widest text-brand-primary/30">
+                    Live Stream
+                  </p>
+                  <p className="text-token-micro font-black uppercase tracking-widest text-brand-primary/20 mt-1">
+                    Coming Soon
+                  </p>
+                </div>
               </div>
 
               <div className="p-4 text-center border-t border-brand-primary/8">
-                <button className="text-token-micro font-black uppercase tracking-widest text-brand-secondary hover:underline">
+                <button onClick={() => router.push("/director-audit-logs")} className="text-token-micro font-black uppercase tracking-widest text-brand-secondary hover:underline">
                   Load Forensic Data Logs
                 </button>
               </div>
@@ -209,9 +196,9 @@ export default function OperationsHubPage() {
   );
 }
 
-function QuickAction({ label, icon, highlight }: { label: string; icon: React.ReactNode; highlight?: boolean }) {
+function QuickAction({ label, icon, highlight, onClick }: { label: string; icon: React.ReactNode; highlight?: boolean; onClick?: () => void }) {
   return (
-    <button className={cn(
+    <button onClick={onClick} className={cn(
       "flex items-center gap-4 bg-white border px-6 py-5 rounded-[1.5rem] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all min-w-[220px] group",
       highlight ? "border-brand-secondary/30" : "border-brand-primary/8"
     )}>

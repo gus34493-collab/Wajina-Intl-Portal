@@ -37,7 +37,20 @@ export async function POST(req: NextRequest) {
 
     const config = getAssessmentConfig(subject.class.campus as string, subject.class.category ?? "", subject.class.name);
 
-    const ops = grades.map((g: any) => {
+    // Prevent overwriting grades that are already in the approval chain
+    const studentIds = grades.map((g: any) => g.studentId).filter(Boolean);
+    const lockedGrades = await prisma.grade.findMany({
+      where: { subjectId, termId, studentId: { in: studentIds }, status: { in: ["SUBMITTED", "PRINCIPAL_APPROVED"] } },
+      select: { studentId: true, status: true },
+    });
+    const lockedIds = new Set(lockedGrades.map((g) => g.studentId));
+    const editableGrades = grades.filter((g: any) => !lockedIds.has(g.studentId));
+
+    if (editableGrades.length === 0) {
+      return NextResponse.json({ success: true, count: 0, locked: lockedGrades.length });
+    }
+
+    const ops = editableGrades.map((g: any) => {
       const { studentId, firstCA = 0, secondCA = 0, thirdCA = 0, fourthCA = 0, fifthCA = 0, exam = 0 } = g;
       if (!studentId) throw new Error("Each grade entry must include a studentId.");
 
@@ -71,7 +84,7 @@ export async function POST(req: NextRequest) {
     });
 
     const results = await prisma.$transaction(ops);
-    return NextResponse.json({ success: true, count: results.length });
+    return NextResponse.json({ success: true, count: results.length, locked: lockedGrades.length });
   } catch (err: any) {
     if (err?.message?.includes("studentId")) return badRequest(err.message);
     console.error("[grades/bulk POST]", err);

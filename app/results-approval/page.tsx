@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAcademic } from "@/app/components/AcademicContext";
 import DashboardShell from "@/app/components/DashboardShell";
 import { SignatureCanvas } from "@/components/signature-canvas";
 import { signAndPublishResults } from "@/app/actions/publishing";
@@ -18,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export default function ResultsApprovalPage() {
+  const { activeTerm, activeSession } = useAcademic();
   const [grades, setGrades] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showSignModal, setShowSignModal] = useState(false);
@@ -54,6 +56,12 @@ export default function ResultsApprovalPage() {
   };
 
   useEffect(() => {
+    if (user && user.role !== "DIRECTOR") {
+      setSelectedCampus(user.campus || "PRIMARY");
+    }
+  }, [user?.campus, user?.role]);
+
+  useEffect(() => {
     if (user) fetchGrades();
   }, [user, selectedCampus]);
 
@@ -63,8 +71,8 @@ export default function ResultsApprovalPage() {
     try {
       const res = await signAndPublishResults({
         armId: grades[0]?.student?.armId || "batch-signing",
-        termId: grades[0]?.termId || "current",
-        sessionId: grades[0]?.sessionId || "current",
+        termId: grades[0]?.termId ?? activeTerm?.id,
+        sessionId: grades[0]?.sessionId ?? activeSession?.id,
         user: { id: user.id, role: user.role, campus: user.campus || "PRIMARY" },
         signatureData
       });
@@ -124,23 +132,30 @@ export default function ResultsApprovalPage() {
                 <Filter size={16} className="text-brand-secondary" />
                 <h4 className="font-black text-brand-primary text-token-micro uppercase tracking-widest">Campus Cluster</h4>
               </div>
-              <div className="flex flex-col gap-3">
-                {['ALL', 'PRIMARY', 'SECONDARY'].map(campus => (
-                  <button
-                    key={campus}
-                    onClick={() => setSelectedCampus(campus)}
-                    className={cn(
-                      "flex items-center justify-between p-5 rounded-2xl border-2 transition-all text-token-micro font-black tracking-widest uppercase",
-                      selectedCampus === campus 
-                      ? "bg-brand-secondary/10 border-brand-secondary text-brand-primary" 
-                      : "bg-black/[0.02] border-transparent text-brand-tertiary hover:bg-black/[0.04]"
-                    )}
-                  >
-                    {campus}
-                    {selectedCampus === campus && <CheckCircle size={14} className="text-brand-secondary" />}
-                  </button>
-                ))}
-              </div>
+              {user?.role === "DIRECTOR" ? (
+                <div className="flex flex-col gap-3">
+                  {['ALL', 'PRIMARY', 'SECONDARY'].map(campus => (
+                    <button
+                      key={campus}
+                      onClick={() => setSelectedCampus(campus)}
+                      className={cn(
+                        "flex items-center justify-between p-5 rounded-2xl border-2 transition-all text-token-micro font-black tracking-widest uppercase",
+                        selectedCampus === campus
+                          ? "bg-brand-secondary/10 border-brand-secondary text-brand-primary"
+                          : "bg-black/[0.02] border-transparent text-brand-tertiary hover:bg-black/[0.04]"
+                      )}
+                    >
+                      {campus}
+                      {selectedCampus === campus && <CheckCircle size={14} className="text-brand-secondary" />}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-between p-5 rounded-2xl border-2 bg-brand-secondary/10 border-brand-secondary text-token-micro font-black tracking-widest uppercase text-brand-primary">
+                  {selectedCampus}
+                  <CheckCircle size={14} className="text-brand-secondary" />
+                </div>
+              )}
             </div>
 
             <div className="card bg-white border-dashed border-2 border-brand-secondary/20 p-8 flex flex-col gap-5 shadow-xl">

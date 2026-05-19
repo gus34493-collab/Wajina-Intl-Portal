@@ -16,12 +16,15 @@ export async function GET(req: NextRequest) {
     const take = Math.min(parseInt(rawLimit), 200);
 
     const role = user.role as string;
+    const receivedOnly = searchParams.get("receivedOnly") === "true";
     let where: any = {};
     if (status) where.status = status.toUpperCase();
     if (level) where.level = level.toUpperCase();
     if (category) where.category = category.toUpperCase();
 
-    if (role === "DIRECTOR") {
+    if (receivedOnly) {
+      where.receiverId = user.id;
+    } else if (role === "DIRECTOR") {
       const campus = searchParams.get("campus");
       if (campus && campus !== "ALL") where.sender = { campus: campus as any };
     } else if (role === "STUDENT" || role === "PARENT") {

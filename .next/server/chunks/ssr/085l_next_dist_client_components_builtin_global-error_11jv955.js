@@ -1,3 +1,0 @@
-module.exports=[31352,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(7995);a.n(d("[project]/OneDrive/Desktop/Wajina intl portal/node_modules/next/dist/client/components/builtin/global-error.js <module evaluation>"))},42452,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(7995);a.n(d("[project]/OneDrive/Desktop/Wajina intl portal/node_modules/next/dist/client/components/builtin/global-error.js"))},40442,a=>{"use strict";a.i(31352);var b=a.i(42452);a.n(b)},79973,a=>{a.n(a.i(40442))}];
-
-//# sourceMappingURL=085l_next_dist_client_components_builtin_global-error_11jv955.js.map

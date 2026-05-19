@@ -18,7 +18,8 @@
       "Bash(gh run *)",
       "Bash(npx wait-on *)",
       "Bash(npx playwright *)",
-      "Bash(npx prisma *)"
+      "Bash(npx prisma *)",
+      "PowerShell($env:DIRECT_URL=\"postgresql://neondb_owner:npg_TrW3ECF4cMIN@ep-curly-fog-ale03jx4.c-3.eu-central-1.aws.neon.tech/neondb?sslmode=require\"; $env:DATABASE_URL=\"postgresql://neondb_owner:npg_TrW3ECF4cMIN@ep-curly-fog-ale03jx4-pooler.c-3.eu-central-1.aws.neon.tech/neondb?sslmode=require&pgbouncer=true\"; npx prisma migrate dev --name add-password-lifecycle 2>&1)"
     ]
   },
   "enableAllProjectMcpServers": true
