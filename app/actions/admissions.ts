@@ -30,7 +30,7 @@ export async function saveApplicantLead(data: {
         applicantName: data.studentName,
         parentPhone: data.parentPhone,
         campus,
-        status: { notIn: ["REJECTED", "WITHDRAWN"] },
+        status: { notIn: ["REJECTED"] },
       },
     });
     if (existing) return { success: false, error: "An application for this student already exists." };
