@@ -161,7 +161,7 @@ function AttendanceView({ armId }: { armId?: string }) {
 }
 
 function TeacherDashboardContent() {
-  const { campus } = useAuth();
+  const { user, campus } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const view = searchParams.get("view");
@@ -231,11 +231,16 @@ function TeacherDashboardContent() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors">
+            <button
+              onClick={() => router.push("/notifications")}
+              aria-label="View notifications"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors">
               <Bell size={18} />
             </button>
             <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center font-black text-white text-sm select-none">
-              TC
+              {user?.name
+                ? user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+                : "?"}
             </div>
           </div>
         </div>
@@ -274,19 +279,21 @@ function TeacherDashboardContent() {
           </div>
 
           {/* Attendance quick access */}
-          <div className="bg-white rounded-3xl border border-brand-primary/8 shadow-sm p-6 flex flex-col gap-4">
-            <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest">Attendance</p>
-            <button
-              onClick={() => router.push("/teacher-dashboard?view=attendance")}
-              className="flex-1 flex flex-col items-center justify-center gap-3 p-6 bg-brand-primary/[0.02] rounded-2xl border border-brand-primary/8 hover:border-brand-secondary/20 hover:bg-brand-secondary/5 transition-all group"
-            >
-              <Users size={28} className="text-brand-primary/20 group-hover:text-brand-secondary transition-colors" />
-              <div className="text-center">
-                <p className="text-sm font-black text-brand-primary uppercase tracking-widest">View Records</p>
-                <p className="text-token-micro font-black text-brand-primary/30 uppercase tracking-widest mt-1">Filter by day / week / month</p>
-              </div>
-            </button>
-          </div>
+          {user?.role === "FORM_TEACHER" && (
+            <div className="bg-white rounded-3xl border border-brand-primary/8 shadow-sm p-6 flex flex-col gap-4">
+              <p className="text-token-micro font-black text-brand-primary/40 uppercase tracking-widest">Attendance</p>
+              <button
+                onClick={() => router.push("/teacher-dashboard?view=attendance")}
+                className="flex-1 flex flex-col items-center justify-center gap-3 p-6 bg-brand-primary/[0.02] rounded-2xl border border-brand-primary/8 hover:border-brand-secondary/20 hover:bg-brand-secondary/5 transition-all group"
+              >
+                <Users size={28} className="text-brand-primary/20 group-hover:text-brand-secondary transition-colors" />
+                <div className="text-center">
+                  <p className="text-sm font-black text-brand-primary uppercase tracking-widest">View Records</p>
+                  <p className="text-token-micro font-black text-brand-primary/30 uppercase tracking-widest mt-1">Filter by day / week / month</p>
+                </div>
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -322,15 +329,17 @@ function TeacherDashboardContent() {
                 </div>
                 <span className="font-black text-xs block uppercase tracking-widest text-white/60 group-hover/btn:text-white transition-colors">Master Gradebook</span>
               </a>
-              <button
-                onClick={() => router.push("/teacher-dashboard?view=attendance")}
-                className="bg-white/5 p-6 rounded-2xl hover:bg-white/10 transition-all border border-white/5 group/btn text-left flex flex-col gap-4"
-              >
-                <div className="w-11 h-11 rounded-xl bg-brand-secondary/20 flex items-center justify-center group-hover/btn:bg-brand-secondary transition-colors">
-                  <Users size={20} className="text-brand-secondary group-hover/btn:text-white transition-colors" />
-                </div>
-                <span className="font-black text-xs block uppercase tracking-widest text-white/60 group-hover/btn:text-white transition-colors">Attendance Records</span>
-              </button>
+              {user?.role === "FORM_TEACHER" && (
+                <button
+                  onClick={() => router.push("/teacher-dashboard?view=attendance")}
+                  className="bg-white/5 p-6 rounded-2xl hover:bg-white/10 transition-all border border-white/5 group/btn text-left flex flex-col gap-4"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-brand-secondary/20 flex items-center justify-center group-hover/btn:bg-brand-secondary transition-colors">
+                    <Users size={20} className="text-brand-secondary group-hover/btn:text-white transition-colors" />
+                  </div>
+                  <span className="font-black text-xs block uppercase tracking-widest text-white/60 group-hover/btn:text-white transition-colors">Attendance Records</span>
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -1,8 +1,8 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import DashboardShell from "@/app/components/DashboardShell";
+import { useAuth } from "@/app/components/AuthContext";
 import { 
   FileText, 
   CheckCircle, 
@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 export default function TeacherSubmissionsReview() {
+  const { user } = useAuth();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
@@ -24,7 +25,8 @@ export default function TeacherSubmissionsReview() {
   useEffect(() => {
     async function fetchRequests() {
       try {
-        const response = await fetch("/api/requests");
+        const campusParam = user?.role !== "DIRECTOR" ? user?.campus : null;
+        const response = await fetch(`/api/requests${campusParam ? `?campus=${campusParam}` : ""}`);
         if (response.ok) {
           const data = await response.json();
           setRequests(data.requests || []);
@@ -36,7 +38,7 @@ export default function TeacherSubmissionsReview() {
       }
     }
     fetchRequests();
-  }, []);
+  }, [user]);
 
   const filteredRequests = filter === "ALL" 
     ? requests 

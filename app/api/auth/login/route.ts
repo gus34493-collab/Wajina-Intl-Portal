@@ -8,8 +8,23 @@ import { audit } from "@/lib/audit";
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MS = 30 * 60 * 1000;
 
+const ipAttempts = new Map<string, { count: number; resetAt: number }>();
+const IP_LIMIT = 20;
+const IP_WINDOW_MS = 15 * 60 * 1000;
+
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    const now = Date.now();
+    const ipEntry = ipAttempts.get(ip);
+    if (ipEntry && ipEntry.resetAt > now && ipEntry.count >= IP_LIMIT) {
+      return NextResponse.json({ error: "Too many requests. Try again later." }, { status: 429 });
+    }
+    ipAttempts.set(ip, {
+      count: (ipEntry && ipEntry.resetAt > now ? ipEntry.count : 0) + 1,
+      resetAt: ipEntry && ipEntry.resetAt > now ? ipEntry.resetAt : now + IP_WINDOW_MS,
+    });
+
     const { email, password } = await req.json();
     if (!email || !password) return badRequest("Email and password are required.");
 

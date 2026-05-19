@@ -3,7 +3,10 @@ import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "wajina-international-architecture-2026");
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is not set. Server cannot start.");
+}
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export type AuthUser = {
   id: string;
@@ -106,7 +109,7 @@ export async function signToken(payload: {
 }): Promise<string> {
   return new SignJWT(payload as any)
     .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime("7d")
+    .setExpirationTime("2h")
     .sign(JWT_SECRET);
 }
 

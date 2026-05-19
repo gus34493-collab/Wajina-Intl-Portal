@@ -19,8 +19,11 @@ export interface RoleConfig {
  * Centralized role-to-dashboard mapping.
  * Returns the default landing route for a given role.
  */
-export function getDefaultRoute(role: string): string {
+export function getDefaultRoute(role: string, campus?: string | null): string {
   const r = role?.toUpperCase() || '';
+  if (r === 'BURSAR' && campus?.toUpperCase() === 'SECONDARY') {
+    return '/bursar-secondary-dashboard';
+  }
   const map: Record<string, string> = {
     DIRECTOR: '/director-dashboard',
     PRINCIPAL: '/principal-dashboard',
@@ -37,7 +40,6 @@ export function getDefaultRoute(role: string): string {
     HR: '/hr-dashboard',
     PARENT: '/parent-dashboard',
     STUDENT: '/student-dashboard',
-    REGISTRAR: '/admissions-dashboard',
     ADMIN: '/operations-hub',
   };
   return map[r] || '/portal';
@@ -104,6 +106,7 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
           { label: "Results Review", href: "/review-grades", icon: "fa-chart-column" },
           { label: "Department Performance", href: "/academic-performance", icon: "fa-building-columns" },
           { label: "Admissions Queue", href: "/admissions-dashboard", icon: "fa-user-plus" },
+          { label: "Session Planner", href: "/session-planner", icon: "fa-calendar-days" },
         ],
       },
     ],
@@ -165,7 +168,7 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
           { label: "Fee Compliance", href: "/fee-compliance", icon: "fa-money-check-dollar" },
           { label: "Results Review / Publish", href: "/results-approval", icon: "fa-file-signature" },
           { label: "Archives", href: "/pupil-records", icon: "fa-box-archive" },
-          { label: "Staff Management", href: "/staff-onboarding", icon: "fa-users", actionId: 'staff-management' },
+          { label: "Staff Directory", href: "/staff-directory", icon: "fa-users" },
           { label: "Lesson Plan / Exam Review", href: "/teacher-submissions-review", icon: "fa-book-open" },
           { label: "Session Planner", href: "/session-planner", icon: "fa-calendar-week" },
           { label: "Parent Relations", href: "/parent-relations-dashboard", icon: "fa-people-group" },
@@ -204,8 +207,9 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
         title: "STAFF",
         items: [
           { label: "HR Command", href: "/hr-dashboard", icon: "fa-house" },
-          { label: "Student Records / Archive", href: "/pupil-records", icon: "fa-folder-open" },
-          { label: "Staff Profile Management", href: "/staff-directory", icon: "fa-users" },
+          { label: "Staff Profiles", href: "/staff-directory", icon: "fa-users" },
+          { label: "Student Records", href: "/pupil-records", icon: "fa-folder-open" },
+          { label: "Parent Profiles", href: "/pupil-records?view=parents", icon: "fa-people-roof" },
         ],
       },
     ],
@@ -233,10 +237,11 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
       {
         title: "CORE",
         items: [
-          { label: "Overview", href: "/accounts-officer-dashboard", icon: "fa-house" },
-          { label: "Attestation", href: "/results-approval", icon: "fa-stamp" },
-          { label: "Finances", href: "/director-finances", icon: "fa-receipt" },
-          { label: "Expense Review", href: "/expense-approval", icon: "fa-file-invoice-dollar" },
+          { label: "Overview",            href: "/accounts-officer-dashboard", icon: "fa-house" },
+          { label: "Campus Finances",     href: "/accounts-officer-finances",  icon: "fa-chart-pie" },
+          { label: "Fee Compliance",      href: "/fee-compliance",             icon: "fa-money-check-dollar" },
+          { label: "Results Attestation", href: "/results-approval",           icon: "fa-file-signature" },
+          { label: "Expense Attestation", href: "/expense-approval",           icon: "fa-file-invoice-dollar" },
         ],
       },
     ],
@@ -248,8 +253,9 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
         title: "GENERAL",
         items: [
           { label: "Dashboard", href: "/teacher-dashboard", icon: "fa-house" },
-          { label: "Attendance", href: "/teacher-dashboard?view=attendance", icon: "fa-users-rectangle" },
           { label: "Gradebook", href: "/gradebook", icon: "fa-table" },
+          { label: "My Subjects", href: "/teacher-dashboard?view=subjects", icon: "fa-chalkboard-user" },
+          { label: "My Classes", href: "/teacher-dashboard?view=classes", icon: "fa-door-open" },
         ],
       },
     ],
@@ -261,9 +267,11 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
         title: "GENERAL",
         items: [
           { label: "Dashboard", href: "/form-teacher-dashboard", icon: "fa-house" },
-          { label: "Attendance", href: "/form-teacher-dashboard?view=attendance", icon: "fa-users-rectangle" },
+          { label: "My Form Class", href: "/form-teacher-dashboard?view=class", icon: "fa-users-rectangle" },
+          { label: "Attendance", href: "/form-teacher-dashboard?view=attendance", icon: "fa-list-check" },
           { label: "Gradebook", href: "/gradebook", icon: "fa-table" },
-          { label: "My Subjects", href: "/teacher-dashboard", icon: "fa-chalkboard-teacher" },
+          { label: "My Subjects", href: "/teacher-dashboard?view=subjects", icon: "fa-chalkboard-user" },
+          { label: "My Classes", href: "/teacher-dashboard?view=classes", icon: "fa-door-open" },
         ],
       },
     ],
@@ -278,6 +286,7 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
           { label: "My Children", href: "/parent-dashboard?view=overview", icon: "fa-children" },
           { label: "Payments", href: "/parent-dashboard?view=fees", icon: "fa-wallet" },
           { label: "Results", href: "/parent-dashboard?view=academics", icon: "fa-file-lines" },
+          { label: "Requests & Permissions", href: "/parent-requests", icon: "fa-paper-plane" },
         ],
       },
     ],
@@ -291,7 +300,6 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
           { label: "Dashboard", href: "/student-dashboard", icon: "fa-house" },
           { label: "My Results", href: "/student-previous-results", icon: "fa-graduation-cap" },
           { label: "Attendance", href: "/student-results-detail?view=attendance", icon: "fa-list-check" },
-          { label: "Internal Requests", href: "/student-results-detail?view=requests", icon: "fa-paper-plane" },
         ],
       },
     ],

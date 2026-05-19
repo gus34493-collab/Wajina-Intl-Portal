@@ -3,7 +3,10 @@ import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import prisma from './prisma';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "wajina-international-architecture-2026");
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is not set. Server cannot start.");
+}
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 const ACCESS_TOKEN_EXPIRY = '2h';
 const REFRESH_TOKEN_EXPIRY = '7d';
@@ -84,7 +87,7 @@ export async function createSession(user: any) {
   cookieStore.set('wajina_access', accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'strict',
     path: '/',
     maxAge: 2 * 60 * 60, // 2 hours
   });
@@ -93,7 +96,7 @@ export async function createSession(user: any) {
   cookieStore.set('wajina_token', accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'strict',
     path: '/',
     maxAge: 2 * 60 * 60, 
   });
@@ -102,7 +105,7 @@ export async function createSession(user: any) {
   cookieStore.set('wajina_refresh', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'strict',
     path: '/',
     maxAge: 7 * 24 * 60 * 60, // 7 days
   });

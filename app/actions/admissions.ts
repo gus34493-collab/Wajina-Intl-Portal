@@ -2,6 +2,8 @@
 
 import prisma from "@/lib/prisma";
 import { AdmissionStatus } from "@prisma/client";
+import { getAuthUser } from "@/lib/api-auth";
+import { withTenantContext } from "@/lib/prisma-extension";
 import { Resend } from "resend";
 import { revalidatePath } from "next/cache";
 
@@ -16,20 +18,38 @@ export async function saveApplicantLead(data: {
   parentEmail: string;
   notes?: string;
 }) {
+  const user = await getAuthUser();
+  if (!user) throw new Error("Unauthenticated");
+  const ALLOWED = ["DIRECTOR","PRINCIPAL","HEAD_TEACHER","ASST_HEAD_TEACHER","VP_ADMIN","VP_ACADEMICS","BURSAR"];
+  if (!ALLOWED.includes(user.role)) throw new Error("Forbidden");
   try {
-    const admission = await prisma.admission.create({
-      data: {
+    const campus = (data.campus.toUpperCase() === "PRIMARY" ? "PRIMARY" : "SECONDARY") as any;
+
+    const existing = await prisma.admission.findFirst({
+      where: {
         applicantName: data.studentName,
-        targetClass: data.studentClass,
-        campus: (data.campus.toUpperCase() === "PRIMARY" ? "PRIMARY" : "SECONDARY") as any,
-        parentName: data.parentName,
         parentPhone: data.parentPhone,
-        parentEmail: data.parentEmail,
-        notes: data.notes || "",
-        status: AdmissionStatus.PENDING_FEE,
-      }
+        campus,
+        status: { notIn: ["REJECTED", "WITHDRAWN"] },
+      },
     });
-    
+    if (existing) return { success: false, error: "An application for this student already exists." };
+
+    const admission = await withTenantContext(prisma, user, async (tx) => {
+      return tx.admission.create({
+        data: {
+          applicantName: data.studentName,
+          targetClass: data.studentClass,
+          campus,
+          parentName: data.parentName,
+          parentPhone: data.parentPhone,
+          parentEmail: data.parentEmail,
+          notes: data.notes || "",
+          status: AdmissionStatus.APPLIED,
+        },
+      });
+    });
+
     return { success: true, id: admission.id };
   } catch (error: any) {
     console.error("[saveApplicantLead Error]", error);
@@ -38,6 +58,10 @@ export async function saveApplicantLead(data: {
 }
 
 export async function sendExamDetails(admissionId: string) {
+  const user = await getAuthUser();
+  if (!user) throw new Error("Unauthenticated");
+  const ALLOWED = ["DIRECTOR","PRINCIPAL","HEAD_TEACHER","ASST_HEAD_TEACHER","VP_ADMIN","VP_ACADEMICS","BURSAR"];
+  if (!ALLOWED.includes(user.role)) throw new Error("Forbidden");
   try {
     const admission = await prisma.admission.findUnique({
       where: { id: admissionId }
@@ -82,9 +106,11 @@ export async function sendExamDetails(admissionId: string) {
       // We'll still update the status for tracking purposes even if the dummy key fails in dev
     }
 
-    await prisma.admission.update({
-      where: { id: admissionId },
-      data: { status: "EXAM_DETAILS_SENT" }
+    await withTenantContext(prisma, user, async (tx) => {
+      await tx.admission.update({
+        where: { id: admissionId },
+        data: { status: "EXAM_DETAILS_SENT" },
+      });
     });
 
     revalidatePath("/admissions-dashboard");

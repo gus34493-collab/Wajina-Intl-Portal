@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from "react";
 import DashboardShell from "@/app/components/DashboardShell";
-import { 
-  TrendingUp, 
-  CheckCircle2, 
+import {
+  TrendingUp,
+  CheckCircle2,
   Search,
   ChevronRight,
-  Download,
   Users,
-  AlertTriangle
+  AlertTriangle,
+  Download,
+  FileText,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -32,6 +33,13 @@ export default function FeeCompliancePage() {
   const [students, setStudents] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [selectedCampus, setSelectedCampus] = useState<string>(campus || "PRIMARY");
+
+  useEffect(() => {
+    if (user && user.role !== "DIRECTOR") {
+      setSelectedCampus(user.campus || "PRIMARY");
+    }
+  }, [user?.campus, user?.role]);
 
   useEffect(() => {
     async function fetchData() {
@@ -64,7 +72,7 @@ export default function FeeCompliancePage() {
       {
         data: summary ? [summary.paid, summary.partPaid, summary.unpaid] : [0, 0, 0],
         backgroundColor: [
-          'brand-secondary', // Lemon Green
+          '#8BC34A', // Lemon Green
           '#F4BF4F', // Saffron/Yellow
           '#EF4444', // Red
         ],
@@ -122,14 +130,32 @@ export default function FeeCompliancePage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-             <button className="flex items-center gap-2 bg-white border border-brand-primary/10 text-brand-primary px-4 py-3 rounded-xl shadow-sm hover:bg-brand-blush transition-all font-black text-token-micro uppercase tracking-widest">
-                <Download size={14} />
-                Export Ledger
-             </button>
-             <button className="flex items-center gap-2 bg-brand-primary text-white px-5 py-3 rounded-xl shadow-lg shadow-brand-primary/10 hover:bg-brand-primary/95 transition-all font-black text-token-micro uppercase tracking-widest">
-                <Download size={14} />
-                Audit report
-             </button>
+            <button
+              onClick={() => {
+                const rows = students.map((s: any) =>
+                  `${s.name},${s.className},${s.armName},${s.status}`
+                ).join("\n");
+                const csv = `Student Name,Class,Arm,Status\n${rows}`;
+                const blob = new Blob([csv], { type: "text/csv" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `fee-compliance-${selectedCampus.toLowerCase()}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="flex items-center gap-2 bg-white border border-brand-primary/10 text-brand-primary px-4 py-3 rounded-xl shadow-sm hover:bg-brand-blush transition-all font-black text-token-micro uppercase tracking-widest"
+            >
+              <Download size={14} />
+              Export Ledger
+            </button>
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-2 bg-brand-primary text-white px-5 py-3 rounded-xl shadow-lg shadow-brand-primary/10 hover:bg-brand-primary/95 transition-all font-black text-token-micro uppercase tracking-widest"
+            >
+              <FileText size={14} />
+              Audit Report
+            </button>
           </div>
         </div>
 

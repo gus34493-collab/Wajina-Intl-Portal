@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyTransaction } from "@/app/actions/payment";
 
 export async function GET(req: NextRequest) {
+  const secretHash = process.env.FLW_SECRET_HASH;
+  const signature = req.headers.get("verif-hash");
+  if (!secretHash || signature !== secretHash) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  }
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
   const tx_ref = searchParams.get("tx_ref");

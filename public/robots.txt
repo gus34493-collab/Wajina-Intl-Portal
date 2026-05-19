@@ -1,0 +1,12 @@
+User-agent: *
+Disallow: /portal/
+Disallow: /director-dashboard/
+Disallow: /principal-dashboard/
+Disallow: /teacher-dashboard/
+Disallow: /parent-dashboard/
+Disallow: /student-dashboard/
+Disallow: /api/
+Allow: /
+Allow: /academics/
+Allow: /our-story/
+Allow: /future/

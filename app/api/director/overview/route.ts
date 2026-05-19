@@ -79,8 +79,11 @@ export async function GET(req: NextRequest) {
 
     // Recent activity: last 8 audit log entries visible to director
     const recentActivity = await prisma.auditLog.findMany({
-      where: { action: { in: ["CREATE_PAYMENT", "ATTENDANCE_BULK_MARK", "TIMETABLE_UPDATE", "ENROLL_STUDENT", "ADMISSION_OFFER_SENT", "GRADE_SUBMITTED"] } },
-      include: { actor: { select: { name: true, role: true } } },
+      where: {
+        action: { in: ["CREATE_PAYMENT", "ATTENDANCE_BULK_MARK", "TIMETABLE_UPDATE", "ENROLL_STUDENT", "ADMISSION_OFFER_SENT", "GRADE_SUBMITTED"] },
+        ...(campus && campus !== "ALL" && { actor: { campus: campus as any } }),
+      },
+      include: { actor: { select: { name: true, role: true, campus: true } } },
       orderBy: { createdAt: "desc" },
       take: 6,
     });

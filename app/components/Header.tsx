@@ -139,7 +139,11 @@ export default function Header({ user, loading, onUserUpdate, onMobileMenuToggle
             {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </button>
 
-          <button className="grid relative w-12 h-12 rounded-xl border border-brand-primary/5 hover:border-brand-primary transition-all place-items-center bg-white text-brand-primary shadow-sm shrink-0">
+          <button
+            onClick={() => router.push("/notifications")}
+            aria-label="View notifications"
+            className="grid relative w-12 h-12 rounded-xl border border-brand-primary/5 hover:border-brand-primary transition-all place-items-center bg-white text-brand-primary shadow-sm shrink-0"
+          >
             <Bell size={18} />
             <span className="absolute top-3 right-3 w-2 h-2 bg-brand-accent border-2 border-white rounded-full" />
           </button>

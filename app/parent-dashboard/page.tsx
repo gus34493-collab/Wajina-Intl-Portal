@@ -15,10 +15,13 @@ import {
 import { motion } from "framer-motion";
 import PaymentModal from "@/app/components/PaymentModal";
 import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/app/components/AuthContext";
 
 function ParentDashboardContent() {
+  const { user } = useAuth();
+  const router = useRouter();
   const [wards, setWards] = useState<any[]>([]);
   const [complaints, setComplaints] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,11 +78,13 @@ function ParentDashboardContent() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors">
+            <button onClick={() => router.push("/notifications")} aria-label="View notifications" className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors">
               <Bell size={18} />
             </button>
             <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center font-black text-white text-sm select-none">
-              P
+              {user?.name
+                ? user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+                : "P"}
             </div>
           </div>
         </div>
@@ -161,7 +166,12 @@ function ParentDashboardContent() {
             <div className="bg-white rounded-3xl border border-brand-primary/8 shadow-sm p-6">
               <div className="flex justify-between items-center mb-5">
                 <h4 className="font-black text-brand-primary">Recent Support Tickets</h4>
-                <button className="text-token-micro font-black uppercase tracking-widest text-brand-secondary hover:underline">New Ticket</button>
+                <button
+                  onClick={() => router.push("/parent-requests")}
+                  className="text-token-micro font-black uppercase tracking-widest text-brand-secondary hover:underline"
+                >
+                  New Request
+                </button>
               </div>
               <div className="flex flex-col gap-3">
                 {complaints.slice(0, 3).map((c, i) => (
@@ -190,10 +200,10 @@ function ParentDashboardContent() {
               <h4 className="font-black text-brand-primary mb-5">Quick Access</h4>
               <div className="flex flex-col gap-3">
                 {[
-                  { label: "Academic Records", href: "#" },
-                  { label: "Fee Payments", href: "#" },
-                  { label: "Attendance History", href: "#" },
-                  { label: "Contact School", href: "#" },
+                  { label: "Academic Records", href: "/parent-academic-records" },
+                  { label: "Fee Payments", href: "/parent-payments" },
+                  { label: "Attendance History", href: "/parent-attendance" },
+                  { label: "Contact School", href: "/parent-requests" },
                 ].map((link, i) => (
                   <a key={i} href={link.href} className="flex items-center justify-between p-4 bg-brand-blush/40 rounded-2xl border border-brand-primary/5 hover:border-brand-secondary/20 transition-all group no-underline">
                     <p className="text-sm font-bold text-brand-primary group-hover:text-brand-secondary transition-colors">{link.label}</p>

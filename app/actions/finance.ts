@@ -16,12 +16,28 @@ export async function getCampusPayments(user: any) {
   });
 }
 
-export async function createPayment(data: any, user: any) {
+export async function createPayment(
+  data: {
+    studentId: string;
+    amount: number;
+    category: string;
+    reference: string;
+    sessionId: string;
+  },
+  user: any
+) {
   return withTenantContext(prisma, user, async () => {
     const payment = await prisma.payment.create({
       data: {
-        ...data,
-      }
+        studentId: data.studentId,
+        amount: data.amount,
+        category: data.category,
+        reference: data.reference,
+        sessionId: data.sessionId,
+        status: "PENDING",
+        campus: user.campus,
+      },
+      include: { student: true },
     });
     revalidatePath('/finance');
     return payment;

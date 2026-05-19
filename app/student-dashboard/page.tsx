@@ -12,6 +12,7 @@ import {
   Clock,
 } from "lucide-react";
 import { useAuth } from "@/app/components/AuthContext";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 interface DashData {
@@ -32,6 +33,7 @@ function gradeColor(g: string | null) {
 
 export default function StudentDashboard() {
   const { user } = useAuth();
+  const router = useRouter();
   const [data, setData] = useState<DashData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -64,9 +66,8 @@ export default function StudentDashboard() {
               Welcome back, {firstName}!
             </h1>
           </div>
-          <button className="relative mt-1 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors shrink-0">
+          <button onClick={() => router.push("/notifications")} aria-label="View notifications" className="relative mt-1 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors shrink-0">
             <Bell size={18} />
-            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-error border-2 border-white" />
           </button>
         </div>
 

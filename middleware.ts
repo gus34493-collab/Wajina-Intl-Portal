@@ -2,18 +2,15 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "wajina-international-architecture-2026"
-);
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is not set. Server cannot start.");
+}
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
-/**
- * Protected routes and their allowed roles.
- * Restored 1:1 from legacy auth-guard.js RBAC mapping.
- */
 const PROTECTED_ROUTES: Record<string, string[]> = {
   // Executive
   "/director-dashboard": ["DIRECTOR"],
-  "/director-finances": ["DIRECTOR", "ACCOUNTS_OFFICER"],
+  "/director-finances": ["DIRECTOR"],
   "/director-academics": ["DIRECTOR"],
   "/director-audit-logs": ["DIRECTOR"],
   "/retention-analysis": ["DIRECTOR"],
@@ -33,7 +30,8 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
   "/bursar-secondary-dashboard": ["DIRECTOR", "BURSAR"],
   "/bursar-dashboard": ["DIRECTOR", "BURSAR"],
   "/accounts-officer-dashboard": ["DIRECTOR", "ACCOUNTS_OFFICER"],
-  "/fee-compliance": ["DIRECTOR", "BURSAR", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
+  "/accounts-officer-finances": ["DIRECTOR", "ACCOUNTS_OFFICER"],
+  "/fee-compliance": ["DIRECTOR", "BURSAR", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "ACCOUNTS_OFFICER"],
 
   // HR
   "/hr-dashboard": ["DIRECTOR", "HR"],
@@ -49,15 +47,22 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
 
   // Student & Parent
   "/parent-dashboard": ["PARENT", "DIRECTOR"],
+  "/parent-requests": ["PARENT"],
   "/student-dashboard": ["STUDENT", "DIRECTOR"],
 
   // Admin
-  "/admissions-dashboard": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "BURSAR", "REGISTRAR"],
+  "/admissions-dashboard": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "BURSAR"],
   "/staff-directory": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "VP_ADMIN", "HR", "HOD", "HEAD_TEACHER"],
-  "/staff-onboarding": ["DIRECTOR", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
+  "/staff-onboarding": ["DIRECTOR", "VP_ADMIN", "ASST_HEAD_TEACHER", "HR"],
   "/pupil-records": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "HR", "HOD", "DEAN"],
-  "/session-planner": ["DIRECTOR", "PRINCIPAL", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
+  "/session-planner": ["DIRECTOR", "PRINCIPAL", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "VP_ACADEMICS"],
   "/testimonials": ["DIRECTOR", "PRINCIPAL", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
+
+  // Notifications — all authenticated roles; API is self-scoping by role
+  "/notifications": ["DIRECTOR","PRINCIPAL","VP_ACADEMICS","VP_ADMIN","HEAD_TEACHER","ASST_HEAD_TEACHER","HOD","DEAN","TEACHER","FORM_TEACHER","BURSAR","ACCOUNTS_OFFICER","HR","PARENT","STUDENT","ADMIN"],
+
+  // Parent-specific pages
+  "/parent-payments": ["PARENT", "DIRECTOR"],
 
   // Student & parent specific
   "/student-previous-results": ["STUDENT", "DIRECTOR"],
@@ -69,15 +74,14 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
   "/fee-configuration": ["DIRECTOR"],
   "/parent-relations-dashboard": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
   "/parent-risk-families": ["DIRECTOR", "PRINCIPAL", "DEAN", "HEAD_TEACHER"],
-  "/school-config": ["DIRECTOR"],
+  "/school-config": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER"],
   "/school-structure": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "BURSAR"],
   "/issue-expense": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Skip static assets and public routes
   if (
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/admissions") ||
@@ -95,11 +99,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2. Check for access token
   const accessToken = request.cookies.get("wajina_access")?.value;
   const refreshToken = request.cookies.get("wajina_refresh")?.value;
 
-  // If no tokens at all, redirect to portal
   if (!accessToken && !refreshToken) {
     const url = request.nextUrl.clone();
     url.pathname = "/portal";
@@ -108,12 +110,10 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    // 3. Verify Access Token (if exists)
     if (accessToken) {
       const { payload } = await jwtVerify(accessToken, JWT_SECRET);
       const userRole = payload.role as string;
 
-      // 4. Check RBAC
       const matchedPath = Object.keys(PROTECTED_ROUTES).find((path) =>
         pathname.startsWith(path)
       );
@@ -130,15 +130,13 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.next();
     }
-    
-    // 5. If access token missing but refresh exists, redirect
+
     const url = request.nextUrl.clone();
     url.pathname = "/portal";
     url.searchParams.set("error", "Session re-authentication required.");
     return NextResponse.redirect(url);
 
-  } catch (err) {
-    // Token verification failed
+  } catch {
     const url = request.nextUrl.clone();
     url.pathname = "/portal";
     url.searchParams.set("error", "Session integrity failed. Please re-login.");
@@ -148,13 +146,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api/auth (auth routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     "/((?!api/auth|_next/static|_next/image|favicon.ico).*)",
   ],
 };

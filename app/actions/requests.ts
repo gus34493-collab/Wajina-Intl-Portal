@@ -2,15 +2,15 @@
 
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getAuthUser } from "@/lib/api-auth";
 
 export async function createInstitutionalRequest(data: {
   title: string;
   details: string;
   amount?: number;
-  senderId: string;
-  senderRole: string;
-  campus: string;
 }) {
+  const user = await getAuthUser();
+  if (!user) throw new Error("Unauthenticated");
   try {
      const request = await prisma.request.create({
        data: {
@@ -18,8 +18,8 @@ export async function createInstitutionalRequest(data: {
          description: data.details,
          level: 'K1', // Defaulting to K1 for general institutional requests
          status: 'PENDING',
-         senderId: data.senderId,
-         // We might need a receiverId if we route to specific roles, 
+         senderId: user.id,
+         // We might need a receiverId if we route to specific roles,
          // but usually, it goes to the queue for DIRECTOR/BURSAR.
        }
      });

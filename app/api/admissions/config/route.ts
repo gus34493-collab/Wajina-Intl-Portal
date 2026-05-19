@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { getAuthUser, unauthorized, forbidden, serverError } from "@/lib/api-auth";
 
 export async function GET(req: NextRequest) {
+  const user = await getAuthUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const campus = new URL(req.url).searchParams.get("campus");
     if (campus) {
