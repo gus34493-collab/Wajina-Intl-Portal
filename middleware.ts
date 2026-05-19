@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-if (!process.env.JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is not set. Server cannot start.");
+// Lazily encoded — avoids throwing at module scope during build-time static analysis
+let _JWT_SECRET: Uint8Array | null = null;
+function getSecret() {
+  if (!_JWT_SECRET) {
+    if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is not set.");
+    _JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+  }
+  return _JWT_SECRET;
 }
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 const PROTECTED_ROUTES: Record<string, string[]> = {
   // Executive
@@ -79,7 +84,7 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
   "/issue-expense": ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
 };
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (
@@ -111,7 +116,7 @@ export async function proxy(request: NextRequest) {
 
   try {
     if (accessToken) {
-      const { payload } = await jwtVerify(accessToken, JWT_SECRET);
+      const { payload } = await jwtVerify(accessToken, getSecret());
       const userRole = payload.role as string;
 
       const matchedPath = Object.keys(PROTECTED_ROUTES).find((path) =>
