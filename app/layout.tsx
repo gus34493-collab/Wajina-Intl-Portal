@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Plus_Jakarta_Sans, Fraunces } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "./components/AuthContext";
@@ -9,18 +8,8 @@ import TelemetryInit from "./components/TelemetryInit";
 import LegacyAtmosphere from "./components/landing/LegacyAtmosphere";
 import StructuredData from "./components/SEO/StructuredData";
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-fraunces",
-});
-
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-plus-jakarta",
-});
+// Use classic Google Fonts stylesheet to avoid Turbopack next/font issues in CI
+const googleFontsHref = "https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";
 
 const BASE_URL = "https://www.wajinainternational.com.ng";
 
@@ -84,6 +73,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className="scroll-smooth no-scrollbar" data-scroll-behavior="smooth">
       <head>
         <link rel="apple-touch-icon" href="/images/logo-no-bg.png" />
+        <link rel="stylesheet" href={googleFontsHref} />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Wajina International Schools" />
@@ -91,8 +81,7 @@ export default function RootLayout({
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased selection:bg-brand-primary/30 selection:text-white",
-          plusJakartaSans.variable,
-          fraunces.variable,
+          // CSS variables from next/font removed to avoid Turbopack font internals
         )}
       >
         <ThemeProvider
