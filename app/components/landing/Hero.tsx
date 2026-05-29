@@ -323,7 +323,7 @@ export default function Hero() {
                   }}
                 >
                   <Image
-                    src="/images/Gemini_Generated_Image_cvjn9ocvjn9ocvjn.png"
+                    src="/images/IMG-20260523-WA0002.jpg"
                     alt="Early years learners at Wajina International Schools"
                     fill
                     className="object-cover"
