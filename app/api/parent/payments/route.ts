@@ -37,7 +37,7 @@ export async function GET(_req: NextRequest) {
         const [invoices, payments] = await Promise.all([
           prisma.invoice.findMany({
             where: { studentId: ward.id },
-            orderBy: [{ session: { startYear: "desc" } }, { term: { name: "asc" } }],
+            orderBy: [{ session: { startDate: "desc" } }, { term: { name: "asc" } }],
             select: {
               id: true,
               amount: true,

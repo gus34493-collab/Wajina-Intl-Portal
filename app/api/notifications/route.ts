@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getAuthUser, unauthorized, serverError } from "@/lib/api-auth";
+import type { ComplaintStatus } from "@prisma/client";
 
 const ago = (days: number) => new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
@@ -311,7 +312,7 @@ export async function GET(_req: NextRequest) {
           select: { id: true, name: true, role: true, createdAt: true },
         }),
         prisma.complaint.findMany({
-          where: { status: { in: ["PENDING", "IN_REVIEW"] }, ...campusFilter },
+          where: { status: { in: ["PENDING", "IN_REVIEW"] as ComplaintStatus[] }, ...campusFilter },
           take: 5,
           orderBy: { createdAt: "desc" },
           select: { id: true, subject: true, createdAt: true },

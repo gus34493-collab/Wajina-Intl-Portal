@@ -1,5 +1,6 @@
 "use server";
 
+import type { FeeCategory } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { withTenantContext } from "@/lib/prisma-extension";
 import { revalidatePath } from "next/cache";
@@ -20,7 +21,7 @@ export async function createPayment(
   data: {
     studentId: string;
     amount: number;
-    category: string;
+    category: string | FeeCategory;
     reference: string;
     sessionId: string;
   },
@@ -31,7 +32,7 @@ export async function createPayment(
       data: {
         studentId: data.studentId,
         amount: data.amount,
-        category: data.category,
+        category: data.category as FeeCategory,
         reference: data.reference,
         sessionId: data.sessionId,
         status: "PENDING",

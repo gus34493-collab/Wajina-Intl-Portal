@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getAuthUser, unauthorized, forbidden, badRequest, notFound, serverError } from "@/lib/api-auth";
+import type { Role } from "@prisma/client";
 
 const APPROVERS = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "VP_ADMIN", "VP_ACADEMICS", "FORM_TEACHER"];
 
-const CAMPUS_PRINCIPAL: Record<string, string> = {
+const CAMPUS_PRINCIPAL: Record<string, Role> = {
   PRIMARY: "HEAD_TEACHER",
   SECONDARY: "PRINCIPAL",
 };
@@ -56,7 +57,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
       if (role === "FORM_TEACHER") {
         if (request.level !== "K1") return badRequest("Form teachers can only escalate K1 requests.");
-        const principalRole = request.campus ? (CAMPUS_PRINCIPAL[request.campus as string] ?? "HEAD_TEACHER") : "HEAD_TEACHER";
+        const principalRole: Role = request.campus ? (CAMPUS_PRINCIPAL[request.campus as string] ?? "HEAD_TEACHER") : "HEAD_TEACHER";
         const principal = await prisma.user.findFirst({
           where: { role: principalRole, campus: request.campus as any },
           select: { id: true },

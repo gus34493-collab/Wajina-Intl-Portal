@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getAuthUser } from "@/lib/api-auth";
+import type { Role } from "@prisma/client";
 
 type RequestInput = {
   title: string;
@@ -11,13 +12,13 @@ type RequestInput = {
   studentId?: string;
 };
 
-const CAMPUS_PRINCIPAL: Record<string, string> = {
+const CAMPUS_PRINCIPAL: Record<string, Role> = {
   PRIMARY: "HEAD_TEACHER",
   SECONDARY: "PRINCIPAL",
 };
 
 async function findCampusPrincipal(campus: string | null) {
-  const principalRole = campus ? (CAMPUS_PRINCIPAL[campus] ?? "HEAD_TEACHER") : "HEAD_TEACHER";
+  const principalRole: Role = campus ? (CAMPUS_PRINCIPAL[campus] ?? "HEAD_TEACHER") : "HEAD_TEACHER";
   return prisma.user.findFirst({
     where: { role: principalRole, campus: campus as any },
     select: { id: true },
