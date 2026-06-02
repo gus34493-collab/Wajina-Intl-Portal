@@ -27,7 +27,7 @@ function generateTempPassword(): string {
 }
 
 const READ_ROLES = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "HR"];
-const WRITE_ROLES = ["DIRECTOR", "PRINCIPAL", "HR", "VP_ADMIN"];
+const WRITE_ROLES = ["DIRECTOR", "PRINCIPAL", "HR", "VP_ADMIN", "HEAD_TEACHER"];
 
 export async function GET(req: NextRequest) {
   const user = await getAuthUser();
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
         name: name.trim(),
         email: normEmail,
         role: newRole as any,
-        campus: (campus ?? user.campus) as any,
+        campus: (["DIRECTOR", "HR", "VP_ADMIN"].includes(user.role as string) && campus) ? (campus as any) : (user.campus as any),
         password: hashed,
         status: "ACTIVE",
         mustChangePassword: true,

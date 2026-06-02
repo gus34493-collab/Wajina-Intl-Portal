@@ -115,14 +115,20 @@ export default function StaffDirectoryPage() {
              <p className="text-brand-tertiary text-token-micro font-black uppercase tracking-widest mt-2">Central repository for administrative, instructional, and operational personnel.</p>
            </div>
            
-           <div className="relative w-full md:w-96">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-tertiary/60" size={18} />
-              <Input 
-                 placeholder="Search institutional staff..." 
-                 className="bg-white border-2 border-brand-primary/8 text-brand-primary pl-12 rounded-2xl h-14 shadow-sm focus:border-brand-secondary/30 transition-all font-bold uppercase text-xs"
-                 value={searchQuery}
-                 onChange={e => setSearchQuery(e.target.value)}
-              />
+           <div className="flex flex-col gap-4 w-full md:w-auto items-end">
+             <div className="relative w-full md:w-96">
+               <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-tertiary/60" size={18} />
+               <Input 
+                  placeholder="Search institutional staff..." 
+                  className="bg-white border-2 border-brand-primary/8 text-brand-primary pl-12 rounded-2xl h-14 shadow-sm focus:border-brand-secondary/30 transition-all font-bold uppercase text-xs"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+               />
+             </div>
+             <a href="/staff-onboarding" className="bg-brand-primary text-white border border-brand-primary/8 rounded-xl px-5 py-3 shadow-sm flex items-center justify-center gap-2 font-black text-token-micro tracking-widest uppercase hover:bg-brand-primary/90 transition-colors no-underline">
+               <UserPlus size={16} />
+               Onboard New Staff
+             </a>
            </div>
         </div>
 

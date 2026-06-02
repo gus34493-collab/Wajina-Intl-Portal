@@ -14,15 +14,22 @@ import {
   AlertCircle
 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/app/components/AuthContext";
 
 export default function StaffOnboardingPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  //  Fixed Lines
+const { user } = useAuth();
+const userRole = user?.role;
+const userCampus = user?.campus;
+  const isGlobalRole = ["DIRECTOR", "HR", "VP_ADMIN"].includes(userRole as string);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     role: "TEACHER",
-    campus: "PRIMARY",
+    campus: isGlobalRole ? "PRIMARY" : (userCampus || "PRIMARY"),
     department: ""
   });
   const [provisionedUser, setProvisionedUser] = useState<any>(null);
@@ -66,7 +73,7 @@ export default function StaffOnboardingPage() {
         </div>
 
         {/* Content Area */}
-        <div className="card p-12 min-h-[500px] flex flex-col items-center text-center">
+        <div className="card bg-white p-12 min-h-[500px] flex flex-col items-center text-center">
             {step === 1 && (
                <div className="w-full flex flex-col items-center gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="w-20 h-20 rounded-3xl bg-brand-tertiary/10 grid place-items-center text-brand-tertiary">
@@ -141,7 +148,8 @@ export default function StaffOnboardingPage() {
                               <button 
                                  key={c}
                                  onClick={() => setFormData({...formData, campus: c})}
-                                 className={`py-4 rounded-xl border font-black text-token-micro tracking-widest uppercase transition-all ${formData.campus === c ? 'bg-brand-tertiary border-brand-tertiary text-white shadow-lg' : 'bg-brand-blush border-brand-primary/8 text-brand-tertiary hover:bg-white'}`}
+                                 disabled={!isGlobalRole && formData.campus !== c}
+                                 className={`py-4 rounded-xl border font-black text-token-micro tracking-widest uppercase transition-all ${formData.campus === c ? 'bg-brand-tertiary border-brand-tertiary text-white shadow-lg' : 'bg-brand-blush border-brand-primary/8 text-brand-tertiary'} ${!isGlobalRole && formData.campus !== c ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white cursor-pointer'}`}
                               >
                                  {c}
                               </button>
@@ -167,13 +175,13 @@ export default function StaffOnboardingPage() {
 
             {step === 3 && (
                <div className="w-full flex flex-col items-center gap-8 animate-in fade-in zoom-in-95 duration-500">
-                  <div className="w-20 h-20 rounded-3xl bg-brand-forest/10 grid place-items-center text-brand-forest">
+                  <div className="w-20 h-20 rounded-3xl bg-brand-secondary/10 grid place-items-center text-brand-secondary">
                       <ShieldCheck size={40} />
                   </div>
                   <div className="max-w-md">
                     <h2 className="text-3xl font-display font-black text-brand-primary tracking-tight">Security Affirmation</h2>
                     <p className="text-brand-primary/60 text-sm font-medium mt-2 leading-relaxed">
-                       You are provisioning a new institutional account for <span className="text-brand-forest font-black font-display underline underline-offset-4 decoration-brand-forest/20">{formData.name}</span> as a <span className="text-brand-tertiary font-black font-display uppercase tracking-widest">{formData.role}</span>. 
+                       You are provisioning a new institutional account for <span className="text-brand-secondary font-black font-display underline underline-offset-4 decoration-brand-secondary/20">{formData.name}</span> as a <span className="text-brand-tertiary font-black font-display uppercase tracking-widest">{formData.role}</span>. 
                     </p>
                   </div>
                   
@@ -190,7 +198,7 @@ export default function StaffOnboardingPage() {
                   <button 
                      onClick={handleSubmit}
                      disabled={loading}
-                     className="w-full max-w-md bg-brand-forest text-white py-6 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-brand-forest/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                     className="w-full max-w-md bg-brand-secondary text-white py-6 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-brand-secondary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                   >
                      {loading ? "Encrypting Identity..." : "Finalize & Provision"}
                      {!loading && <CheckCircle2 size={16} />}
@@ -200,7 +208,7 @@ export default function StaffOnboardingPage() {
 
             {step === 4 && provisionedUser && (
                <div className="w-full flex flex-col items-center gap-8 animate-in zoom-in-90 duration-500">
-                  <div className="w-24 h-24 rounded-[2rem] bg-brand-forest grid place-items-center text-white shadow-2xl shadow-brand-forest/30">
+                  <div className="w-24 h-24 rounded-[2rem] bg-brand-secondary grid place-items-center text-white shadow-2xl shadow-brand-secondary/30">
                       <CheckCircle2 size={48} />
                   </div>
                   <div>
@@ -208,14 +216,14 @@ export default function StaffOnboardingPage() {
                     <p className="text-brand-primary/60 text-sm font-medium mt-2 italic">Institutional account is now live.</p>
                   </div>
 
-                  <div className="w-full max-w-md border-2 border-dashed border-brand-forest/30 rounded-3xl p-8 bg-brand-blush/50">
+                  <div className="w-full max-w-md border-2 border-dashed border-brand-secondary/30 rounded-3xl p-8 bg-brand-blush/50">
                      <div className="flex flex-col items-center gap-6">
                         <div className="space-y-1">
                            <p className="text-token-micro font-black text-brand-tertiary uppercase tracking-widest">Master Credentials</p>
                            <p className="text-xl font-display font-black text-brand-primary">{provisionedUser.user.email}</p>
                         </div>
-                        <div className="w-full p-6 bg-white border border-brand-forest/20 rounded-2xl">
-                           <p className="text-token-micro font-black text-brand-forest uppercase tracking-widest mb-2">Temporary Access Key</p>
+                        <div className="w-full p-6 bg-white border border-brand-secondary/20 rounded-2xl">
+                           <p className="text-token-micro font-black text-brand-secondary uppercase tracking-widest mb-2">Temporary Access Key</p>
                            <p className="text-lg font-mono font-black text-brand-primary select-all tracking-wider">{provisionedUser.temporaryPassword}</p>
                         </div>
                         <p className="text-token-micro font-bold text-brand-tertiary leading-relaxed">

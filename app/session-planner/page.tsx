@@ -294,18 +294,19 @@ export default function SessionPlannerPage() {
                                <p className="text-token-micro font-bold text-brand-tertiary/70">{formatDate(term.startDate)} → {formatDate(term.endDate)}</p>
                              )}
                              {session.status === 'ACTIVE' && !isCurrentTerm && TERM_ADMIN.includes(userRole ?? "") && !termEditState[term.id] && (
-                               <button
-                                 onClick={() => activateTerm(term.id)}
-                                 className="mt-1 w-full py-1.5 bg-brand-tertiary/10 text-brand-tertiary rounded-xl text-token-micro font-black uppercase tracking-widest hover:bg-brand-tertiary hover:text-white transition-all"
-                               >
-                                 Set Active
-                               </button>
-                             )}
-                          </div>
-                       )})}
-                    </div>
+                         <button
+                        onClick={() => activateTerm(term.id)}
+                    className="mt-1 w-full py-1.5 bg-brand-tertiary/10 text-brand-tertiary rounded-xl text-token-micro font-black uppercase tracking-widest hover:bg-brand-tertiary hover:text-white transition-all"
+>
+                Set Active
+              </button>
+            )}
+          </div>
+        );
+      })};
+    </div>
                  </motion.div>
-              ))}
+              ))};
            </div>
 
         </div>

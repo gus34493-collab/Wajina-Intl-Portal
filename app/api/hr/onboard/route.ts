@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         role: role as any,
         password: hashed,
         status: "ACTIVE",
-        campus: (campus || user.campus) as any,
+        campus: (["DIRECTOR", "HR", "VP_ADMIN"].includes(user.role as string) && campus) ? (campus as any) : (user.campus as any),
         mustChangePassword: true,
         passwordExpiresAt,
       },

@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Loader2,
   Bell,
+  UserPlus,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PerformanceBarChart, RevenueGauge } from "@/app/components/Charts";
@@ -79,15 +80,6 @@ export default function PrincipalDashboard() {
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <button className="relative w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors">
-              <Bell size={18} />
-              {(data?.pendingCount || 0) > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-error border-2 border-white" />
-              )}
-            </button>
-            <div className="w-10 h-10 rounded-full bg-brand-secondary flex items-center justify-center font-black text-white text-sm select-none">
-              P
-            </div>
           </div>
         </div>
 

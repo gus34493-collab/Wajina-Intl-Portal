@@ -57,8 +57,8 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
 
   // Admin
   "/admissions-dashboard": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "BURSAR"],
-  "/staff-directory": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "VP_ADMIN", "HR", "HOD", "HEAD_TEACHER"],
-  "/staff-onboarding": ["DIRECTOR", "VP_ADMIN", "ASST_HEAD_TEACHER", "HR"],
+  "/staff-directory": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "VP_ADMIN", "HR", "HOD", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],
+  "/staff-onboarding": ["DIRECTOR", "PRINCIPAL", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "HR"],
   "/pupil-records": ["DIRECTOR", "PRINCIPAL", "VP_ACADEMICS", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "HR", "HOD", "DEAN"],
   "/session-planner": ["DIRECTOR", "PRINCIPAL", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER", "VP_ACADEMICS"],
   "/testimonials": ["DIRECTOR", "PRINCIPAL", "VP_ADMIN", "HEAD_TEACHER", "ASST_HEAD_TEACHER"],

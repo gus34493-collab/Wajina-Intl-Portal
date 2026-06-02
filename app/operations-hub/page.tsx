@@ -71,7 +71,6 @@ export default function OperationsHubPage() {
 
         {/* Rapid Action Strip */}
         <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-          <QuickAction label="Onboard Staff" icon={<Users size={18} />} onClick={() => router.push("/staff-onboarding")} />
           <QuickAction label="Audit Finances" icon={<FileText size={18} />} onClick={() => router.push("/director-finances")} />
           <QuickAction label="Welfare Flag" icon={<ShieldAlert size={18} />} onClick={() => router.push("/parent-risk-families")} />
           <QuickAction label="Sync Systems" icon={<Activity size={18} />} highlight onClick={() => router.push("/operations-hub")} />

@@ -16,6 +16,9 @@ COPY . .
 RUN npx prisma generate
 
 # Build Next.js
+# Allow passing build-time secrets (e.g. JWT_SECRET) into the build
+ARG JWT_SECRET
+ENV JWT_SECRET=${JWT_SECRET}
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 

@@ -66,7 +66,7 @@ export default function StudentDashboard() {
               Welcome back, {firstName}!
             </h1>
           </div>
-          <button onClick={() => router.push("/notifications")} aria-label="View notifications" className="relative mt-1 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors shrink-0">
+          <button onClick={() => router.push("/notifications")} aria-label="View notifications" className="relative mt-1 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors shrink-0 md:hidden">
             <Bell size={18} />
           </button>
         </div>

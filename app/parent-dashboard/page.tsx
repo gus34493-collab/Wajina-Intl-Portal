@@ -78,7 +78,7 @@ function ParentDashboardContent() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => router.push("/notifications")} aria-label="View notifications" className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors">
+            <button onClick={() => router.push("/notifications")} aria-label="View notifications" className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-brand-primary/8 shadow-sm text-brand-primary/50 hover:text-brand-primary transition-colors md:hidden">
               <Bell size={18} />
             </button>
             <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center font-black text-white text-sm select-none">

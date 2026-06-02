@@ -217,3 +217,54 @@
     border-radius: var(--radius-sm);
   }
 }
+
+/* ─── Dark Mode Overrides ────────────────────────────────────── */
+:root[data-theme="dark"] {
+  --color-background: var(--color-cinematic-deep);
+  --color-foreground: var(--color-cinematic-bone);
+  --color-brand-blush: var(--color-cinematic-surface-2);
+}
+
+:root[data-theme="dark"] .bg-white {
+  background-color: var(--color-cinematic-surface) !important;
+  color: var(--color-cinematic-bone) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+:root[data-theme="dark"] .text-brand-primary {
+  color: var(--color-cinematic-bone) !important;
+}
+
+:root[data-theme="dark"] .text-brand-primary\/40 {
+  color: rgba(248, 251, 246, 0.4) !important;
+}
+
+:root[data-theme="dark"] .text-brand-primary\/50 {
+  color: rgba(248, 251, 246, 0.5) !important;
+}
+
+:root[data-theme="dark"] .text-brand-primary\/60 {
+  color: rgba(248, 251, 246, 0.6) !important;
+}
+
+:root[data-theme="dark"] .text-brand-primary\/80 {
+  color: rgba(248, 251, 246, 0.8) !important;
+}
+
+:root[data-theme="dark"] .bg-brand-primary\/5,
+:root[data-theme="dark"] .bg-brand-primary\/8,
+:root[data-theme="dark"] .bg-brand-primary\/10 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+:root[data-theme="dark"] .border-brand-primary,
+:root[data-theme="dark"] .border-brand-primary\/5,
+:root[data-theme="dark"] .border-brand-primary\/8,
+:root[data-theme="dark"] .border-brand-primary\/10 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+:root[data-theme="dark"] .bg-brand-primary {
+  /* Only apply if it's not the sidebar or buttons */
+}
+

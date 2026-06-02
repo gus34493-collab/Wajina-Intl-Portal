@@ -112,13 +112,23 @@ export default function Header({ user, loading, onUserUpdate, onMobileMenuToggle
             <span className="text-[0.42rem] font-black text-brand-primary/40 uppercase tracking-[0.25em]">INT&apos;L SCHOOLS</span>
           </div>
         </div>
-        <button
-          onClick={onMobileMenuToggle}
-          className="w-11 h-11 rounded-xl border border-brand-primary/10 bg-white text-brand-primary grid place-items-center shadow-sm"
-          aria-label="Open menu"
-        >
-          <Menu size={20} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => router.push("/notifications")}
+            className="w-11 h-11 relative rounded-xl border border-brand-primary/10 bg-white text-brand-primary grid place-items-center shadow-sm"
+            aria-label="Notifications"
+          >
+            <Bell size={18} />
+            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-brand-accent border border-white rounded-full" />
+          </button>
+          <button
+            onClick={onMobileMenuToggle}
+            className="w-11 h-11 rounded-xl border border-brand-primary/10 bg-white text-brand-primary grid place-items-center shadow-sm"
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
+        </div>
       </div>
 
       {/* ── DESKTOP HEADER: full layout ── */}

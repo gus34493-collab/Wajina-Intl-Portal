@@ -55,24 +55,24 @@ export default function Sidebar({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMobileOpen?.(false)}
-            className="lg:hidden fixed inset-0 bg-brand-primary/60 backdrop-blur-md z-[100]"
+            className="lg:hidden fixed inset-0 bg-brand-primary/60 backdrop-blur-md z-40"
           />
         )}
       </AnimatePresence>
 
       <motion.aside
         animate={{
-          width: collapsed ? 80 : 280,
-          left: isMobileOpen ? 0 : (typeof window !== 'undefined' && window.innerWidth < 1024 ? -280 : 0)
+          width: 280,
+          left: isMobileOpen ? 0 : (collapsed ? -280 : 0)
         }}
         className={cn(
-          "fixed top-0 bottom-0 z-[105] bg-brand-primary border-r border-white/5 flex flex-col transition-all duration-300 ease-in-out",
+          "fixed top-0 bottom-0 z-50 bg-brand-primary border-r border-white/5 flex flex-col transition-all duration-300 ease-in-out",
           collapsed ? "items-center" : "items-start"
         )}
       >
         {/* Header Slab */}
         <div className={cn(
-          "h-24 w-full flex items-center px-6 mb-8 border-b border-white/5",
+          "h-24 w-full flex items-center px-6 mb-8 border-b border-white/5 relative",
           collapsed ? "justify-center" : "justify-between"
         )}>
           {!collapsed && (
@@ -85,18 +85,18 @@ export default function Sidebar({
                 <Image
                   src="/images/logo-no-bg.png"
                   alt="Wajina International Schools"
-                  width={32}
-                  height={32}
+                  width={24}
+                  height={24}
                   priority
                   className="object-contain"
-                  style={{ width: "var(--space-8)", height: "var(--space-8)" }}
+                  style={{ width: "var(--space-6)", height: "var(--space-6)" }}
                 />
               </div>
               <div className="flex flex-col">
-                <h1 className="text-token-caption font-display font-black text-white uppercase tracking-[0.3em] leading-none">
+                <h1 className="text-token-micro font-display font-black text-white uppercase tracking-[0.3em] leading-none">
                   WAJINA
                 </h1>
-                <span className="text-token-micro font-black text-brand-secondary uppercase tracking-[0.4em] mt-1 opacity-80">
+                <span className="text-[0.55rem] font-black text-brand-secondary uppercase tracking-[0.4em] mt-1 opacity-80">
                   {user?.role === "DIRECTOR" ? "GLOBAL INSTITUTION" : `${user?.campus || "PRIMARY"} CAMPUS`}
                 </span>
               </div>
@@ -111,7 +111,8 @@ export default function Sidebar({
                 onToggle?.();
               }
             }}
-            className="grid place-items-center w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors shrink-0"
+            className="absolute right-4 top-1/2 -translate-y-1/2 grid place-items-center w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors shrink-0"
+            aria-label={isMobileOpen ? 'Close sidebar' : 'Toggle sidebar'}
           >
             <motion.div animate={{ rotate: collapsed ? 180 : 0 }}>
               {isMobileOpen ? <X size={16} /> : <ChevronLeft size={16} />}
@@ -138,7 +139,8 @@ export default function Sidebar({
 
                 <ul className="space-y-1">
                   {section.items.map((item, iIdx) => {
-                    const isActive = pathname === item.href;
+                    const itemPath = item.href.split('?')[0];
+                    const isActive = pathname === itemPath || (itemPath === '/staff-directory' && pathname === '/staff-onboarding');
                     return (
                       <li key={iIdx}>
                         <Link
@@ -161,7 +163,7 @@ export default function Sidebar({
                           {isActive && (
                             <motion.div
                               layoutId="active-nav-slab"
-                              className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-brand-secondary rounded-full shadow-[0_0_8px_rgba(135,214,141,0.5)]"
+                              className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-brand-secondary rounded-full shadow-[0_0_8px_rgba(135,214,141,0.5)]"
                             />
                           )}
 

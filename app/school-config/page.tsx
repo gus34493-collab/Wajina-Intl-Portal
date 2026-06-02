@@ -384,7 +384,3 @@ function GradingScaleCard({ title, subtitle, rows }: { title: string; subtitle: 
   );
 }
 
-function clsx(...classes: any[]) {
-  return classes.filter(Boolean).join(' ');
-}
-
