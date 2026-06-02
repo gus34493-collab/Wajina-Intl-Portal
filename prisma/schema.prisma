@@ -84,6 +84,12 @@ model User {
   signatures            DigitalSignature[]
   reportCardsAsStudent  ReportCard[]       @relation("StudentReportCards")
   publishedReportCards  ReportCard[]       @relation("PublisherReportCards")
+  requestedByUser Requisition[] @relation("REQUISITIONREQUESTEDBY")
+  initiatedRequisitions Requisition[] @relation("REQUISITIONINITIATOR")
+  fufilledByRequisitiions Requisition[] @relation("USERFUFILLEDREQUISITION")
+  requisitionApprovals RequisitionApproval[] 
+
+
 
   @@index([role])
   @@index([status])
@@ -731,6 +737,74 @@ model ReportCard {
   @@index([campus])
   @@index([publishedById])
 }
+
+model Requisition {
+  id            String   @id @default(cuid())
+  refNo         String   @unique
+  title         String
+  description   String?
+  department    String
+  justification String
+  amount        Float
+  amountInWords String?
+  amountTotal   Float
+  priority      String   @default("NORMAL")
+  status        String   @default("DRAFT")
+  currentStage  String   @default("INITIATOR")
+  campus        SchoolCampus? 
+  requestedBy   String
+  initiatorId   String
+  fulfilledAt   DateTime?
+  fulfilledById String?
+  rejectedAtStage String?
+  rejectionReason String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  approvals     RequisitionApproval[]
+  requestedByUser User   @relation("REQUISITIONREQUESTEDBY", fields: [requestedBy], references: [id])
+  initiator     User     @relation("REQUISITIONINITIATOR", fields: [initiatorId], references: [id])
+  fulfilledBy   User?    @relation("USERFUFILLEDREQUISITION", fields: [fulfilledById], references: [id])
+  items         RequisitionItem[]
+  
+  @@index([requestedBy])
+  @@index([status])
+  @@index([campus])
+}
+
+model RequisitionItem {
+  id          String   @id @default(cuid())
+  requisitionId String
+  sn          Int
+  description String
+  quantity    Int
+  unitCost    Float
+  totalCost   Float
+  requisition Requisition @relation(fields: [requisitionId], references: [id], onDelete: Cascade)
+  
+  @@index([requisitionId])
+}
+
+
+model RequisitionApproval {
+  id            String   @id @default(cuid())
+  requisitionId String
+  stage         String
+  decision      String   // "APPROVED", "REJECTED", "RETURNED"
+  comment       String?
+  approverId    String
+  decidedAt     DateTime @default(now())
+  
+  requisition   Requisition @relation(fields: [requisitionId], references: [id], onDelete: Cascade)
+  approver      User        @relation(fields: [approverId], references: [id])
+  
+  @@unique([requisitionId, stage])
+  @@index([requisitionId])
+  @@index([approverId])
+}
+
+
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ENUMS

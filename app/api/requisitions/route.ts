@@ -77,8 +77,9 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { department, priority, justification, items, campus: campusParam } = body;
+    const { title, department, priority, justification, items, campus: campusParam } = body;
 
+    if (!title?.trim()) return badRequest ("title is required.")
     if (!department?.trim()) return badRequest("department is required.");
     if (!justification?.trim()) return badRequest("justification is required.");
     if (!Array.isArray(items) || items.length === 0)
@@ -99,7 +100,7 @@ export async function POST(req: NextRequest) {
       if (!campusParam) return badRequest("DIRECTOR must specify campus.");
       campus = campusParam.toUpperCase();
     } else {
-      campus = campusParam ? campusParam.toUpperCase() : user.campus;
+      campus = campusParam ? campusParam.toUpperCase() : (user as any).campus;
     }
 
     const computedItems = items.map((item: { sn?: number; description: string; quantity: number; unitCost: number }, idx: number) => ({
@@ -118,11 +119,14 @@ export async function POST(req: NextRequest) {
       const created = await tx.requisition.create({
         data: {
           refNo,
-          campus: campus as any,
+          title: title.trim(),
+          campus: (user as any).campus, // Always set campus to user's campus for data integrity; directors can filter by campus when fetching
           department: department.trim(),
           initiatorId: user.id,
+          requestedBy: user.id,
           priority: priority?.toUpperCase() ?? "WEEK_1",
           justification: justification.trim(),
+          amount: amountTotal,
           amountTotal,
           amountInWords,
           status: "DRAFT",

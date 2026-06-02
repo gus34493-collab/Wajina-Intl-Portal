@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 const PASSWORD = "Wajina2026!";
 
 const SEED_USERS = [
-  { name: "Dr. Adeyemi Okonkwo",   email: "director@wajinainternational.com.ng",     role: "DIRECTOR",         campus: "PRIMARY"   },
+  { name: "Dr. Adeyemi Okonkwo",   email: "director@wajinainternational.com.ng",     role: "DIRECTOR",         campus: null   },
   { name: "Mrs. Funmi Adebisi",    email: "principal@wajinainternational.com.ng",    role: "PRINCIPAL",        campus: "SECONDARY" },
   { name: "Mr. Chidi Eze",         email: "headteacher@wajinainternational.com.ng",  role: "HEAD_TEACHER",     campus: "PRIMARY"   },
   { name: "Mrs. Amaka Nwosu",      email: "asst.head@wajinainternational.com.ng",    role: "ASST_HEAD_TEACHER",campus: "PRIMARY"   },
@@ -14,14 +14,20 @@ const SEED_USERS = [
   { name: "Dr. Ngozi Adaeze",      email: "vpacademics@wajinainternational.com.ng",  role: "VP_ACADEMICS",     campus: "SECONDARY" },
   { name: "Mr. Bola Adewale",      email: "hod@wajinainternational.com.ng",          role: "HOD",              campus: "SECONDARY" },
   { name: "Mrs. Titi Afolabi",     email: "hr@wajinainternational.com.ng",           role: "HR",               campus: "PRIMARY"   },
+  {name: "Mrs. Ifeoma Eze",       email: "ifeoma.eze@wajinainternational.com.ng",      role: "HR",          campus: "SECONDARY" },
+  {name: "Mr. Segun Balogun",     email: "segun.balogun@wajinainternational.com.ng",      role: "DEAN",          campus: "PRIMARY" },
   { name: "Mr. Femi Bankole",      email: "dean@wajinainternational.com.ng",         role: "DEAN",             campus: "SECONDARY" },
   { name: "Mr. Seun Adeyemi",      email: "bursar@wajinainternational.com.ng",       role: "BURSAR",           campus: "PRIMARY"   },
   { name: "Mrs. Ngozi Okonjo",     email: "bursar.sec@wajinainternational.com.ng",   role: "BURSAR",           campus: "SECONDARY" },
   { name: "Mrs. Chibuzor Nkem",    email: "accounts@wajinainternational.com.ng",     role: "ACCOUNTS_OFFICER", campus: "PRIMARY"   },
+  {name: "Mr. Tunde Ajayi",       email: "tunde.ajayi@wajinainternational.com.ng",      role: "ACCOUNTS_OFFICER",          campus: "SECONDARY" },
   { name: "Mr. Tunde Ogundimu",    email: "formteacher@wajinainternational.com.ng",  role: "FORM_TEACHER",     campus: "SECONDARY", isFormMaster: true },
   { name: "Mrs. Yetunde Lawal",    email: "teacher@wajinainternational.com.ng",      role: "TEACHER",          campus: "PRIMARY"   },
-  { name: "Mr. Kunle Adeniyi",     email: "parent@wajinainternational.com.ng",       role: "PARENT",           campus: "PRIMARY"   },
+  {name: "Mr. Jude Onyoka",        email: "judeonyoka@gmail.com",      role: "TEACHER",          campus: "SECONDARY" },
+  { name: "Mr. Kunle Adeniyi",     email: "parent@wajinainternational.com.ng",       role: "PARENT",           campus: null   },
+  
   { name: "Chisom Adeniyi",        email: "student@wajinainternational.com.ng",      role: "STUDENT",          campus: "PRIMARY"   },
+  {name: "Jane Amah",          email: "jane.amah@wajinainternational.com.ng",      role: "FORM_TEACHER",          campus: "PRIMARY", isFormMaster: true },
 ] as const;
 
 async function main() {

@@ -40,7 +40,7 @@ export async function POST(
   const { id } = await params;
 
   try {
-    const existing = await prisma.requisition.findUnique({
+    const existing = await (prisma as any).requisition.findUnique({
       where: { id },
     });
 

@@ -1,4 +1,4 @@
-"use client";
+ /* "use client";
 
 import { useState, useEffect } from "react";
 import DashboardShell from "@/app/components/DashboardShell";
@@ -37,7 +37,7 @@ export default function IssueExpensePage() {
     fetchUser();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setIsSubmitting(true);
@@ -70,7 +70,7 @@ export default function IssueExpensePage() {
     <DashboardShell>
       <div className="flex flex-col gap-10 max-w-4xl mx-auto py-12 px-6">
         
-        {/* Header Unit */}
+        { Header Unit }
         <div className="flex flex-col gap-4 text-center items-center">
            <div className="w-16 h-16 rounded-[2rem] bg-brand-primary text-white flex items-center justify-center shadow-2xl shadow-brand-primary/20 mb-4">
               <FilePlus size={32} />
@@ -81,7 +81,7 @@ export default function IssueExpensePage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
            
-           {/* Form Container */}
+           { Form Container }
            <div className="lg:col-span-3">
               <form onSubmit={handleSubmit} className="card p-10 flex flex-col gap-8 shadow-premium border-brand-primary/8 bg-white">
                  
@@ -154,7 +154,7 @@ export default function IssueExpensePage() {
               </form>
            </div>
 
-           {/* Informational Sidebar */}
+           { Informational Sidebar }
            <div className="lg:col-span-2 space-y-6">
               <div className="card glass-premium p-8 border-l-4 border-l-brand-accent">
                  <div className="flex items-start gap-4">
@@ -203,4 +203,4 @@ function MotionChevron() {
       </div>
    );
 }
-
+*/

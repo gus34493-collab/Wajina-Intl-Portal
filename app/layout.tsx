@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import TelemetryInit from "./components/TelemetryInit";
 import LegacyAtmosphere from "./components/landing/LegacyAtmosphere";
 import StructuredData from "./components/SEO/StructuredData";
+import {AcademicProvider} from "@/app/components/AcademicContext";
+
 
 // Use classic Google Fonts stylesheet to avoid Turbopack next/font issues in CI
 const googleFontsHref = "https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";
@@ -94,7 +96,9 @@ export default function RootLayout({
           <AuthProvider>
             <LegacyAtmosphere />
             <TelemetryInit />
-            {children}
+            <AcademicProvider>
+              {children}
+            </AcademicProvider>
           </AuthProvider>
         </ThemeProvider>
         <Script

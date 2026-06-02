@@ -8,8 +8,8 @@ import { ShieldAlert, X } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { useAuth } from "./AuthContext";
-import { AcademicProvider, useAcademic } from "./AcademicContext";
 import { cn } from "@/lib/utils";
+import { useAcademic } from "./AcademicContext";
 import NeuralGatewayBuffer from "./auth/NeuralGatewayBuffer";
 
 const TERM_LABELS: Record<string, string> = { FIRST: "First", SECOND: "Second", THIRD: "Third" };
@@ -73,7 +73,7 @@ export default function DashboardShell({
         {loading || !user ? (
           <NeuralGatewayBuffer key="global-buffer" />
         ) : (
-          <AcademicProvider>
+          <>
             {/* Sidebar - Only rendered once loading is complete */}
             <Sidebar
               user={user}
@@ -93,7 +93,7 @@ export default function DashboardShell({
               animate={{ opacity: 1, x: 0 }}
               className={cn(
                 "flex-1 min-w-0 flex flex-col transition-all duration-300 focus:outline-none overflow-x-hidden w-full",
-                isCollapsed ? "ml-0 lg:ml-[80px]" : "ml-0 lg:ml-[280px]"
+                isCollapsed ? "ml-0 lg:ml-20" : "ml-0 lg:ml-[280px]"
               )}
             >
               <div className="container mx-auto px-4 md:px-10 flex flex-col min-h-screen gap-6">
@@ -140,8 +140,9 @@ export default function DashboardShell({
                 </div>
               </div>
             </motion.main>
-          </AcademicProvider>
-        )}
+          </>
+        )};
+
       </AnimatePresence>
     </div>
   );
