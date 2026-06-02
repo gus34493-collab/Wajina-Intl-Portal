@@ -141,8 +141,7 @@ export default function DashboardShell({
               </div>
             </motion.main>
           </>
-        )};
-
+        )}
       </AnimatePresence>
     </div>
   );

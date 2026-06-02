@@ -3,10 +3,16 @@ import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import prisma from './prisma';
 
-if (!process.env.JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is not set. Server cannot start.");
+let _jwtSecret: Uint8Array | null = null;
+function getJwtSecret(): Uint8Array {
+  if (!_jwtSecret) {
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET environment variable is not set. Server cannot start.");
+    }
+    _jwtSecret = new TextEncoder().encode(process.env.JWT_SECRET);
+  }
+  return _jwtSecret;
 }
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 const ACCESS_TOKEN_EXPIRY = '2h';
 const REFRESH_TOKEN_EXPIRY = '7d';
@@ -37,7 +43,7 @@ export async function signAccessToken(payload: UserPayload): Promise<string> {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(ACCESS_TOKEN_EXPIRY)
-    .sign(JWT_SECRET);
+    .sign(getJwtSecret());
 }
 
 export async function signRefreshToken(payload: { userId: string }): Promise<string> {
@@ -45,12 +51,12 @@ export async function signRefreshToken(payload: { userId: string }): Promise<str
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(REFRESH_TOKEN_EXPIRY)
-    .sign(JWT_SECRET);
+    .sign(getJwtSecret());
 }
 
 export async function verifyToken(token: string): Promise<JWTVerifyResult | null> {
   try {
-    return await jwtVerify(token, JWT_SECRET);
+    return await jwtVerify(token, getJwtSecret());
   } catch (err) {
     return null;
   }
