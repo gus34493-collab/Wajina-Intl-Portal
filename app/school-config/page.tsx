@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import clsx from "clsx";
 import DashboardShell from "@/app/components/DashboardShell";
 import { 
   Settings, 
@@ -37,6 +39,8 @@ export default function SchoolConfig() {
       setLoading(false);
     }
   };
+
+  const router = useRouter();
 
   useEffect(() => { fetchConfig(); }, []);
 
@@ -101,7 +105,7 @@ export default function SchoolConfig() {
                            <h3 className="text-sm font-black text-brand-primary uppercase tracking-widest flex items-center gap-2">
                              <Calendar className="text-brand-tertiary" size={18} /> Academic Sessions
                            </h3>
-                           <button className="flex items-center gap-2 bg-brand-tertiary text-white px-4 py-2 rounded-xl text-token-micro font-black uppercase tracking-widest hover:scale-105 transition-transform">
+                           <button onClick={() => router.push("/session-planner")} className="flex items-center gap-2 bg-brand-tertiary text-white px-4 py-2 rounded-xl text-token-micro font-black uppercase tracking-widest hover:scale-105 transition-transform">
                               <Plus size={14} /> New Session
                            </button>
                         </div>
