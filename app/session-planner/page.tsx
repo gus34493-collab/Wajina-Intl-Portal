@@ -70,10 +70,8 @@ export default function SessionPlannerPage() {
 
   const activateTerm = async (termId: string) => {
     try {
-      const res = await fetch(`/api/structure/terms/${termId}`, {
+      const res = await fetch(`/api/terms/${termId}/activate`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isCurrent: true, status: "ACTIVE" }),
       });
       if (res.ok) {
         toast.success("Term activated. Grade entry is now open.");
@@ -110,9 +108,9 @@ export default function SessionPlannerPage() {
   }, []);
 
   const activeSession = sessions.find(s => s.status === "ACTIVE") ?? null;
-  const activeTerm = activeSession?.terms.find((t: any) => t.status === "ACTIVE") ?? null;
+  const activeTerm = activeSession?.terms.find((t: any) => t.isCurrent) ?? activeSession?.terms.find((t: any) => t.status === "ACTIVE") ?? null;
   const nextTerm = activeSession?.terms
-    .filter((t: any) => t.status === "UPCOMING")
+    .filter((t: any) => !t.isCurrent && t.status === "UPCOMING")
     .sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())[0] ?? null;
   const weekNumber = activeTerm
     ? Math.max(1, Math.ceil((Date.now() - new Date(activeTerm.startDate).getTime()) / (7 * 86_400_000)))
@@ -260,23 +258,25 @@ export default function SessionPlannerPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                       {session.terms.map((term: any) => (
-                          <div key={term.id} className={`p-6 rounded-2xl border transition-all flex flex-col gap-3 ${term.status === 'ACTIVE' ? 'bg-brand-tertiary/5 border-brand-tertiary/20' : 'bg-white border-brand-primary/8'}`}>
-                             <div className="flex items-center justify-between">
-                               <p className="text-token-micro font-black text-brand-tertiary uppercase tracking-widest">{TERM_LABELS[term.name] ?? term.name}</p>
-                               {TERM_ADMIN.includes(userRole ?? "") && !termEditState[term.id] && (
-                                 <button
-                                   onClick={() => setTermEditState(prev => ({ ...prev, [term.id]: { start: term.startDate ? term.startDate.split("T")[0] : "", end: term.endDate ? term.endDate.split("T")[0] : "" } }))}
-                                   className="p-1 rounded-lg hover:bg-brand-blush text-brand-tertiary transition-colors"
-                                 >
-                                   <Pencil size={11} />
-                                 </button>
-                               )}
-                             </div>
-                             <div className="flex items-center justify-between">
-                                <span className={`text-xs font-black uppercase ${term.status === 'ACTIVE' ? 'text-brand-primary' : 'text-brand-tertiary'}`}>{term.status}</span>
-                                {term.status === 'COMPLETED' ? <CheckCircle2 size={12} className="text-brand-success" /> : term.status === 'ACTIVE' ? <Zap size={12} className="text-brand-accent animate-pulse" /> : <div className="w-2 h-2 rounded-full border border-brand-primary/10" />}
-                             </div>
+                       {session.terms.map((term: any) => {
+                          const isCurrentTerm = term.isCurrent || term.status === 'ACTIVE';
+                          return (
+                            <div key={term.id} className={`p-6 rounded-2xl border transition-all flex flex-col gap-3 ${isCurrentTerm ? 'bg-brand-tertiary/5 border-brand-tertiary/20' : 'bg-white border-brand-primary/8'}`}>
+                               <div className="flex items-center justify-between">
+                                 <p className="text-token-micro font-black text-brand-tertiary uppercase tracking-widest">{TERM_LABELS[term.name] ?? term.name}</p>
+                                 {TERM_ADMIN.includes(userRole ?? "") && !termEditState[term.id] && (
+                                   <button
+                                     onClick={() => setTermEditState(prev => ({ ...prev, [term.id]: { start: term.startDate ? term.startDate.split("T")[0] : "", end: term.endDate ? term.endDate.split("T")[0] : "" } }))}
+                                     className="p-1 rounded-lg hover:bg-brand-blush text-brand-tertiary transition-colors"
+                                   >
+                                     <Pencil size={11} />
+                                   </button>
+                                 )}
+                               </div>
+                               <div className="flex items-center justify-between">
+                                  <span className={`text-xs font-black uppercase ${isCurrentTerm ? 'text-brand-primary' : 'text-brand-tertiary'}`}>{term.status}</span>
+                                  {term.status === 'COMPLETED' ? <CheckCircle2 size={12} className="text-brand-success" /> : isCurrentTerm ? <Zap size={12} className="text-brand-accent animate-pulse" /> : <div className="w-2 h-2 rounded-full border border-brand-primary/10" />}
+                               </div>
                              {termEditState[term.id] ? (
                                <div className="flex flex-col gap-2">
                                  <input type="date" value={termEditState[term.id].start} onChange={e => setTermEditState(prev => ({ ...prev, [term.id]: { ...prev[term.id], start: e.target.value } }))} className="w-full border border-brand-primary/8 rounded-xl px-3 py-2 text-xs font-medium text-brand-primary bg-brand-blush focus:outline-none focus:border-brand-tertiary" />
@@ -293,7 +293,7 @@ export default function SessionPlannerPage() {
                              ) : (
                                <p className="text-token-micro font-bold text-brand-tertiary/70">{formatDate(term.startDate)} → {formatDate(term.endDate)}</p>
                              )}
-                             {session.status === 'ACTIVE' && term.status !== 'ACTIVE' && TERM_ADMIN.includes(userRole ?? "") && !termEditState[term.id] && (
+                             {session.status === 'ACTIVE' && !isCurrentTerm && TERM_ADMIN.includes(userRole ?? "") && !termEditState[term.id] && (
                                <button
                                  onClick={() => activateTerm(term.id)}
                                  className="mt-1 w-full py-1.5 bg-brand-tertiary/10 text-brand-tertiary rounded-xl text-token-micro font-black uppercase tracking-widest hover:bg-brand-tertiary hover:text-white transition-all"
@@ -302,7 +302,7 @@ export default function SessionPlannerPage() {
                                </button>
                              )}
                           </div>
-                       ))}
+                       )})}
                     </div>
                  </motion.div>
               ))}
@@ -326,9 +326,15 @@ export default function SessionPlannerPage() {
 
 function NewSessionModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
   const [form, setForm] = useState({ name: "", year: "", startDate: "", endDate: "" });
+  const [terms, setTerms] = useState([
+    { name: "FIRST", startDate: "", endDate: "" },
+    { name: "SECOND", startDate: "", endDate: "" },
+    { name: "THIRD", startDate: "", endDate: "" },
+  ]);
   const [saving, setSaving] = useState(false);
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+  const setTerm = (idx: number, key: string, value: string) => setTerms(t => t.map((tr, i) => i === idx ? { ...tr, [key]: value } : tr));
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -340,16 +346,28 @@ function NewSessionModal({ onClose, onSuccess }: { onClose: () => void; onSucces
       toast.error("End date must be after start date.");
       return;
     }
+    // validate terms
+    for (const t of terms) {
+      if (!t.name || !t.startDate || !t.endDate) {
+        toast.error("All term fields are required.");
+        return;
+      }
+      if (new Date(t.endDate) <= new Date(t.startDate)) {
+        toast.error("Each term's end date must be after its start date.");
+        return;
+      }
+    }
     setSaving(true);
     try {
+      const body = { ...form, terms };
       const res = await fetch("/api/sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(body),
       });
       const json = await res.json();
       if (!res.ok) { toast.error(json.error || "Failed to create session."); return; }
-      toast.success(`Session "${form.name}" created with 3 terms.`);
+      toast.success(`Session "${form.name}" created.`);
       onSuccess();
     } catch { toast.error("Network error."); }
     finally { setSaving(false); }
@@ -373,7 +391,7 @@ function NewSessionModal({ onClose, onSuccess }: { onClose: () => void; onSucces
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-black text-brand-primary tracking-tight">Open New Session</h2>
-            <p className="text-sm text-brand-primary/60 mt-1">Three terms will be created automatically.</p>
+            <p className="text-sm text-brand-primary/60 mt-1">Provide session dates and term breakdown.</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-xl hover:bg-brand-blush text-brand-tertiary transition-colors">
             <X size={18} />
@@ -386,6 +404,27 @@ function NewSessionModal({ onClose, onSuccess }: { onClose: () => void; onSucces
             <Field label="Start Date" type="date" value={form.startDate} onChange={v => set("startDate", v)} />
             <Field label="End Date"   type="date" value={form.endDate}   onChange={v => set("endDate", v)} />
           </div>
+
+          <div className="space-y-2">
+            <h4 className="text-sm font-black text-brand-primary">Term Details (editable)</h4>
+            {terms.map((t, idx) => (
+              <div key={idx} className="grid grid-cols-3 gap-3 items-end">
+                <div>
+                  <label className="text-token-micro font-black text-brand-tertiary uppercase">Name</label>
+                  <input value={t.name} onChange={e => setTerm(idx, "name", e.target.value)} className="w-full border border-brand-primary/8 rounded-xl px-3 py-2 text-xs" />
+                </div>
+                <div>
+                  <label className="text-token-micro font-black text-brand-tertiary uppercase">Start</label>
+                  <input type="date" value={t.startDate} onChange={e => setTerm(idx, "startDate", e.target.value)} className="w-full border border-brand-primary/8 rounded-xl px-3 py-2 text-xs" />
+                </div>
+                <div>
+                  <label className="text-token-micro font-black text-brand-tertiary uppercase">End</label>
+                  <input type="date" value={t.endDate} onChange={e => setTerm(idx, "endDate", e.target.value)} className="w-full border border-brand-primary/8 rounded-xl px-3 py-2 text-xs" />
+                </div>
+              </div>
+            ))}
+          </div>
+
           <button
             type="submit"
             disabled={saving}

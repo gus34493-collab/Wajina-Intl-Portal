@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldAlert, X } from "lucide-react";
+import { ShieldAlert, X, ChevronRight } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { useAuth } from "./AuthContext";
@@ -84,6 +84,16 @@ export default function DashboardShell({
               setIsMobileOpen={setIsMobileOpen}
             />
 
+            {isCollapsed && !isMobileOpen && (
+              <button
+                onClick={handleToggleCollapse}
+                className="hidden lg:flex fixed left-0 top-1/2 z-50 -translate-y-1/2 items-center justify-center w-12 h-12 rounded-tr-3xl rounded-br-3xl bg-brand-primary/90 text-white shadow-xl hover:bg-brand-primary transition-colors"
+                aria-label="Open sidebar"
+              >
+                <ChevronRight size={20} />
+              </button>
+            )}
+
             {/* Main Content Area */}
             <motion.main
               id="main-content"
@@ -93,7 +103,7 @@ export default function DashboardShell({
               animate={{ opacity: 1, x: 0 }}
               className={cn(
                 "flex-1 min-w-0 flex flex-col transition-all duration-300 focus:outline-none overflow-x-hidden w-full",
-                isCollapsed ? "ml-0 lg:ml-20" : "ml-0 lg:ml-[280px]"
+                isCollapsed ? "ml-0" : "ml-0 lg:ml-70"
               )}
             >
               <div className="container mx-auto px-4 md:px-10 flex flex-col min-h-screen gap-6">
