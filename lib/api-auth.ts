@@ -3,10 +3,16 @@ import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 
-if (!process.env.JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is not set. Server cannot start.");
+let _jwtSecret: Uint8Array | null = null;
+function getJwtSecret(): Uint8Array {
+  if (!_jwtSecret) {
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET environment variable is not set. Server cannot start.");
+    }
+    _jwtSecret = new TextEncoder().encode(process.env.JWT_SECRET);
+  }
+  return _jwtSecret;
 }
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export type AuthUser = {
   id: string;
@@ -34,7 +40,7 @@ export async function getAuthUser(): Promise<AuthUser | null> {
   if (!token) return null;
 
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecret());
     const userId = (payload.userId ?? payload.id) as string | undefined;
     if (!userId) return null;
 
@@ -110,7 +116,7 @@ export async function signToken(payload: {
   return new SignJWT(payload as any)
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime("2h")
-    .sign(JWT_SECRET);
+    .sign(getJwtSecret());
 }
 
 export function setAuthCookie(response: NextResponse, token: string): void {
