@@ -57,11 +57,10 @@ export default function About() {
               style={{ y: imgY, position: "absolute", top: "-8%", left: 0, right: 0, bottom: "-8%" }}
             >
               <Image
-                src="/images/campus-building.jpg"
-                alt="Wajina Citadel"
+                src="/images/citadel-exterior.jpg"
+                alt="Wajina Citadel Exterior"
                 fill
                 className="object-cover"
-                style={{ filter: "grayscale(15%)" }}
               />
             </motion.div>
             <div

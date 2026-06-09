@@ -29,6 +29,7 @@ export async function POST(
       prisma.class.updateMany({ where: { formMasterId: id }, data: { formMasterId: null } }),
       prisma.classArm.updateMany({ where: { teacherId: id }, data: { teacherId: null } }),
       prisma.department.updateMany({ where: { hodId: id }, data: { hodId: null } }),
+      prisma.subject.updateMany({ where: { teacherId: id }, data: { teacherId: null } }),
       prisma.user.update({ where: { id }, data: { status: "DISABLED" } }),
     ]);
 

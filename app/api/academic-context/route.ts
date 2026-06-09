@@ -17,7 +17,7 @@ export async function GET() {
         name: true,
         year: true,
         terms: {
-          where: { OR: [{ status: "ACTIVE" as TermStatus }, { isCurrent: true }] },
+          where: { OR: [{ status: "CURRENT" as TermStatus }, { isCurrent: true }] },
           select: { id: true, name: true, sessionId: true, startDate: true, endDate: true },
           take: 1,
         },

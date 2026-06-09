@@ -4,8 +4,6 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -171,6 +169,7 @@ model AcademicSession {
   reportCards   ReportCard[]
   terms         Term[]
   invoices      Invoice[]
+  events        SchoolEvent[]
 
   @@index([status])
 }
@@ -190,11 +189,37 @@ model Term {
   grades      Grade[]
   reportCards ReportCard[]
   invoices    Invoice[]
+  events      SchoolEvent[]
   session     AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@unique([sessionId, name])
   @@index([status])
   @@index([isCurrent])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EVENTS & DAY-TO-DAY PLANNING
+// ─────────────────────────────────────────────────────────────────────────────
+
+model SchoolEvent {
+  id          String           @id @default(cuid(2))
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  type        String           @default("GENERAL") // HOLIDAY, EXAM, EXCURSION
+  campus      SchoolCampus?    // null means all campuses
+  sessionId   String
+  termId      String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  session     AcademicSession  @relation(fields: [sessionId], references: [id])
+  term        Term             @relation(fields: [termId], references: [id])
+
+  @@index([sessionId])
+  @@index([termId])
+  @@index([startDate])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -262,14 +287,14 @@ model Department {
 model Subject {
   id           String       @id @default(cuid(2))
   name         String
-  teacherId    String
+  teacherId    String?
   classId      String
   departmentId String?
   campus       SchoolCampus @default(PRIMARY) // RED-1: added — backfill secondary subjects after migration
   grades       Grade[]
   class        Class        @relation(fields: [classId], references: [id])
   department   Department?  @relation(fields: [departmentId], references: [id])
-  teacher      User         @relation("TeacherToSubject", fields: [teacherId], references: [id])
+  teacher      User?        @relation("TeacherToSubject", fields: [teacherId], references: [id])
 
   @@index([classId])
   @@index([teacherId])

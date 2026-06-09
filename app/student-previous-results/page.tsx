@@ -22,13 +22,28 @@ export default function StudentPreviousResultsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchSessions() {
       try {
-        const response = await fetch(`/api/grades${selectedSession ? `?sessionId=${selectedSession}` : ''}`);
+        const res = await fetch("/api/structure/sessions");
+        if (res.ok) {
+          const data = await res.json();
+          setSessions(data);
+          if (data.length > 0 && !selectedSession) {
+            setSelectedSession(data[0].id);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load sessions:", err);
+      }
+    }
+
+    async function fetchGrades() {
+      if (!selectedSession) return;
+      try {
+        const response = await fetch(`/api/grades?sessionId=${selectedSession}`);
         if (response.ok) {
           const data = await response.json();
           setGrades(data.grades || []);
-          if (data.sessions) setSessions(data.sessions);
         }
       } catch (err) {
         console.error("Result Archive Sync Failure:", err);
@@ -36,8 +51,10 @@ export default function StudentPreviousResultsPage() {
         setLoading(false);
       }
     }
-    fetchData();
-  }, [selectedSession]);
+    
+    if (sessions.length === 0) fetchSessions();
+    if (selectedSession) fetchGrades();
+  }, [selectedSession, sessions.length]);
 
   // Group grades by term for display
   const terms = Array.from(new Set(grades.map(g => g.term?.name))).sort();

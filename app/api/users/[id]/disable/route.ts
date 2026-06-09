@@ -22,7 +22,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return forbidden();
     }
 
-    await prisma.user.update({ where: { id: id }, data: { status: "DISABLED" } });
+    await prisma.$transaction([
+      prisma.class.updateMany({ where: { formMasterId: id }, data: { formMasterId: null } }),
+      prisma.classArm.updateMany({ where: { teacherId: id }, data: { teacherId: null } }),
+      prisma.department.updateMany({ where: { hodId: id }, data: { hodId: null } }),
+      prisma.subject.updateMany({ where: { teacherId: id }, data: { teacherId: null } }),
+      prisma.user.update({ where: { id: id }, data: { status: "DISABLED" } })
+    ]);
     audit(user.id, "DISABLE_USER", "User", id, target.name, getIP(req));
     return NextResponse.json({ message: "User account disabled." });
   } catch (err) {

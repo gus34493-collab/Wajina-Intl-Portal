@@ -38,16 +38,31 @@ export async function GET(
         firstCA: true,
         secondCA: true,
         thirdCA: true,
+        fourthCA: true,
+        fifthCA: true,
         exam: true,
         total: true,
         grade: true,
         position: true,
         teacherComment: true,
+        formMasterRemark: true,
         principalRemark: true,
         subject: { select: { id: true, name: true } },
-        term: { select: { id: true, name: true, session: { select: { name: true } } } },
+        term: { select: { id: true, name: true, session: { select: { name: true, year: true } } } },
       },
       orderBy: { subject: { name: "asc" } },
+    });
+
+    // Fetch student metadata for the results detail page
+    const student = await prisma.user.findUnique({
+      where: { id: studentId },
+      select: {
+        id: true,
+        name: true,
+        campus: true,
+        enrolledClass: { select: { name: true, campus: true, category: true } },
+        enrolledArm: { select: { fullName: true, class: { select: { name: true, campus: true, category: true } } } },
+      },
     });
 
     const average = grades.length
@@ -55,7 +70,7 @@ export async function GET(
       : null;
 
     return NextResponse.json({
-      student: { id: ward.id, name: ward.name },
+      student: student || { id: ward.id, name: ward.name },
       grades,
       subjectCount: grades.length,
       average,

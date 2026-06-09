@@ -26,7 +26,8 @@ export function getAssessmentConfig(campus: string, category: string, className 
   const cat = (category || '').toLowerCase();
   
   const isSenior = cat.includes('senior') || cat.includes('sss') || name.startsWith('SSS') || name.startsWith('SS');
-  const isPrimary = campus === 'PRIMARY' || name.startsWith('BASIC') || name.startsWith('PRY');
+  const isJunior = cat.includes('junior') || cat.includes('jss') || name.startsWith('JSS') || name === 'BASIC 7' || name === 'BASIC 8' || name === 'BASIC 9';
+  const isPrimary = (!isJunior && campus === 'PRIMARY') || name.startsWith('PRY') || (name.startsWith('BASIC') && !isJunior);
   const isEarlyYears = cat.includes('nursery') || cat.includes('creche') || name.startsWith('NUR') || name.startsWith('CRE');
 
   if (isEarlyYears) {

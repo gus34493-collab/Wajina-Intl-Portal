@@ -200,7 +200,7 @@ function ParentDashboardContent() {
               <h4 className="font-black text-brand-primary mb-5">Quick Access</h4>
               <div className="flex flex-col gap-3">
                 {[
-                  { label: "Academic Records", href: "/parent-academic-records" },
+                  { label: "Academic Records", href: "/parent-dashboard?view=academics" },
                   { label: "Fee Payments", href: "/parent-payments" },
                   { label: "Attendance History", href: "/parent-attendance" },
                   { label: "Contact School", href: "/parent-requests" },
@@ -256,6 +256,7 @@ export default function ParentDashboard() {
 }
 
 function WardCard({ ward, index, onPaymentClick }: { ward: any; index: number; onPaymentClick: (ward: any) => void }) {
+  const router = useRouter();
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -299,7 +300,10 @@ function WardCard({ ward, index, onPaymentClick }: { ward: any; index: number; o
       </div>
 
       <div className="flex flex-col gap-2">
-        <button className="w-full bg-brand-primary text-white font-black text-token-micro py-3.5 rounded-xl uppercase tracking-widest hover:opacity-90 transition-all">
+        <button
+          onClick={() => router.push(`/student-results-detail?studentId=${ward.id}`)}
+          className="w-full bg-brand-primary text-white font-black text-token-micro py-3.5 rounded-xl uppercase tracking-widest hover:opacity-90 transition-all"
+        >
           View Academic Records
         </button>
         <button

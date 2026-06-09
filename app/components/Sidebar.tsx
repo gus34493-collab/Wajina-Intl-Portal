@@ -13,7 +13,7 @@ import StaffChoiceModal from "./StaffChoiceModal";
 export default function Sidebar({
   user,
   loading,
-  collapsed,
+  collapsed: _collapsed,
   onToggle,
   isMobileOpen,
   setIsMobileOpen
@@ -28,6 +28,9 @@ export default function Sidebar({
   const pathname = usePathname();
   const router = useRouter();
   const [activeActionModal, setActiveActionModal] = useState<string | null>(null);
+
+  // Force the sidebar to be fully expanded whenever the mobile drawer is open
+  const collapsed = _collapsed && !isMobileOpen;
 
   const handleLogout = async () => {
     try {
@@ -55,19 +58,22 @@ export default function Sidebar({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMobileOpen?.(false)}
-            className="lg:hidden fixed inset-0 bg-brand-primary/60 backdrop-blur-md z-40"
+            className="lg:hidden fixed inset-0 bg-brand-primary/60 backdrop-blur-md z-[60]"
           />
         )}
       </AnimatePresence>
 
       <motion.aside
+        initial={false}
         animate={{
-          width: 280,
-          left: isMobileOpen ? 0 : (collapsed ? -280 : 0)
+          width: 280
         }}
         className={cn(
-          "fixed top-0 bottom-0 z-50 bg-brand-primary border-r border-white/5 flex flex-col transition-all duration-300 ease-in-out",
-          collapsed ? "items-center" : "items-start"
+          "fixed top-0 bottom-0 z-[70] bg-brand-primary border-r border-white/5 flex flex-col transition-transform duration-300 ease-in-out",
+          collapsed ? "items-center" : "items-start",
+          "-translate-x-full lg:translate-x-0",
+          isMobileOpen && "translate-x-0",
+          _collapsed && "lg:-translate-x-full"
         )}
       >
         {/* Header Slab */}
@@ -155,15 +161,15 @@ export default function Sidebar({
                             "group flex items-center gap-4 py-3.5 transition-all relative overflow-hidden rounded-xl",
                             collapsed ? "justify-center px-0 w-12 mx-auto" : "px-4",
                             isActive
-                              ? "bg-brand-secondary/15 text-white shadow-lg shadow-brand-secondary/10"
-                              : "text-white/40 hover:bg-white/5 hover:text-white"
+                              ? "bg-brand-secondary/30 text-white shadow-lg shadow-brand-secondary/20"
+                              : "text-white/40 hover:bg-white/10 hover:text-white"
                           )}
                         >
                           {/* Active Slab Indicator */}
                           {isActive && (
                             <motion.div
                               layoutId="active-nav-slab"
-                              className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-brand-secondary rounded-full shadow-[0_0_8px_rgba(135,214,141,0.5)]"
+                              className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-brand-secondary rounded-full shadow-[0_0_8px_rgba(106,181,71,0.8)]"
                             />
                           )}
 

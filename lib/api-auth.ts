@@ -76,7 +76,8 @@ export async function getAuthUser(): Promise<AuthUser | null> {
       role: user.role,
       campus: user.campus,
     };
-  } catch {
+  } catch (error) {
+    console.error("[getAuthUser] Error:", error);
     return null;
   }
 }

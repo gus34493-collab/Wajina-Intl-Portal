@@ -219,8 +219,8 @@ export default function NextChapter() {
                       (e.currentTarget.style.color = "var(--color-cinematic-bone)")
                     }
                     onMouseLeave={(e) =>
-                      (e.currentTarget.style.color =
-                        item.accent === "var(--color-cinematic-moss)" ? "#8ed464" : "#f0954d")
+                    (e.currentTarget.style.color =
+                      item.accent === "var(--color-cinematic-moss)" ? "#8ed464" : "#f0954d")
                     }
                   >
                     Learn More

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
+import { Role } from "@prisma/client";
 import { getAuthUser, unauthorized, forbidden, badRequest, serverError, getIP } from "@/lib/api-auth";
 import { audit } from "@/lib/audit";
 
@@ -16,7 +17,7 @@ const ADMIN_ROLES = ["DIRECTOR", "PRINCIPAL", "HEAD_TEACHER", "VP_ADMIN", "HR"];
 
 const USER_SELECT = {
   id: true, email: true, name: true, role: true, status: true, phone: true,
-  profilePhoto: true, salary: true, joinedAt: true, departmentId: true, campus: true,
+  profilePhoto: true, salary: true, joinedAt: true, campus: true,
   createdAt: true, updatedAt: true,
   enrolledArm: { select: { id: true, fullName: true, class: { select: { name: true, campus: true } } } },
   managedArms: { select: { id: true, fullName: true } },
@@ -45,13 +46,26 @@ export async function GET(req: NextRequest) {
 
     const isStaffOrTeacher = ["TEACHER", "FORM_TEACHER"].includes(role);
     const forcedRole = isStaffOrTeacher ? "STUDENT" : roleFilter;
+    
+    let roleQuery;
+    if (forcedRole) {
+      if (forcedRole.includes(',')) {
+        roleQuery = { in: forcedRole.split(',').map(r => r.trim() as Role) };
+      } else {
+        roleQuery = forcedRole as Role;
+      }
+    }
+
     const campusFilter = role !== "DIRECTOR" ? (user.campus as string) : campus;
 
     const isPowerful = ["DIRECTOR", "HR", "BURSAR"].includes(role);
-    const select = isPowerful ? USER_SELECT : { ...USER_SELECT, salary: false };
+    const select: any = { ...USER_SELECT };
+    if (!isPowerful) {
+      delete select.salary;
+    }
 
     const where: any = {
-      ...(forcedRole && { role: forcedRole }),
+      ...(roleQuery && { role: roleQuery }),
       ...(status && { status }),
       ...(campusFilter && { campus: campusFilter as any }),
       ...(email && { email: { equals: email, mode: "insensitive" } }),

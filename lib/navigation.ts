@@ -61,6 +61,7 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
           { label: "Finances", href: "/director-finances", icon: "fa-file-invoice-dollar" },
           { label: "Operations Hub", href: "/operations-hub", icon: "fa-gears" },
           { label: "Academics", href: "/director-academics", icon: "fa-graduation-cap" },
+          { label: "Subject Allocation", href: "/subject-allocation", icon: "fa-book" },
           { label: "Retention Analysis", href: "/retention-analysis", icon: "fa-chart-line" },
           { label: "Audit Logs", href: "/director-audit-logs", icon: "fa-list-check" },
           { label: "Staff Management", href: "/staff-directory", icon: "fa-users" },
@@ -78,9 +79,11 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
         title: "CORE",
         items: [
           { label: "Campus Command", href: "/principal-dashboard", icon: "fa-house" },
+          { label: "Class Arms & Subjects", href: "/campus-structure", icon: "fa-sitemap" },
           { label: "Results Review", href: "/review-grades", icon: "fa-table-list" },
           { label: "Archives", href: "/pupil-records", icon: "fa-box-archive" },
           { label: "Approval Queue", href: "/results-approval", icon: "fa-envelope-open-text" },
+          { label: "Results Preview", href: "/results-preview", icon: "fa-eye" },
           { label: "Academic Performance", href: "/academic-performance", icon: "fa-chart-simple" },
           { label: "Parent Relations", href: "/parent-relations-dashboard", icon: "fa-handshake-angle" },
           { label: "Lesson Plans / Exam Questions", href: "/teacher-submissions-review", icon: "fa-file-signature" },
@@ -100,6 +103,7 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
         title: "GENERAL",
         items: [
           { label: "Overview", href: "/principal-dashboard", icon: "fa-house" },
+          { label: "School Structure", href: "/campus-structure", icon: "fa-sitemap" },
           { label: "Staff Management", href: "/staff-directory", icon: "fa-user-tie" },
           { label: "Lesson Plans / Exam Questions Review", href: "/teacher-submissions-review", icon: "fa-file-signature" },
           { label: "Archives", href: "/pupil-records", icon: "fa-box-archive" },
@@ -118,6 +122,7 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
         title: "MANAGEMENT",
         items: [
           { label: "Staff Management", href: "/staff-directory", icon: "fa-users" },
+          { label: "School Structure", href: "/campus-structure", icon: "fa-sitemap" },
           { label: "Admissions Queue", href: "/admissions-dashboard", icon: "fa-address-book" },
           { label: "Session Planner", href: "/session-planner", icon: "fa-calendar-check" },
           { label: "Approval Queue", href: "/results-approval", icon: "fa-inbox" },
@@ -164,8 +169,11 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
         title: "GENERAL",
         items: [
           { label: "Campus Overview", href: "/head-teacher-dashboard", icon: "fa-school" },
+          { label: "School Structure", href: "/campus-structure", icon: "fa-sitemap" },
           { label: "Fee Compliance", href: "/fee-compliance", icon: "fa-money-check-dollar" },
           { label: "Results Review / Publish", href: "/results-approval", icon: "fa-file-signature" },
+          { label: "Results Preview", href: "/results-preview", icon: "fa-eye" },
+          { label: "Subject Allocation", href: "/subject-allocation", icon: "fa-book" },
           { label: "Archives", href: "/pupil-records", icon: "fa-box-archive" },
           { label: "Staff Directory", href: "/staff-directory", icon: "fa-users" },
           { label: "Lesson Plan / Exam Review", href: "/teacher-submissions-review", icon: "fa-book-open" },
@@ -185,6 +193,7 @@ export const NAVIGATION_REGISTRY: Record<string, RoleConfig> = {
         title: "GENERAL",
         items: [
           { label: "Campus Overview", href: "/head-teacher-dashboard", icon: "fa-school" },
+          { label: "School Structure", href: "/campus-structure", icon: "fa-sitemap" },
           { label: "Fee Compliance", href: "/fee-compliance", icon: "fa-money-check-dollar" },
           { label: "Results Review / Publish", href: "/results-approval", icon: "fa-file-signature" },
           { label: "Archives", href: "/pupil-records", icon: "fa-box-archive" },

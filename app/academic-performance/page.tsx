@@ -24,7 +24,7 @@ export default function AcademicPerformance() {
       try {
         const res = await fetch("/api/analytics/subjects");
         const data = await res.json();
-        setSubjects(Array.isArray(data.subjects) ? data.subjects : []);
+        setSubjects(Array.isArray(data) ? data : (data.subjects || []));
       } catch (err) {
         console.error("Failed to fetch academic analytics:", err);
       } finally {
